@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# WorkBuddy 内部工作数据（记忆、本地状态等，不对外发布）
+.workbuddy/
+
+# Python
+__pycache__/
+*.pyc

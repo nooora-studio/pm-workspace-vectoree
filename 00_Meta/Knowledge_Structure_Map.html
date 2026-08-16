@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vectoree 知识库结构图谱</title>
+<style>
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface-2: #F1EFE8;
+    --border: #E5E2D8;
+    --text: #2C2C2A;
+    --text-2: #5F5E5A;
+    --text-3: #888780;
+    --purple: #534AB7;
+    --purple-bg: #EEEDFE;
+    --purple-strong: #3C3489;
+    --blue: #185FA5;
+    --blue-bg: #E6F1FB;
+    --blue-strong: #0C447C;
+    --teal: #0F6E56;
+    --teal-bg: #E1F5EE;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --amber-strong: #633806;
+    --green: #3B6D11;
+    --green-bg: #EAF3DE;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --gray: #5F5E5A;
+    --gray-bg: #F1EFE8;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 24px 16px 48px;
+  }
+  .page { max-width: 980px; margin: 0 auto; }
+
+  .header {
+    background: linear-gradient(135deg, #3C3489 0%, #534AB7 60%, #185FA5 100%);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 32px 36px;
+    margin-bottom: 24px;
+  }
+  .header h1 { font-size: 26px; font-weight: 600; letter-spacing: 0.5px; }
+  .header .sub { margin-top: 8px; font-size: 14px; opacity: 0.9; }
+  .header .meta { margin-top: 16px; display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; opacity: 0.85; }
+  .header .meta span { display: inline-flex; align-items: center; gap: 6px; }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .section h2 {
+    font-size: 17px; font-weight: 600; color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 4px;
+  }
+  .section h2 .badge {
+    font-size: 11px; font-weight: 500;
+    padding: 2px 10px; border-radius: 20px;
+    background: var(--purple-bg); color: var(--purple-strong);
+  }
+  .section .desc { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; font-size: 12px; color: var(--text-2); }
+  .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+  .arch { display: flex; flex-direction: column; gap: 0; }
+  .arch-row { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 14px 18px; border-radius: var(--radius-sm); position: relative; }
+  .arch-row .row-title { font-size: 14px; font-weight: 600; }
+  .arch-row .row-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+  .arch-row .row-tag { position: absolute; right: 16px; top: 14px; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+  .arch-meta { background: var(--purple-bg); border: 1px solid #CECBF6; }
+  .arch-meta .row-tag { background: var(--purple); color: #fff; }
+  .arch-shared { background: var(--blue-bg); border: 1px solid #B5D4F4; }
+  .arch-shared .row-tag { background: var(--blue); color: #fff; }
+  .arch-personal { background: var(--amber-bg); border: 1px solid #FAC775; }
+  .arch-personal .row-tag { background: var(--amber); color: #fff; }
+  .arch-arrow { text-align: center; font-size: 11px; color: var(--text-3); padding: 2px 0; letter-spacing: 1px; }
+  .arch-shared .col-box { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .arch-shared .col-box .col { flex: 1; min-width: 140px; background: rgba(255,255,255,0.7); border: 1px solid #B5D4F4; border-radius: var(--radius-sm); padding: 8px 12px; }
+  .arch-shared .col-box .col .col-name { font-size: 12px; font-weight: 600; color: var(--blue-strong); }
+  .arch-shared .col-box .col .col-desc { font-size: 11px; color: var(--blue); margin-top: 2px; }
+
+  .tree-wrap { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background: #FCFBF8; max-height: 420px; overflow-y: auto; }
+  .tree { font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; font-size: 12.5px; }
+  .tree .dir { color: var(--blue-strong); font-weight: 600; }
+  .tree .file { color: var(--text); }
+  .tree .cmt { color: var(--text-3); font-size: 11px; }
+  .tree .lvl1 { margin: 6px 0 2px; }
+  .tree .lvl2 { margin-left: 24px; }
+  .tree .lvl3 { margin-left: 48px; }
+  .tree .lvl4 { margin-left: 72px; }
+  .tree .lvl5 { margin-left: 96px; }
+
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-step { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; }
+  .flow-step .node-num { width: 28px; height: 28px; border-radius: 50%; background: var(--blue-bg); color: var(--blue-strong); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .flow-step .node-body { flex: 1; }
+  .flow-step .node-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .flow-step .node-desc { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
+  .flow-step .node-arrow { color: var(--text-3); font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 8px; }
+  .flow-step .node-arrow::before { content: ""; flex: 0 0 1px; height: 18px; background: var(--border); }
+  .flow-step .node-arrow .ar { font-size: 16px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 18px; background: var(--surface); }
+  .card h3 { font-size: 13.5px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .card h3 .ic { width: 20px; height: 20px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+  .card ul { list-style: none; }
+  .card li { font-size: 12.5px; color: var(--text-2); padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .card li:last-child { border-bottom: none; }
+  .card li code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; font-size: 11.5px; color: var(--text); font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .card li .ok { color: var(--green); }
+  .card li .no { color: var(--red); }
+
+  .status-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; margin: 8px 0 14px; }
+  .status-pill { padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+  .st-draft { background: var(--amber-bg); color: var(--amber-strong); }
+  .st-review { background: var(--blue-bg); color: var(--blue-strong); }
+  .st-final { background: var(--green-bg); color: var(--green); }
+  .st-archived { background: var(--gray-bg); color: var(--gray); }
+  .st-active { background: var(--purple-bg); color: var(--purple-strong); }
+  .status-flow .sep { color: var(--text-3); font-size: 14px; }
+
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .tag { font-size: 11.5px; padding: 3px 10px; border-radius: 20px; background: var(--surface-2); color: var(--text-2); }
+
+  .footer { text-align: center; font-size: 12px; color: var(--text-3); padding: 16px 0 8px; }
+  .footer code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+
+  @media (max-width: 640px) {
+    .header { padding: 24px 20px; }
+    .section { padding: 18px 16px; }
+    .arch-shared .col-box .col { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Vectoree 知识库结构图谱</h1>
+    <div class="sub">产品知识库全景导航 — 三层架构 · 内容治理 · 命名规范 · 生命周期</div>
+    <div class="meta">
+      <span>📌 版本 v3.0</span>
+      <span>📅 更新于 2026-08-14</span>
+      <span>👤 Owner: PM</span>
+      <span>📄 规范来源: 00_Meta/00_Dir_Structure.md</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>1. 三层架构 <span class="badge">全局视图</span></h2>
+    <div class="desc">知识库按「元规则 → 事实 → 产出 → 认知」四层组织：知识=事实（客观真相），产出=文档（交付物），认知归个人（不共享）。</div>
+    <div class="legend">
+      <span class="item"><span class="dot" style="background:#534AB7"></span> 元规则层</span>
+      <span class="item"><span class="dot" style="background:#185FA5"></span> 事实层（知识）</span>
+      <span class="item"><span class="dot" style="background:#0F6E56"></span> 产出层（文档）</span>
+      <span class="item"><span class="dot" style="background:#854F0B"></span> 个人认知层</span>
+    </div>
+    <div class="arch">
+      <div class="arch-row arch-meta">
+        <div class="row-title">00_Meta/ — 元规则层</div>
+        <div class="row-sub">结构规范 · 模板库 · 命名规则 · 索引 —— 全局约束，所有人遵守</div>
+        <span class="row-tag">GOVERN</span>
+      </div>
+      <div class="arch-arrow">▼ governs 全局约束</div>
+      <div class="arch-row arch-shared">
+        <div class="row-title">事实层（知识）— 团队对齐的客观真相 · 可引用</div>
+        <div class="row-sub">知识=事实：产品事实 + 外部事实</div>
+        <span class="row-tag">FACTS</span>
+        <div class="col-box">
+          <div class="col"><div class="col-name">01_Product/</div><div class="col-desc">产品事实 · 定位/功能/边界/技术/设计</div></div>
+          <div class="col"><div class="col-name">02_Knowledge/</div><div class="col-desc">外部事实 · 竞品/用户/市场档案</div></div>
+        </div>
+      </div>
+      <div class="arch-row arch-shared">
+        <div class="row-title">产出层（文档）— 决策与交付</div>
+        <div class="row-sub">知识=产出：调研/需求/方案/规划/会议/复盘</div>
+        <span class="row-tag">DELIVER</span>
+        <div class="col-box">
+          <div class="col"><div class="col-name">03_Execution/</div><div class="col-desc">调研报告 · 需求 · 方案 · 规划 · 会议 · 复盘</div></div>
+        </div>
+      </div>
+      <div class="arch-arrow">▲ promote 内容提升（验证后 · 规范化后）</div>
+      <div class="arch-row arch-personal">
+        <div class="row-title">_Personal/ — 个人认知层（不共享）</div>
+        <div class="row-sub">术语词典 · 行业认知 · 学习笔记 · 草稿 Drafts —— 厨房，菜做完才端到共享区</div>
+        <span class="row-tag">PRIVATE</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>2. 目录结构全景 <span class="badge">As-Is</span></h2>
+    <div class="desc">当前实际结构树。💡 规划占位（功能/边界/调研/需求等）按需创建，不预建空目录。</div>
+    <div class="tree-wrap">
+      <div class="tree">
+        <div class="lvl1"><span class="dir">pm-workspace-vect/</span> <span class="cmt">← 知识库根目录</span></div>
+        <div class="lvl2"><span class="file">README.md</span> <span class="cmt">知识库首页入口</span></div>
+        <div class="lvl2"><span class="file">SKILL.md</span> <span class="cmt">知识库管家 Skill v1.0</span></div>
+        <div class="lvl2"><span class="dir">00_Meta/</span> <span class="cmt">元规则层</span></div>
+        <div class="lvl3"><span class="file">00_Dir_Structure.md</span> <span class="cmt">← 结构规范（唯一事实来源）</span></div>
+        <div class="lvl3"><span class="file">Knowledge_Structure_Map.html</span> <span class="cmt">← 本图谱</span></div>
+        <div class="lvl2"><span class="dir">01_Product/</span> <span class="cmt">事实层 · 产品事实</span></div>
+        <div class="lvl3"><span class="dir">00_Overview/</span> <span class="cmt">产品概述与拆解报告</span></div>
+        <div class="lvl4"><span class="file">20260813_Vectoree_Product_Deconstruction_Report.md</span></div>
+        <div class="lvl3"><span class="dir">_Assets/</span> <span class="cmt">产品素材</span></div>
+        <div class="lvl4"><span class="dir">Screenshots/</span> <span class="cmt">Vectoree 截图（22 张）</span></div>
+        <div class="lvl2"><span class="dir">02_Knowledge/</span> <span class="cmt">事实层 · 外部事实</span></div>
+        <div class="lvl3"><span class="dir">00_Competitive/</span> <span class="cmt">竞品档案</span></div>
+        <div class="lvl4"><span class="file">Competitor_Matrix.md</span> <span class="cmt">横向对比矩阵</span></div>
+        <div class="lvl4"><span class="dir">Insforge/</span> <span class="cmt">直接竞品</span></div>
+        <div class="lvl5"><span class="file">Profile · Features · Pricing · SWOT</span></div>
+        <div class="lvl4"><span class="dir">OpenRouter/ · Clerk/ · Supabase/ · Vercel/</span> <span class="cmt">间接竞品 ×4</span></div>
+        <div class="lvl2"><span class="dir">_Personal/</span> <span class="cmt">个人认知层（不共享）</span></div>
+        <div class="lvl3"><span class="file">Glossary.md · Industry_Notes.md · Learning_Notes.md</span> <span class="cmt">术语/行业/学习</span></div>
+        <div class="lvl3"><span class="file">Product_Discovery_Journal.md</span> <span class="cmt">调研日志</span></div>
+        <div class="lvl3"><span class="dir">Drafts/</span> <span class="cmt">AI 协作草稿</span></div>
+        <div class="lvl4"><span class="file">Product_Deconstruction_Workspace.md</span> <span class="cmt">拆解工作台</span></div>
+      </div>
+    </div>
+    <div class="tag-row">
+      <span class="tag">📐 规划占位: 01_Features / 02_Scope / 03_Technical / 04_Design / 05_Prototypes</span>
+      <span class="tag">🧠 规划占位: 01_User / 02_Market（外部事实）</span>
+      <span class="tag">🚀 规划新建: 03_Execution（调研 / 需求 / 方案 / 规划 / 会议 / 复盘）</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. 内容治理流程 <span class="badge">核心机制</span></h2>
+    <div class="desc">「厨房 → 餐厅」模型：个人区折腾，成熟后提升到共享区；过期内容单向归档。</div>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="node-num">1</div>
+        <div class="node-body">
+          <div class="node-title">个人区创作（_Personal/）</div>
+          <div class="node-desc">探索日志、AI 协作草稿、学习笔记 —— 不共享，不设约束</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="node-num">2</div>
+        <div class="node-body">
+          <div class="node-title">内容验证与规范化</div>
+          <div class="node-desc">4 个提升条件：内容已验证 ✅ · 结构规范化 ✅ · 他人可独立理解 ✅ · Owner 确认 ✅</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="node-num">3</div>
+        <div class="node-body">
+          <div class="node-title">提升至共享区（promote）</div>
+          <div class="node-desc">竞品调研 → 02_Knowledge/00_Competitive/ · 拆解结论 → 01_Product/00_Overview/ · 学习沉淀 → 02_Knowledge/01_User/</div>
+          <div class="node-arrow"><span class="ar">↓</span> 内容过时或被替代</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="node-num">4</div>
+        <div class="node-body">
+          <div class="node-title">归档（_ARCHIVED/）—— 只进不出</div>
+          <div class="node-desc">旧版本加 _vN 后缀存入归档区，一旦归档不再修改；需更新则在正式目录新建</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>4. 命名规范速查 <span class="badge">Quick Ref</span></h2>
+    <div class="desc">新增任何文件前，先对照此表。</div>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="ic" style="background:#534AB7">📁</span> 目录</h3>
+        <ul>
+          <li>顶级/子目录：<code>NN_Name/</code></li>
+          <li>竞品目录：<code>Insforge/</code>（无数字前缀）</li>
+          <li>辅助目录：<code>_Assets/</code> <code>_ARCHIVED/</code></li>
+          <li>月份归档：<code>2026_08/</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="ic" style="background:#185FA5">📄</span> 文件</h3>
+        <ul>
+          <li>通用：<code>Word_Word.md</code></li>
+          <li>报告：<code>YYYYMMDD_Target_Type.md</code></li>
+          <li>会议：<code>YYYYMMDD_Topic_Meeting.md</code></li>
+          <li>PRD：<code>NN_Feature_PRD.md</code></li>
+          <li>版本化：旧版加 <code>_vN</code> 进归档</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="ic" style="background:#0F6E56">🖼</span> 截图</h3>
+        <ul>
+          <li class="ok">✅ <code>Dashboard-Auth.png</code></li>
+          <li class="ok">✅ <code>Homepage-03-Workflow.png</code></li>
+          <li class="no">❌ <code>Dashboard-01.png</code>（编号无语义）</li>
+          <li class="no">❌ <code>Dashboard- Logs.png</code>（多余空格）</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="ic" style="background:#854F0B">🏷</span> 元数据</h3>
+        <ul>
+          <li>共享区必填 <code>Front Matter</code></li>
+          <li>字段：title/description/author/created/updated/status/version/tags/owners</li>
+          <li>个人区仅需 title + updated</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>5. 文档生命周期 <span class="badge">Status</span></h2>
+    <div class="desc">状态是文档成熟度的唯一标尺，决定谁可以修改、能否共享。</div>
+    <div class="status-flow">
+      <span class="status-pill st-draft">DRAFT 草稿</span>
+      <span class="sep">→</span>
+      <span class="status-pill st-review">REVIEW 评审</span>
+      <span class="sep">→</span>
+      <span class="status-pill st-final">FINAL 定稿</span>
+      <span class="sep">→</span>
+      <span class="status-pill st-archived">ARCHIVED 归档</span>
+    </div>
+    <div class="tag-row">
+      <span class="tag">ACTIVE: 持续维护型文档（README / 本规范 / 本图谱）</span>
+      <span class="tag">规则: DRAFT→REVIEW 作者提交评审 · REVIEW→FINAL Owner 确认 · FINAL→ARCHIVED 过期或被替代 · 归档只进不出</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    本图谱由 <code>00_Meta/00_Dir_Structure.md</code> 结构规范生成 · 结构变更时请同步更新 · 使用浏览器打开即可分享
+  </div>
+
+</div>
+</body>
+</html>

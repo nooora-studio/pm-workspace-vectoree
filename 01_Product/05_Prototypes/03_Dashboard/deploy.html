@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deploy — Vectoree</title>
+  <link rel="icon" type="image/svg+xml" href="../_Assets/vee-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_Assets/tokens.css">
+  <style>
+    /* ═══════ Dashboard 布局 ═══════ */
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); font-size: var(--fs-md); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    .dash { display: grid; grid-template-columns: var(--sidebar-width) 1fr; min-height: 100vh; }
+    .dash__sidebar { border-right: 1px solid var(--ink); background: var(--paper); display: flex; flex-direction: column; }
+    .dash__main { min-width: 0; display: flex; flex-direction: column; }
+
+    /* ── Sidebar 顶部 ── */
+    .dash__sidebar-top { padding: var(--sp-4) var(--sp-5) var(--sp-4); border-bottom: 1px solid var(--ink); }
+    .dash__brand { display: flex; align-items: center; gap: 8px; margin-bottom: var(--sp-4); }
+    .dash__brand img { width: 22px; height: 22px; }
+    .dash__brand span { font-family: var(--font-display); font-size: var(--fs-sm); letter-spacing: 0.02em; }
+    .dash__brand .v2 { color: var(--gray); }
+    .org-pill, .proj-pill {
+      display: flex; align-items: center; justify-content: space-between; width: 100%;
+      font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      text-align: left; cursor: pointer; background: var(--white);
+      border: 1px solid var(--ink); padding: 7px 10px; margin-bottom: 6px;
+    }
+    .proj-pill { background: var(--acid); }
+    .org-pill span, .proj-pill span { color: var(--ink); font-size: 10px; }
+
+    /* ── Sidebar 导航 ── */
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: var(--sp-4) 0; }
+    .sidebar-nav__group { margin-bottom: var(--sp-5); }
+    .sidebar-nav__group-title { font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray); padding: 0 var(--sp-5); margin-bottom: var(--sp-2); }
+    .sidebar-nav__list { display: flex; flex-direction: column; }
+    .sidebar-nav__item a {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-size: var(--fs-sm);
+      padding: 8px var(--sp-5); border-left: 3px solid transparent;
+    }
+    .sidebar-nav__item a:hover { background: var(--acid-soft); }
+    .sidebar-nav__item--active a { background: var(--acid); border-left-color: var(--ink); font-weight: 700; }
+    .sidebar-nav__icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-nav__footer { padding: var(--sp-3) 0; border-top: 1px solid var(--ink); }
+
+    /* ── Topbar ── */
+    .dash__topbar {
+      height: var(--topbar-height); display: flex; align-items: center; gap: var(--sp-4);
+      padding: 0 var(--sp-5); border-bottom: 1px solid var(--ink);
+      background: var(--white);
+    }
+    .dash__topbar-spacer { flex: 1; }
+    .dash__topbar-actions { display: flex; align-items: center; gap: var(--sp-3); }
+    .lang-switch { display: flex; border: 1px solid var(--ink); }
+    .lang-switch button { font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700; background: transparent; border: 0; padding: 4px 9px; cursor: pointer; color: var(--ink); }
+    .lang-switch button + button { border-left: 1px solid var(--ink); }
+    .lang-switch button.active { background: var(--ink); color: var(--paper); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 8px 14px; cursor: pointer;
+      border: 2px solid var(--ink); background: var(--white); color: var(--ink);
+      box-shadow: var(--shadow-hard-sm);
+      transition: transform 0.06s, box-shadow 0.06s;
+      white-space: nowrap;
+    }
+    .btn:hover { box-shadow: var(--shadow-hard-md); transform: translate(-1px,-1px); }
+    .btn:active { box-shadow: var(--shadow-press); transform: translate(1px,1px); }
+    .btn--primary { background: var(--acid); color: var(--ink); }
+    .btn--dark { background: var(--ink); color: var(--paper); }
+    .btn--sm { padding: 5px 10px; font-size: var(--fs-xs); }
+
+    /* ── 内容区 ── */
+    .dash__content { padding: var(--sp-6) var(--sp-6) var(--sp-10); }
+    .dash__page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--sp-4); margin-bottom: var(--sp-6); }
+    .dash__page-title { font-family: var(--font-display); font-size: 1.75rem; text-transform: uppercase; line-height: 1.05; margin-bottom: 4px; }
+    .dash__page-sub { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--gray); }
+    .badge {
+      display: inline-block; font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      letter-spacing: 0.08em; padding: 4px 10px; border: 1px solid var(--ink); background: var(--white);
+    }
+    .badge--status { background: var(--acid); }
+    .badge--ok { background: #00C853; color: #fff; border-color: #00C853; }
+
+    /* ── Connect Block（终端） ── */
+    .connect-block {
+      background: var(--ink); color: var(--paper);
+      border: 2px solid var(--ink); border-right: 4px solid var(--acid); border-bottom: 4px solid var(--acid);
+      padding: var(--sp-5); margin-bottom: var(--sp-6);
+    }
+    .connect-block__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+    .connect-block__title { font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 700; letter-spacing: 0.05em; }
+    .connect-block__icons { display: flex; gap: var(--sp-2); }
+    .connect-block__icons span { width: 22px; height: 22px; background: #2a2a2a; display: grid; place-items: center; font-size: 10px; color: var(--gray); border: 1px solid #2a2a2a; }
+    .connect-block__code { background: #1a1a1a; border: 1px solid #2a2a2a; padding: var(--sp-4); font-family: var(--font-mono); font-size: var(--fs-sm); line-height: 1.9; color: var(--paper); }
+    .connect-block__code .comment { color: var(--gray); }
+    .connect-block__code .prompt { color: var(--acid); }
+    .connect-block__foot { display: flex; justify-content: space-between; align-items: center; margin-top: var(--sp-4); font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--gray); }
+
+    /* ── 统计卡 ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-6); }
+    .stat-card { background: var(--white); border: 2px solid var(--ink); box-shadow: var(--shadow-hard-sm); padding: var(--sp-5); }
+    .stat-card__label { font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); margin-bottom: var(--sp-3); }
+    .stat-card__value { font-family: var(--font-display); font-size: var(--fs-2xl); line-height: 1; margin-bottom: 6px; }
+    .stat-card__sub { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--gray); }
+    @media (max-width: 1100px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+
+    /* ── Panel / 图表 ── */
+    .panel { background: var(--white); border: 2px solid var(--ink); box-shadow: var(--shadow-hard-sm); padding: var(--sp-5); margin-bottom: var(--sp-6); }
+    .panel__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-4); }
+    .panel__title { font-family: var(--font-mono); font-size: var(--fs-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .panel__chip { padding: 4px 10px; font-family: var(--font-mono); font-size: var(--fs-xs); border: 1px solid var(--ink); cursor: pointer; background: var(--white); }
+    .panel__chip--active { background: var(--ink); color: var(--paper); }
+    .chart { width: 100%; height: 200px; background:
+      linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/40px 40px;
+      border: 1px solid var(--line-soft); position: relative; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+    @media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr; } }
+    .card { background: var(--white); border: 2px solid var(--ink); padding: var(--sp-5); }
+  </style>
+</head>
+<body>
+
+  <div class="dash">
+
+    <!-- ════ Sidebar ════ -->
+    <aside class="dash__sidebar">
+      <div class="dash__sidebar-top">
+        <a class="dash__brand" href="../index.html">
+          <img src="../_Assets/vee-logo.svg" alt="Vee">
+          <span>VECT<span class="v2">OREE</span></span>
+        </a>
+        <button class="org-pill">NORA 的组织 <span>▾</span></button>
+        <button class="proj-pill">/ Default Project <span>▾</span></button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-nav__group">
+          <div class="sidebar-nav__group-title">Overview</div>
+          <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item"><a href="overview.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9M5 10v10h4v-6h6v6h4V10"/></svg>
+              Dashboard
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-nav__group">
+          <div class="sidebar-nav__group-title">Build</div>
+          <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item"><a href="model-plaza.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+              Model Plaza
+            </a></li>
+            <li class="sidebar-nav__item"><a href="templates.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Templates
+            </a></li>
+            <li class="sidebar-nav__item"><a href="skills-hub.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Skills Hub
+            </a></li>
+            <li class="sidebar-nav__item"><a href="api-keys.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15L19 4M18 5l2 2M15 8l2 2"/></svg>
+              API Keys
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-nav__group">
+          <div class="sidebar-nav__group-title">App Stack</div>
+          <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item"><a href="auth.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="0"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Auth
+            </a></li>
+            <li class="sidebar-nav__item"><a href="payments.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="0"/><path d="M2 10h20"/></svg>
+              Payments
+            </a></li>
+            <li class="sidebar-nav__item"><a href="database.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg>
+              Database
+            </a></li>
+            <li class="sidebar-nav__item"><a href="storage.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              Storage
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-nav__group">
+          <div class="sidebar-nav__group-title">Ship</div>
+          <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item sidebar-nav__item--active"><a href="deploy.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              Deploy
+            </a></li>
+            <li class="sidebar-nav__item"><a href="logs.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Logs
+            </a></li>
+          </ul>
+        </div>
+
+        <div class="sidebar-nav__footer">
+          <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item"><a href="settings.html">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Settings
+              <span style="margin-left: auto; font-size: var(--fs-xs); border: 1px solid var(--ink); padding: 1px 5px;">⌘</span>
+            </a></li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- ════ Main ════ -->
+    <div class="dash__main">
+
+      <header class="dash__topbar">
+        <span class="eyebrow" style="font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--gray); letter-spacing: 0.1em;">// Default Project</span>
+        <div class="dash__topbar-spacer"></div>
+        <div class="dash__topbar-actions">
+          <div class="lang-switch">
+            <button class="active">EN</button>
+            <button>中文</button>
+          </div>
+          <button class="btn btn--dark btn--sm">⌘K</button>
+          <button class="btn btn--primary btn--sm">CONNECT</button>
+          <div style="width: 30px; height: 30px; background: var(--acid); border: 2px solid var(--ink); display: grid; place-items: center; font-family: var(--font-mono); font-weight: 700; font-size: var(--fs-xs);">WE</div>
+        </div>
+      </header>
+
+      <div class="dash__content">
+        <div class="connect-block">
+          <div class="connect-block__head">
+            <span class="connect-block__title">&gt;_ DEPLOY</span>
+            <button class="btn btn--primary btn--sm">↻ Re-deploy</button>
+          </div>
+          <div class="connect-block__code">
+<span class="prompt">$</span> vee deploy --prod<br>
+▲ 42 files · 8.2 MB · 1.8s build<br>
+✓ pushed to global edge · 14 regions<br>
+→ live at <span style="color: var(--acid);">my-agent.vectoree.app</span> <span class="prompt">⚡ 1.8s</span>
+          </div>
+          <div class="connect-block__foot">
+            <span>Last deploy: 2 minutes ago · commit a1b2c3d</span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel__head"><h2 class="panel__title">Domains</h2></div>
+          <table style="width:100%; border-collapse:collapse; font-family: var(--font-mono); font-size: var(--fs-sm);">
+            <tbody>
+              <tr style="border-bottom:1px solid var(--row-line);">
+                <td style="padding:10px;"><strong>my-agent.vectoree.app</strong></td>
+                <td style="padding:10px;"><span class="badge" style="background:#00C853; color:#fff; border-color:#00C853;">● LIVE</span></td>
+                <td style="padding:10px; text-align:right;"><button class="btn btn--ghost btn--sm">Configure</button></td>
+              </tr>
+              <tr>
+                <td style="padding:10px;"><strong>agent.yourcompany.com</strong></td>
+                <td style="padding:10px; color:var(--gray);">DNS pending</td>
+                <td style="padding:10px; text-align:right;"><button class="btn btn--ghost btn--sm">Configure</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel__head"><h2 class="panel__title">Deploy history</h2></div>
+          <div style="font-family: var(--font-mono); font-size: var(--fs-sm); line-height: 1.9;">
+            <div style="padding:8px 0; border-bottom:1px solid var(--row-line);"><span style="color:#00C853;">●</span> a1b2c3d · 2 min ago · production</div>
+            <div style="padding:8px 0; border-bottom:1px solid var(--row-line);"><span style="color:#00C853;">●</span> e4f5g6h · 1 hour ago · production</div>
+            <div style="padding:8px 0;"><span style="color:var(--gray);">●</span> i7j8k9l · 3 hours ago · rolled back</div>
+          </div>
+        </div>
+        </div>
+    </div>
+  </div>
+
+</body>
+</html>
