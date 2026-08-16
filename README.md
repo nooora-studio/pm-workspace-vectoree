@@ -224,3 +224,9 @@ tags: ["tag1", "tag2"]
 owners: ["Owner_Name"]
 ---
 ```
+
+---
+
+## 更新记录
+
+- 2026-08-16：工程推送至 GitHub（yuki-studio/pm-workspace-vectorre），启用 git 增量更新流程。
