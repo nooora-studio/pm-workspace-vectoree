@@ -7,3 +7,6 @@
 # Python
 __pycache__/
 *.pyc
+
+# Vectoree 本地凭据（含 API Key / Token，禁止提交到仓库）
+.vectoree/
