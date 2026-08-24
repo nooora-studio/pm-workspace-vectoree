@@ -1,0 +1,7 @@
+{
+  "name": "vectoree-figma-bootstrap",
+  "id": "vectoree-figma-bootstrap",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": ["figma"]
+}

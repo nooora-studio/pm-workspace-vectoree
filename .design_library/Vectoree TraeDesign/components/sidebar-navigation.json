@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 2,
+  "slug": "sidebar-navigation",
+  "name": "Sidebar Navigation",
+  "category": "navigation",
+  "sourceKind": "structured-spec",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    "dashboard sidebar",
+    "sectioned nav rail",
+    "persistent workspace navigation"
+  ],
+  "variantDimensions": {
+    "itemState": [
+      "default",
+      "hover",
+      "active"
+    ],
+    "groupType": [
+      "overview",
+      "build",
+      "app-stack",
+      "ship"
+    ]
+  },
+  "representativeVariants": [
+    {
+      "itemState": "active",
+      "groupType": "overview"
+    },
+    {
+      "itemState": "hover",
+      "groupType": "build"
+    },
+    {
+      "itemState": "default",
+      "groupType": "ship"
+    }
+  ],
+  "anatomy": [
+    "rail",
+    "brand-block",
+    "section-label",
+    "nav-item",
+    "nav-icon",
+    "active-indicator",
+    "footer-link"
+  ],
+  "structurePatterns": [
+    "The rail is always visible in dashboard contexts and acts as the main orientation scaffold.",
+    "Group labels use uppercase mono text and generous spacing to separate navigation chapters.",
+    "Active items combine an acid fill with a hard left indicator instead of soft pills."
+  ],
+  "usageHints": [
+    "Base rail uses --color-page while active items use --color-accent-primary and strong borders.",
+    "Hover states should stay lighter than active by using --color-surface-soft.",
+    "Item typography should remain mono and narrow to preserve the utilitarian control-panel feeling."
+  ],
+  "doNotInvent": [
+    "No translucent floating sidebar.",
+    "No icon-only collapsed rail unless a separate compact mode is defined later."
+  ],
+  "unknowns": [
+    "Collapsed behavior for smaller desktop widths is not fully specified."
+  ],
+  "tokensConsumed": [
+    "--color-page",
+    "--color-surface",
+    "--color-surface-soft",
+    "--color-accent-primary",
+    "--color-text-primary",
+    "--color-text-secondary",
+    "--color-border-strong",
+    "--layout-sidebar-width",
+    "--type-font-display",
+    "--type-font-mono",
+    "--type-size-xs",
+    "--type-size-sm",
+    "--sp-3",
+    "--sp-4",
+    "--sp-5",
+    "--radius-none"
+  ],
+  "domAnatomy": {
+    "root": {
+      "tag": "aside",
+      "class": "ds-sidebar",
+      "children": [
+        {
+          "tag": "div",
+          "class": "ds-sidebar__brand"
+        },
+        {
+          "tag": "nav",
+          "class": "ds-sidebar__nav",
+          "children": [
+            {
+              "tag": "section",
+              "class": "ds-sidebar__group"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "preview": "preview/component-sidebar-navigation.html",
+    "source": "specs/dashboard-overview.html",
+    "css": {
+      "file": "components.css",
+      "marker": "Sidebar Navigation"
+    }
+  }
+}

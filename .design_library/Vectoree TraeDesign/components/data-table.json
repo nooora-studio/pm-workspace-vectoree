@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 2,
+  "slug": "data-table",
+  "name": "Data Table",
+  "category": "data-display",
+  "sourceKind": "structured-spec",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    "operations table",
+    "project listing table",
+    "usage ledger table"
+  ],
+  "variantDimensions": {
+    "density": [
+      "default",
+      "compact"
+    ],
+    "rowState": [
+      "default",
+      "hover",
+      "selected"
+    ]
+  },
+  "representativeVariants": [
+    {
+      "density": "default",
+      "rowState": "default"
+    },
+    {
+      "density": "default",
+      "rowState": "hover"
+    },
+    {
+      "density": "compact",
+      "rowState": "selected"
+    }
+  ],
+  "anatomy": [
+    "table-shell",
+    "thead",
+    "header-cell",
+    "tbody",
+    "row",
+    "cell",
+    "row-action"
+  ],
+  "structurePatterns": [
+    "Tables sit inside a bordered panel rather than floating directly on the page.",
+    "Header rows use strong contrast and mono labels while body rows rely on thin separators and whitespace.",
+    "Actions at row end should feel like utility controls, not dominant CTAs."
+  ],
+  "usageHints": [
+    "Use --color-surface for the shell, --color-border-strong for table outline, and --color-row-line for dividers.",
+    "Header cells can invert to --color-surface-inverse with --color-text-inverse for strong structure.",
+    "Rows may use a subtle acid wash on hover, but selected states should remain crisp and rectangular."
+  ],
+  "doNotInvent": [
+    "No zebra striping unless explicitly needed for data-heavy pages.",
+    "No rounded corner data grid."
+  ],
+  "unknowns": [
+    "Sorting and multi-select patterns are not explicitly shown in the available source."
+  ],
+  "tokensConsumed": [
+    "--color-surface",
+    "--color-surface-inverse",
+    "--color-surface-soft",
+    "--color-text-primary",
+    "--color-text-inverse",
+    "--color-text-secondary",
+    "--color-border-strong",
+    "--color-row-line",
+    "--color-accent-primary",
+    "--type-font-body",
+    "--type-font-mono",
+    "--type-size-xs",
+    "--type-size-sm",
+    "--sp-3",
+    "--sp-4",
+    "--shadow-card",
+    "--radius-none"
+  ],
+  "domAnatomy": {
+    "root": {
+      "tag": "div",
+      "class": "ds-table",
+      "children": [
+        {
+          "tag": "table",
+          "children": [
+            {
+              "tag": "thead"
+            },
+            {
+              "tag": "tbody"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "preview": "preview/component-data-table.html",
+    "source": "specs/dashboard-overview.html",
+    "css": {
+      "file": "components.css",
+      "marker": "Data Table"
+    }
+  }
+}

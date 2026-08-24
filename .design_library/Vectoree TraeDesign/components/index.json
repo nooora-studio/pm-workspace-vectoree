@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 2,
+  "library": "Vectoree TraeDesign",
+  "sourceKind": "structured-spec",
+  "summary": "A lightweight upgraded Vectoree design system for AI backend console and marketing surfaces, preserving the acid brutalist language while exposing a cleaner consumption layer for TraeDesign import.",
+  "crossComponentPatterns": [
+    "The system keeps hard-edged rectangles, visible borders, and offset shadows as the primary tactile language.",
+    "Display typography uses an aggressive uppercase voice, while microcopy and controls rely on mono labeling for an operational feel.",
+    "Acid accent is reserved for moments of commitment, activation, and status emphasis; most surfaces stay pale or inverted black.",
+    "Graph-paper backgrounds and console-like rhythm unify the homepage, auth flows, and dashboard pages."
+  ],
+  "uiKits": [
+    {
+      "type": "dashboard",
+      "entry": "ui_kits/dashboard/index.html"
+    }
+  ],
+  "components": [
+    {
+      "slug": "button",
+      "name": "Button",
+      "category": "action",
+      "preview": "preview/component-button.html",
+      "contract": "components/button.json",
+      "sourceKind": "structured-spec",
+      "confidence": "medium",
+      "tokensConsumedCount": 17
+    },
+    {
+      "slug": "input",
+      "name": "Input",
+      "category": "input",
+      "preview": "preview/component-input.html",
+      "contract": "components/input.json",
+      "sourceKind": "structured-spec",
+      "confidence": "medium",
+      "tokensConsumedCount": 17
+    },
+    {
+      "slug": "card",
+      "name": "Card",
+      "category": "container",
+      "preview": "preview/component-card.html",
+      "contract": "components/card.json",
+      "sourceKind": "structured-spec",
+      "confidence": "medium",
+      "tokensConsumedCount": 15
+    },
+    {
+      "slug": "sidebar-navigation",
+      "name": "Sidebar Navigation",
+      "category": "navigation",
+      "preview": "preview/component-sidebar-navigation.html",
+      "contract": "components/sidebar-navigation.json",
+      "sourceKind": "structured-spec",
+      "confidence": "medium",
+      "tokensConsumedCount": 16
+    },
+    {
+      "slug": "topbar",
+      "name": "Topbar",
+      "category": "navigation",
+      "preview": "preview/component-topbar.html",
+      "contract": "components/topbar.json",
+      "sourceKind": "structured-spec",
+      "confidence": "medium",
+      "tokensConsumedCount": 14
+    },
+    {
+      "slug": "data-table",
+      "name": "Data Table",
+      "category": "data-display",
+      "preview": "preview/component-data-table.html",
+      "contract": "components/data-table.json",
+      "sourceKind": "structured-spec",
+      "confidence": "medium",
+      "tokensConsumedCount": 17
+    }
+  ]
+}

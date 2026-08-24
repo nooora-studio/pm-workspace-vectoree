@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 2,
+  "slug": "input",
+  "name": "Input",
+  "category": "input",
+  "sourceKind": "structured-spec",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    "text input",
+    "email input",
+    "password input"
+  ],
+  "variantDimensions": {
+    "type": [
+      "text",
+      "email",
+      "password"
+    ],
+    "state": [
+      "default",
+      "focus",
+      "filled",
+      "disabled"
+    ]
+  },
+  "representativeVariants": [
+    {
+      "type": "email",
+      "state": "default"
+    },
+    {
+      "type": "password",
+      "state": "filled"
+    },
+    {
+      "type": "text",
+      "state": "focus"
+    }
+  ],
+  "anatomy": [
+    "field-label",
+    "input-shell",
+    "input-control",
+    "helper-copy"
+  ],
+  "structurePatterns": [
+    "Labels sit above the field and use the body font while the control itself preserves a strict rectangular shell.",
+    "The field surface is flat and pale, but the 2px border plus hard shadow create the tactile desktop-console feeling.",
+    "Form controls prefer medium width and strong horizontal rhythm rather than dense stacked micro-fields."
+  ],
+  "usageHints": [
+    "Use --color-surface for the shell and --color-border-strong for the outline.",
+    "Focus can be communicated through stronger border contrast and an acid-tinted shadow rather than glow.",
+    "Placeholder and helper text should remain subdued with --color-text-secondary."
+  ],
+  "doNotInvent": [
+    "No rounded search bar pattern.",
+    "No filled material-style underline field."
+  ],
+  "unknowns": [
+    "Error messaging and validation copy rules are not explicitly shown in the source."
+  ],
+  "tokensConsumed": [
+    "--color-surface",
+    "--color-page",
+    "--color-border-strong",
+    "--color-text-primary",
+    "--color-text-secondary",
+    "--color-accent-primary",
+    "--type-font-body",
+    "--type-font-mono",
+    "--type-size-sm",
+    "--type-size-md",
+    "--type-weight-bold",
+    "--sp-2",
+    "--sp-3",
+    "--sp-4",
+    "--shadow-card",
+    "--shadow-accent-focus",
+    "--radius-none"
+  ],
+  "domAnatomy": {
+    "root": {
+      "tag": "label",
+      "class": "ds-field",
+      "children": [
+        {
+          "tag": "span",
+          "class": "ds-field__label"
+        },
+        {
+          "tag": "div",
+          "class": "ds-input",
+          "children": [
+            {
+              "tag": "input",
+              "class": "ds-input__control"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "preview": "preview/component-input.html",
+    "source": "specs/signin.html",
+    "css": {
+      "file": "components.css",
+      "marker": "Input"
+    }
+  }
+}

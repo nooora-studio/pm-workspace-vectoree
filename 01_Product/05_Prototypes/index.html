@@ -355,11 +355,11 @@
     .line-section .section-note { margin-bottom: 24px; } /* mb-6 */
     .line-steps {
       display: grid;
-      grid-template-columns: repeat(6, 1fr); /* lg:grid-cols-6 */
+      grid-template-columns: repeat(4, 1fr); /* 4 列 */
       gap: 10px; /* gap-2.5 = 10px */
       position: relative;
     }
-    @media (max-width: 639px) { .line-steps { grid-template-columns: repeat(2, 1fr); } } /* sm:grid-cols-2 */
+    @media (max-width: 767px) { .line-steps { grid-template-columns: repeat(2, 1fr); } }
     
     .line-step {
       background: var(--paper); /* bg-paper！不是白 */
@@ -391,49 +391,146 @@
       color: var(--gray); margin-top: 6px; /* mt-1.5 */ line-height: 1.35; /* leading-normal */
       letter-spacing: 0.02em;
     }
+    /* 箭头：右侧中间，始终显示 */
     .line-arrow {
-      position: absolute; right: -10px; top: 38%; /* -right-2.5 top-[38%] */
-      z-index: 2; /* z-[2] */
-      background: var(--white); /* bg-card */
-      padding: 0 4px; /* px-0.5 */
-      font-family: var(--font-mono); font-size: 14px; /* text-sm */
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 14px;
       font-weight: 700;
+      color: var(--ink);
+      z-index: 2;
+      background: var(--paper);
+      padding: 0 2px;
       line-height: 1;
-      display: none; /* hidden */
     }
-    @media (min-width: 1024px) { .line-arrow { display: inline; } } /* lg:inline */
-    @media (max-width: 1100px) {
-      .line-steps { grid-template-columns: 1fr 1fr 1fr; }
-      .line-arrow { display: none; }
-    }
-    @media (max-width: 700px) { .line-steps { grid-template-columns: 1fr 1fr; } }
 
-    /* ═══════════════ SDK CODE — 黑底主题 ═══════════════ */
-    .sdk-section { background: var(--ink); color: var(--paper); }
-    .sdk-section .section-note { color: var(--ink-30); }
-    .sdk-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: var(--spacing-3xl); align-items: center; }
-    .sdk-section .section-title { color: var(--acid); }
-    .sdk-file { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: var(--fs-xs); margin-bottom: var(--spacing-lg); }
-    .sdk-file__name { background: var(--acid); color: var(--ink); border: 1px solid var(--ink); padding: 3px 8px; font-weight: 700; }
-    .sdk-file__ver { color: var(--ink-30); }
-    .sdk-points { list-style: none; margin-top: var(--spacing-xl); display: flex; flex-direction: column; gap: var(--spacing-md); }
-    .sdk-points li { display: flex; gap: var(--spacing-md); align-items: center; font-size: var(--fs-sm); color: var(--acid); }
-    .sdk-points__num { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--acid); border: 1px solid var(--acid); padding: 2px 6px; flex-shrink: 0; }
+    /* ═══════════════ SDK — 左右两栏：代码终端 + SKILL+CLI ═══════════════ */
+    .sdk-section { 
+      background: var(--ink); 
+      color: var(--paper); 
+      padding: 80px 0;
+    }
+    .sdk-grid { 
+      display: grid; 
+      grid-template-columns: 1.2fr 1fr; /* 左侧终端更宽 */
+      gap: 48px; 
+      align-items: start; 
+    }
+    
+    /* ── 左侧：代码终端 ── */
     .sdk-code { position: relative; }
-    /* SDK 终端：真实值 — 黄色阴影 6px */
     .sdk-code .terminal {
-      background: var(--ink); color: var(--paper);
-      border: 2px solid var(--ink); /* 不是四边黄边！是普通边框+黄影 */
-      box-shadow: 6px 6px 0 #D8FF00; /* shadow-[6px_6px_0_#D8FF00] */
+      background: #0a0a0a; /* 纯黑底 */
+      color: var(--paper);
+      border: 3px solid var(--acid); /* 黄色粗边框 */
+      box-shadow: 6px 6px 0 rgba(216, 255, 0, 0.3); /* 黄色硬阴影 */
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 0;
+      overflow: hidden;
     }
     .sdk-code .terminal::after { display: none; }
-    .sdk-code .terminal__dot { background: var(--ink-40); }
-    .sdk-code .kw { color: var(--acid); }
-    .sdk-code .fn { color: #e8e8e8; }
-    .sdk-code .string { color: var(--acid); }
-    .sdk-code .comment { color: var(--ink-40); }
-    .sdk-code .type { color: var(--acid); }
-    @media (max-width: 900px) { .sdk-grid { grid-template-columns: 1fr; } }
+    
+    /* 终端顶栏：文件名 + 版本标签 */
+    .sdk-terminal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 2px solid var(--acid);
+      background: #0a0a0a;
+    }
+    .sdk-terminal-file {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--acid);
+      text-transform: uppercase;
+    }
+    .sdk-terminal-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--acid);
+      text-transform: uppercase;
+    }
+    
+    /* 终端内容区 */
+    .sdk-terminal-body {
+      padding: 20px 16px;
+    }
+    .sdk-code .kw { color: var(--acid); }       /* import/new/const/await */
+    .sdk-code .fn { color: #e8e8e8; }           /* 函数名 */
+    .sdk-code .type { color: #4ec9b0; }          /* 类型名 OpenAI */
+    .sdk-code .string { color: var(--acid); }    /* 字符串 */
+    .sdk-code .comment { color: #555; }          /* 注释 */
+    .sdk-code .prop { color: #9cdcfe; }          /* 属性名 */
+    .sdk-code .val { color: #ce9178; }           /* 属性值 */
+
+    /* ── 右侧：SKILL + CLI ── */
+    .sdk-info { padding-top: 8px; }
+    .sdk-info__title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      line-height: 1.05;
+      text-transform: uppercase;
+      color: var(--acid);
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .sdk-info__desc {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #aaa;
+      margin-bottom: 28px;
+      max-width: 420px;
+    }
+    
+    /* 命令框 */
+    .sdk-cmd-box {
+      border: 2px solid var(--acid);
+      padding: 12px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--acid);
+      margin-bottom: 24px;
+      background: transparent;
+      display: block;
+    }
+    
+    /* 步骤列表 */
+    .sdk-steps { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .sdk-steps li {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #ccc;
+    }
+    .sdk-steps__num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--acid);
+      flex-shrink: 0;
+      min-width: 20px;
+    }
+    .sdk-steps__label {
+      color: var(--acid);
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) { 
+      .sdk-grid { grid-template-columns: 1fr; gap: 40px; }
+      .sdk-info__title { font-size: 26px; }
+    }
 
     /* ═══════════════ PRICING — 米白底，PRO 酸黄卡 ═══════════════ */
     .pricing-section { background: var(--paper); }
@@ -786,85 +883,94 @@
     <div class="container">
       <div class="section-title-wrap">
         <h2 class="section-title">THE ASSEMBLY LINE.</h2>
-        <span class="eyebrow-line">6 STEPS TO PROD</span>
+        <span class="eyebrow-line">4 STEPS</span>
       </div>
-      <p class="section-note">// the same loop every shipped agent on Vectoree went through</p>
+      <p class="section-note">// login, link, pick a model, then call the gateway or create a table</p>
 
       <div class="line-steps reveal">
+        <!-- Step 01 -->
         <div class="line-step">
           <span class="line-step__num">01</span>
-          <h3 class="line-step__title">Pick a model</h3>
-          <span class="line-step__detail">36 models · playground A/B</span>
+          <h3 class="line-step__title">INSTALL THE SKILL</h3>
+          <span class="line-step__detail">npx skills add VectoreeAI/vectoree-skills</span>
+          <span class="line-arrow">→</span>
         </div>
+        <!-- Step 02 -->
         <div class="line-step">
           <span class="line-step__num">02</span>
-          <h3 class="line-step__title">Fork a template</h3>
-          <span class="line-step__detail">one click → your repo</span>
+          <h3 class="line-step__title">LOGIN &amp; LINK</h3>
+          <span class="line-step__detail">npx @vectoree/cli login → link</span>
+          <span class="line-arrow">→</span>
         </div>
+        <!-- Step 03 -->
         <div class="line-step">
           <span class="line-step__num">03</span>
-          <h3 class="line-step__title">Install skills</h3>
-          <span class="line-step__detail">APIs · MCP · CLIs</span>
+          <h3 class="line-step__title">PICK A MODEL</h3>
+          <span class="line-step__detail">catalog · vectoree/free · vectoree/auto</span>
+          <span class="line-arrow">→</span>
         </div>
+        <!-- Step 04 -->
         <div class="line-step">
           <span class="line-step__num">04</span>
-          <h3 class="line-step__title">Add auth</h3>
-          <span class="line-step__detail">email / Google for your users</span>
+          <h3 class="line-step__title">CALL THE API</h3>
+          <span class="line-step__detail">gateway HTTP · db create</span>
         </div>
-        <div class="line-step">
-          <span class="line-step__num">05</span>
-          <h3 class="line-step__title">Charge users</h3>
-          <span class="line-step__detail">subs &amp; metered billing</span>
-        </div>
-        <div class="line-step">
-          <span class="line-step__num">06</span>
-          <h3 class="line-step__title">Deploy &amp; ship</h3>
-          <span class="line-step__detail">push → global edge</span>
-        </div>
-        <span class="line-arrow" style="left: calc(16.66% + 4px);">→</span>
-        <span class="line-arrow" style="left: calc(33.33% + 4px);">→</span>
-        <span class="line-arrow" style="left: calc(50% + 4px);">→</span>
-        <span class="line-arrow" style="left: calc(66.66% + 4px);">→</span>
-        <span class="line-arrow" style="left: calc(83.33% + 4px);">→</span>
       </div>
     </div>
   </section>
 
-  <!-- ════════ SDK ════════ -->
+  <!-- ════════ SDK — SKILL + CLI ════════ -->
   <section class="section sdk-section" id="sdk">
     <div class="container">
       <div class="sdk-grid">
-        <div>
-          <div class="sdk-file">
-            <span class="sdk-file__name">AGENT.TS</span>
-            <span class="sdk-file__ver">VECTOREE SDK · v1.0</span>
-          </div>
-          <h2 class="section-title">Five SaaS docs.<br>One SDK.</h2>
-          <p class="section-note" style="margin-top: var(--spacing-md);">Every block speaks the same SDK. No OAuth dance across five dashboards, no webhook spaghetti — the glue is our job, the agent is yours.</p>
-          <ul class="sdk-points">
-            <li><span class="sdk-points__num">01</span><span>TypeScript-first SDK + OpenAI-compatible endpoint</span></li>
-            <li><span class="sdk-points__num">02</span><span>Usage metering flows straight into billing</span></li>
-            <li><span class="sdk-points__num">03</span><span>Fallback &amp; routing policies from the Admin Console</span></li>
-          </ul>
-        </div>
+        <!-- 左侧：代码终端 (SERVER.TS) -->
         <div class="sdk-code reveal">
           <div class="terminal">
-            <div class="terminal__bar"><span class="terminal__dot"></span><span class="terminal__dot"></span><span class="terminal__dot"></span></div>
-            <div><span class="kw">import</span> { Vectoree } <span class="kw">from</span> <span class="string">"vectoree"</span></div>
-            <div>&nbsp;</div>
-            <div><span class="kw">const</span> <span class="fn">vee</span> = <span class="kw">new</span> <span class="type">Vectoree</span>();</div>
-            <div>&nbsp;</div>
-            <div><span class="comment">// pick any model. any provider. one key.</span></div>
-            <div><span class="kw">const</span> res = <span class="kw">await</span> vee.<span class="fn">chat</span>({</div>
-            <div>&nbsp;&nbsp;model: <span class="string">"x-ai/grok-4.20"</span>,</div>
-            <div>&nbsp;&nbsp;skills: [<span class="string">"broker-mcp"</span>],</div>
-            <div>&nbsp;&nbsp;messages: [{ role: <span class="string">"user"</span>,</div>
-            <div>&nbsp;&nbsp;&nbsp;&nbsp;content: <span class="string">"Analyze AAPL Q3 filings"</span> }],</div>
-            <div>});</div>
-            <div>&nbsp;</div>
-            <div><span class="comment">// charge your user for it. built in.</span></div>
-            <div><span class="kw">await</span> vee.billing.<span class="fn">meter</span>(res.usage);</div>
+            <div class="sdk-terminal-header">
+              <span class="sdk-terminal-file">SERVER.TS</span>
+              <span class="sdk-terminal-badge">OPENAI SDK · COMPATIBLE</span>
+            </div>
+            <div class="sdk-terminal-body">
+              <div><span class="kw">import</span> OpenAI <span class="kw">from</span> <span class="string">"openai"</span></div>
+              <div>&nbsp;</div>
+              <div><span class="kw">const</span> client = <span class="kw">new</span> <span class="type">OpenAI</span>({</div>
+              <div>&nbsp;&nbsp;<span class="prop">baseURL</span>: <span class="string">"https://vectoree.ai/api/v1"</span>,</div>
+              <div>&nbsp;&nbsp;<span class="prop">apiKey</span>: process.env.<span class="type">VECTOREE_API_KEY</span>,</div>
+              <div>});</div>
+              <div>&nbsp;</div>
+              <div><span class="comment">// one project key. OpenAI-compatible.</span></div>
+              <div><span class="kw">const</span> completion = <span class="kw">await</span> client.chat.completions.<span class="fn">create</span>({</div>
+              <div>&nbsp;&nbsp;<span class="prop">model</span>: <span class="string">"vectoree/free"</span>,</div>
+              <div>&nbsp;&nbsp;<span class="prop">messages</span>: [{<span class="prop">role</span>: <span class="string">"user"</span>,</div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">content</span>: <span class="string">"Hello from Vectoree"</span> }],</div>
+              <div>});</div>
+              <div>&nbsp;</div>
+              <div><span class="comment">// catalog model – start with vectoree/free</span></div>
+            </div>
           </div>
+        </div>
+
+        <!-- 右侧：SKILL + CLI -->
+        <div class="sdk-info reveal">
+          <h2 class="sdk-info__title">SKILL + CLI.<br>OPENAI-COMPATIBLE.</h2>
+          <p class="sdk-info__desc">The coding agent installs the skill and runs atomic CLI commands. Your app uses the OpenAI SDK against Vectoree. @vectoree/sdk is not a launch deliverable.</p>
+          
+          <code class="sdk-cmd-box">npx skills add VectoreeAI/vectoree-skills</code>
+          
+          <ul class="sdk-steps">
+            <li>
+              <span class="sdk-steps__num">01</span>
+              <span><span class="sdk-steps__label">Install:</span> npx skills add VectoreeAI/vectoree-skills</span>
+            </li>
+            <li>
+              <span class="sdk-steps__num">02</span>
+              <span><span class="sdk-steps__label">CLI:</span> login · link · db · storage · ai</span>
+            </li>
+            <li>
+              <span class="sdk-steps__num">03</span>
+              <span><span class="sdk-steps__label">App runtime:</span> OpenAI SDK + Vectoree baseURL (server-side key)</span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>

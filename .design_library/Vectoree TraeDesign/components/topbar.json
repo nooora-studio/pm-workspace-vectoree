@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 2,
+  "slug": "topbar",
+  "name": "Topbar",
+  "category": "navigation",
+  "sourceKind": "structured-spec",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    "global topbar",
+    "workspace header",
+    "context action bar"
+  ],
+  "variantDimensions": {
+    "theme": [
+      "dark-marketing",
+      "light-dashboard"
+    ],
+    "context": [
+      "homepage",
+      "dashboard",
+      "auth"
+    ]
+  },
+  "representativeVariants": [
+    {
+      "theme": "dark-marketing",
+      "context": "homepage"
+    },
+    {
+      "theme": "light-dashboard",
+      "context": "dashboard"
+    }
+  ],
+  "anatomy": [
+    "root",
+    "brand",
+    "primary-nav",
+    "context-switchers",
+    "language-toggle",
+    "action-cluster"
+  ],
+  "structurePatterns": [
+    "The topbar frames product identity first, then exposes navigation and actions in a single horizontal line.",
+    "Marketing topbars use a dark inverted shell, while dashboard topbars switch to a white surface with the same linear rhythm.",
+    "Micro-controls such as language toggles and connect actions keep the same mono uppercase treatment as buttons."
+  ],
+  "usageHints": [
+    "Use --layout-topbar-height to keep a consistent header rhythm across pages.",
+    "Dark topbars invert to --color-surface-inverse with light text, while dashboard topbars return to --color-surface.",
+    "Controls should align on a strict baseline and avoid ornamental separators."
+  ],
+  "doNotInvent": [
+    "No blurred sticky chrome.",
+    "No oversized pill segmented controls."
+  ],
+  "unknowns": [
+    "Mobile collapse behavior is not fully specified from the available prototype pages."
+  ],
+  "tokensConsumed": [
+    "--layout-topbar-height",
+    "--color-surface",
+    "--color-surface-inverse",
+    "--color-text-primary",
+    "--color-text-inverse",
+    "--color-accent-primary",
+    "--color-border-strong",
+    "--type-font-display",
+    "--type-font-mono",
+    "--type-size-xs",
+    "--sp-3",
+    "--sp-4",
+    "--sp-5",
+    "--radius-none"
+  ],
+  "domAnatomy": {
+    "root": {
+      "tag": "header",
+      "class": "ds-topbar",
+      "children": [
+        {
+          "tag": "a",
+          "class": "ds-topbar__brand"
+        },
+        {
+          "tag": "nav",
+          "class": "ds-topbar__nav"
+        },
+        {
+          "tag": "div",
+          "class": "ds-topbar__actions"
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "preview": "preview/component-topbar.html",
+    "source": "specs/homepage.html",
+    "css": {
+      "file": "components.css",
+      "marker": "Topbar"
+    }
+  }
+}

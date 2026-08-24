@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vectoree — Ship Your Agent</title>
+  <link rel="icon" type="image/svg+xml" href="_Assets/vee-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="_Assets/tokens.css">
+  <style>
+    /* ============================================================
+       1:1 还原自 vectoree.ai — 真实设计系统
+       ============================================================ */
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: var(--rounded-none); }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--paper);
+      color: var(--ink);
+      font-size: var(--fs-md);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        linear-gradient(rgba(16,16,16,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16,16,16,0.035) 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-color: var(--paper);
+      pointer-events: none;
+    }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    img { display: block; }
+
+    /* ── 容器（真实值：1120px）── */
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+
+    /* ═══════════════ TOPBAR ═══════════════ */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--topbar-height);
+      display: flex; align-items: center; gap: var(--spacing-xl);
+      background: var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding: 0 var(--container-pad);
+    }
+    .topbar__brand {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.02em;
+      color: var(--white);
+    }
+    .topbar__brand-logo {
+      width: 28px; height: 28px;
+      background: var(--acid);
+      display: grid; place-items: center;
+      border: 1px solid var(--ink);
+    }
+    .topbar__brand-logo svg { width: 18px; height: 18px; }
+    .topbar__nav { display: flex; gap: var(--spacing-2xl); margin-left: var(--spacing-lg); }
+    .topbar__nav a {
+      font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      letter-spacing: 0.08em; padding: 4px 2px;
+      color: var(--white);
+      border-bottom: 2px solid transparent;
+      text-transform: uppercase;
+    }
+    .topbar__nav a:hover { border-bottom-color: var(--acid); color: var(--acid); }
+    .topbar__spacer { flex: 1; }
+    .lang-switch { display: flex; border: 1px solid var(--white); background: var(--ink); }
+    .lang-switch button {
+      font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      background: transparent; border: 0; padding: 5px 12px; cursor: pointer;
+      color: var(--white); text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .lang-switch button + button { border-left: 1px solid var(--white); }
+    .lang-switch button.active { background: var(--acid); color: var(--ink); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-size: 12px; /* text-xs */
+      font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 8px 16px; /* px-3.5 py-2 */
+      cursor: pointer;
+      border: 2px solid var(--ink);
+      position: relative;
+      --btn-shadow: var(--ink);
+      box-shadow: 4px 4px 0 var(--btn-shadow); /* shadow-hard-md */
+      transition: transform 0.075s, box-shadow 0.075s; /* duration-75 */
+      white-space: nowrap;
+      height: 40px; /* h-10 */
+    }
+    .btn:hover { 
+      transform: translate(-1px, -1px); 
+      box-shadow: 6px 6px 0 var(--btn-shadow); /* shadow-hard-lg */ 
+    }
+    .btn:active { 
+      transform: translate(2px, 2px); 
+      box-shadow: 1px 1px 0 var(--btn-shadow); /* shadow-press */ 
+    }
+    .btn--primary { background: var(--acid); color: var(--ink); border-color: var(--ink); }
+    .btn--dark { background: var(--ink); color: var(--white); border-color: var(--white); --btn-shadow: var(--white); }
+    .btn--ghost { background: var(--white); color: var(--ink); border-color: var(--ink); }
+    .btn--sm { padding: 6px 12px; font-size: var(--fs-xs); }
+    .topbar .btn--ghost {
+      background: transparent;
+      color: var(--white);
+      border-color: var(--white);
+      --btn-shadow: var(--white);
+    }
+
+    /* ═══════════════ HERO — 真实 Tailwind 值 ═══════════════ */
+    .hero {
+      position: relative;
+      padding: 64px 0 48px;
+      overflow: hidden;
+    }
+    .hero__grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr; /* 真实值 */
+      gap: 40px; /* gap-10 = 40px */
+      align-items: center;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+    .hero__sticker {
+      display: inline-block;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700; /* text-[10px] */
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: 2px solid var(--ink); padding: 6px 10px; /* px-2.5 py-1.5 */
+      background: var(--acid);
+      color: var(--ink);
+      margin-bottom: 16px; /* mb-4 */
+      position: relative;
+      transform: rotate(-2.5deg); /* rotate-[-2.5deg] */
+      box-shadow: 3px 3px 0 #101010; /* shadow-hard-sm */
+    }
+    .hero__title {
+      font-family: var(--font-display);
+      font-size: 52px; /* text-[52px] */
+      line-height: 0.9; /* leading-[0.9] */
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      margin-bottom: 16px; /* mt-4 */
+    }
+    @media (min-width: 1024px) { .hero__title { font-size: 74px; } } /* lg:text-[74px] */
+    .hero__title .accent {
+      background: var(--acid);
+      padding: 6px 12px; /* px-3 */
+      position: relative;
+      display: inline-block;
+      border: 2px solid var(--ink);
+      line-height: 1;
+      transform: rotate(-1deg); /* -rotate-1 */
+      box-shadow: 6px 6px 0 #101010; /* shadow-hard-lg */
+    }
+    .hero__sub {
+      font-family: var(--font-body); font-size: 15px; /* text-[15px] */
+      line-height: 1.7; /* leading-[1.7] */
+      max-width: 480px; /* max-w-[480px] */
+      margin-top: 20px; /* mt-5 */
+      margin-bottom: 24px; /* mt-6 */
+      color: #3a3a32; /* 真实颜色！不是 ink */
+    }
+    .hero__sub strong { font-weight: 700; }
+    .hero__cta-row { display: flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; } /* gap-3.5, mt-6 */
+    .hero__meta { 
+      font-family: var(--font-mono); font-size: 10px; /* text-[10px] */ 
+      color: var(--gray); letter-spacing: 0.08em; /* tracking-[0.08em] */
+      margin-top: 20px; /* mt-5 */
+    }
+
+    /* Hero 右侧：白色卡片 + 终端 — 真实值 */
+    .hero__visual { position: relative; display: flex; flex-direction: column; gap: 16px; /* gap-4 */ }
+    .hero__vee-card {
+      background: var(--white);
+      border: 2px solid var(--ink);
+      position: relative;
+      padding: 24px; /* p-6 */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 6px 6px 0 #101010; /* shadow-hard-lg */
+      /* 网格背景 13px */
+      background-image:
+        linear-gradient(rgba(0,0,0,0.024) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.024) 1px, transparent 1px);
+      background-size: 13px 13px; /* [background-size:13px_13px] */
+    }
+    .hero__vee-big {
+      width: 240px; /* 真实 SVG 尺寸 */
+      height: auto;
+      margin-bottom: 16px;
+    }
+    .hero__vee-label {
+      align-self: flex-end;
+      font-family: var(--font-mono); font-size: 9px; /* text-[9px] */
+      color: var(--gray); letter-spacing: 0.12em; /* tracking-[0.12em] */
+    }
+
+    /* 终端 — 真实值：min-h-[130px], 黄色阴影 */
+    .terminal {
+      background: var(--ink); color: var(--paper);
+      border: 2px solid var(--ink);
+      position: relative;
+      font-family: var(--font-mono); font-size: 12px; /* text-xs */
+      padding: 16px; /* p-4 */
+      line-height: 1.8; /* leading-[1.8] */
+      min-height: 130px; /* min-h-[130px] */
+      box-shadow: 6px 6px 0 #D8FF00; /* shadow-[6px_6px_0_#D8FF00] 黄色阴影！ */
+    }
+    .terminal__bar { display: flex; gap: 6px; margin-bottom: 12px; /* mb-3 */ }
+    .terminal__dot { 
+      width: 10px; height: 10px; /* size-2.5 */
+      background: transparent; /* 空心！不是实心 */
+      border: 1.5px solid var(--acid); /* border-[1.5px] border-acid */
+    }
+    .terminal .prompt { color: var(--acid); }
+    .terminal .arrow { color: var(--ink-40); }
+    .terminal .out { color: var(--ink-30); }
+    .terminal .ok { color: var(--acid); font-weight: 700; }
+
+    /* ═══════════════ PROVIDER MARQUEE ═══════════════ */
+    .providers {
+      border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
+      display: flex; align-items: center;
+      overflow: hidden; position: relative;
+      background: var(--white);
+      padding: 14px 0;
+    }
+    .providers__inner {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: 0 var(--container-pad);
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3xl);
+    }
+    .providers__label {
+      font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--gray);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .providers__track {
+      display: flex; align-items: center; gap: var(--spacing-3xl);
+      flex: 1;
+      white-space: nowrap;
+    }
+    .providers__item {
+      font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink);
+    }
+    .providers__item--meta { color: var(--gray); font-weight: 400; font-size: var(--fs-xs); margin-left: auto; }
+
+    /* ═══════════════ SECTION 通用 ═══════════════ */
+    .section { padding: var(--spacing-3xl) 0; }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gray); margin-bottom: var(--spacing-sm);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4.5vw, 3.25rem);
+      line-height: 1.02; text-transform: uppercase;
+      margin-bottom: var(--spacing-sm);
+    }
+    .section-note { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--gray); margin-bottom: var(--spacing-2xl); }
+
+    /* ═══════════════ APP STACK (6 块) — 真实 Tailwind v5 ═══════════════ */
+    .stack-section { padding: 64px 28px; } /* py-16 px-7 */
+    .stack-section .section-title-wrap { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; } /* gap-4, mb-3 */
+    .stack-section .eyebrow-sticker {
+      display: inline-block;
+      background: var(--acid); color: var(--ink);
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; padding: 6px 10px; /* px-2.5 py-1.5 */
+      border: 2px solid var(--ink);
+      position: relative;
+      transform: rotate(-2.5deg);
+      box-shadow: 3px 3px 0 #101010; /* shadow-hard-sm */
+    }
+    .stack-grid {
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); /* lg:grid-cols-3 */
+      gap: 16px; /* gap-4 */
+    }
+    @media (max-width: 767px) { .stack-grid { grid-template-columns: repeat(2, 1fr); } }
+    
+    .stack-cell {
+      background: var(--white); /* bg-card */
+      border: 2px solid var(--ink);
+      padding: 20px; /* p-5 */
+      display: flex; flex-direction: column;
+      position: relative;
+      box-shadow: 4px 4px 0 #101010; /* shadow-hard-md */
+      transition: transform 0.1s, box-shadow 0.1s; /* duration-100 */
+    }
+    .stack-cell:hover { 
+      transform: translate(-2px, -2px); 
+      box-shadow: 6px 6px 0 #101010; /* hover:shadow-hard-lg */ 
+    }
+    .stack-cell__slot {
+      display: inline-block; align-self: flex-start;
+      font-family: var(--font-mono); font-size: 8px; font-weight: 700;
+      background: var(--ink); color: var(--acid);
+      padding: 2px 8px;
+      border: none;
+      position: absolute; /* 绝对定位！ */
+      top: -11px; left: 14px; /* -top-[11px] left-3.5 */
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .stack-cell__slot::after {
+      content: "";
+      position: absolute;
+      left: 2px; top: 2px; right: -3px; bottom: -3px;
+      background: var(--acid);
+      z-index: -1;
+    }
+    .stack-cell__title { font-family: var(--font-display); font-size: 16px; text-transform: uppercase; margin-top: 8px; line-height: 1.2; }
+    .stack-cell__desc { font-family: var(--font-body); font-size: 12px; line-height: 1.6; color: #3a3a32; margin-top: 8px; margin-bottom: 12px; }
+    .stack-cell__foot { font-family: var(--font-mono); font-size: 9px; color: var(--gray); border-top: 2px dashed #c9c9bd; padding-top: 8px; letter-spacing: 0.06em; }
+    .stack-cell__foot strong { color: var(--ink); font-weight: 700; }
+    @media (max-width: 900px) { .stack-grid { grid-template-columns: 1fr; } }
+
+    /* ═══════════════ ASSEMBLY LINE (6 步) — 真实 Tailwind v5 ═══════════════ */
+    .line-section { 
+      background: var(--paper); /* bg-paper 不是白色！ */
+      border-top: 2px solid var(--ink); /* border-y-2 border-ink */
+      border-bottom: 2px solid var(--ink);
+      padding: 64px 28px; /* py-16 px-7 */
+    }
+    .line-section .section-title-wrap { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; } /* gap-4, mb-3 */
+    .line-section .eyebrow-line {
+      display: inline-block;
+      background: var(--acid); color: var(--ink);
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; padding: 6px 10px; /* px-2.5 py-1.5 */
+      border: 2px solid var(--ink);
+      position: relative;
+      transform: rotate(-2.5deg); /* rotate-[-2.5deg] */
+      box-shadow: 3px 3px 0 #101010; /* shadow-hard-sm */
+    }
+    .line-section .section-note { margin-bottom: 24px; } /* mb-6 */
+    .line-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 列 */
+      gap: 10px; /* gap-2.5 = 10px */
+      position: relative;
+    }
+    @media (max-width: 767px) { .line-steps { grid-template-columns: repeat(2, 1fr); } }
+    
+    .line-step {
+      background: var(--paper); /* bg-paper！不是白 */
+      border: 2px solid var(--ink);
+      padding: 10px 12px; /* px-3 py-3.5 */
+      display: flex; flex-direction: column;
+      min-height: auto; /* 不固定高度 */
+      position: relative;
+    }
+    .line-step__num {
+      display: inline-block; align-self: flex-start;
+      font-family: var(--font-mono); font-size: 9px; font-weight: 700; /* text-[9px] */
+      background: var(--acid); color: var(--ink);
+      padding: 2px 6px; /* px-1.5 py-0.5 */
+      margin-bottom: 8px; /* mb-2 */
+      letter-spacing: 0.14em; /* tracking-[0.14em] */
+      border: 1.5px solid var(--ink); /* border-[1.5px] border-ink */
+      line-height: 1.2;
+    }
+    .line-step__title {
+      font-family: var(--font-display); font-size: 12px; /* text-xs */
+      text-transform: uppercase;
+      margin-bottom: 4px; /* mt-auto? no, just spacing */
+      line-height: 1.25; /* leading-tight */
+      color: var(--ink);
+    }
+    .line-step__detail {
+      font-family: var(--font-mono); font-size: 8px; /* text-[8px] */
+      color: var(--gray); margin-top: 6px; /* mt-1.5 */ line-height: 1.35; /* leading-normal */
+      letter-spacing: 0.02em;
+    }
+    /* 箭头：右侧中间，始终显示 */
+    .line-arrow {
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      z-index: 2;
+      background: var(--paper);
+      padding: 0 2px;
+      line-height: 1;
+    }
+
+    /* ═══════════════ SDK — 左右两栏：代码终端 + SKILL+CLI ═══════════════ */
+    .sdk-section { 
+      background: var(--ink); 
+      color: var(--paper); 
+      padding: 80px 0;
+    }
+    .sdk-grid { 
+      display: grid; 
+      grid-template-columns: 1.2fr 1fr; /* 左侧终端更宽 */
+      gap: 48px; 
+      align-items: start; 
+    }
+    
+    /* ── 左侧：代码终端 ── */
+    .sdk-code { position: relative; }
+    .sdk-code .terminal {
+      background: #0a0a0a; /* 纯黑底 */
+      color: var(--paper);
+      border: 3px solid var(--acid); /* 黄色粗边框 */
+      box-shadow: 6px 6px 0 rgba(216, 255, 0, 0.3); /* 黄色硬阴影 */
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 0;
+      overflow: hidden;
+    }
+    .sdk-code .terminal::after { display: none; }
+    
+    /* 终端顶栏：文件名 + 版本标签 */
+    .sdk-terminal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 2px solid var(--acid);
+      background: #0a0a0a;
+    }
+    .sdk-terminal-file {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--acid);
+      text-transform: uppercase;
+    }
+    .sdk-terminal-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--acid);
+      text-transform: uppercase;
+    }
+    
+    /* 终端内容区 */
+    .sdk-terminal-body {
+      padding: 20px 16px;
+    }
+    .sdk-code .kw { color: var(--acid); }       /* import/new/const/await */
+    .sdk-code .fn { color: #e8e8e8; }           /* 函数名 */
+    .sdk-code .type { color: #4ec9b0; }          /* 类型名 OpenAI */
+    .sdk-code .string { color: var(--acid); }    /* 字符串 */
+    .sdk-code .comment { color: #555; }          /* 注释 */
+    .sdk-code .prop { color: #9cdcfe; }          /* 属性名 */
+    .sdk-code .val { color: #ce9178; }           /* 属性值 */
+
+    /* ── 右侧：SKILL + CLI ── */
+    .sdk-info { padding-top: 8px; }
+    .sdk-info__title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      line-height: 1.05;
+      text-transform: uppercase;
+      color: var(--acid);
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .sdk-info__desc {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #aaa;
+      margin-bottom: 28px;
+      max-width: 420px;
+    }
+    
+    /* 命令框 */
+    .sdk-cmd-box {
+      border: 2px solid var(--acid);
+      padding: 12px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--acid);
+      margin-bottom: 24px;
+      background: transparent;
+      display: block;
+    }
+    
+    /* 步骤列表 */
+    .sdk-steps { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .sdk-steps li {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #ccc;
+    }
+    .sdk-steps__num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--acid);
+      flex-shrink: 0;
+      min-width: 20px;
+    }
+    .sdk-steps__label {
+      color: var(--acid);
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) { 
+      .sdk-grid { grid-template-columns: 1fr; gap: 40px; }
+      .sdk-info__title { font-size: 26px; }
+    }
+
+    /* ═══════════════ PRICING — 米白底，PRO 酸黄卡 ═══════════════ */
+    .pricing-section { background: var(--paper); }
+    .pricing-section .section-title-wrap { display: flex; align-items: flex-end; gap: var(--spacing-md); flex-wrap: wrap; }
+    .pricing-section .eyebrow-sticker {
+      display: inline-block;
+      background: var(--acid); color: var(--ink);
+      font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      letter-spacing: 0.1em; padding: 4px 10px;
+      border: 1px solid var(--ink);
+      margin-bottom: 6px;
+      position: relative;
+    }
+    .pricing-section .eyebrow-sticker::after {
+      content: "";
+      position: absolute;
+      left: 2px; top: 2px; right: -3px; bottom: -3px;
+      background: var(--ink);
+      z-index: -1;
+    }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-5); margin-top: var(--spacing-2xl); }
+    .pricing-card {
+      background: var(--white);
+      border: 2px solid var(--ink);
+      padding: var(--spacing-2xl);
+      display: flex; flex-direction: column;
+      position: relative;
+      transition: transform 0.06s;
+    }
+    .pricing-card::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      border-right: 4px solid var(--ink);
+      border-bottom: 4px solid var(--ink);
+      z-index: -1;
+    }
+    .pricing-card:hover { transform: translate(-2px, -2px); }
+    .pricing-card:hover::after {
+      border-right-width: 6px;
+      border-bottom-width: 6px;
+    }
+    .pricing-card--featured { background: var(--acid); color: var(--ink); }
+    .pricing-card__hot {
+      position: absolute; top: -13px; right: var(--spacing-xl);
+      background: var(--ink); color: var(--paper);
+      font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700;
+      letter-spacing: 0.08em; padding: 3px 10px;
+      border: 1px solid var(--ink);
+    }
+    .pricing-card__hot::after {
+      content: "";
+      position: absolute;
+      left: 2px; top: 2px; right: -3px; bottom: -3px;
+      background: var(--acid);
+      z-index: -1;
+    }
+    .pricing-card__plan { font-family: var(--font-display); font-size: var(--fs-xl); text-transform: uppercase; margin-bottom: 2px; color: var(--ink); }
+    .pricing-card__price { font-family: var(--font-display); font-size: 3rem; line-height: 1; margin: var(--spacing-md) 0 2px; color: var(--ink); }
+    .pricing-card__per { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink); margin-bottom: var(--spacing-xl); }
+    .pricing-card__items { list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: var(--fs-sm); color: var(--ink); flex: 1; margin-bottom: var(--spacing-xl); }
+    .pricing-card__items li { display: flex; gap: 8px; align-items: flex-start; }
+    .pricing-card__items li::before { content: "■"; color: var(--ink); flex-shrink: 0; font-size: 10px; margin-top: 4px; }
+    .pricing-card .btn { width: 100%; }
+    /* FREE/TEAM（白底卡）按钮：白底黑边 */
+    .pricing-card:not(.pricing-card--featured) .btn { background: var(--white); color: var(--ink); }
+    /* PRO（酸黄卡）按钮：黑底白字黄边 */
+    .pricing-card--featured .btn--primary {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+      --btn-shadow: var(--acid);
+    }
+    @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+    /* ═══════════════ VEE BAND / CTA ═══════════════ */
+    .vee-band {
+      border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+      background: var(--white);
+      padding: var(--spacing-2xl) 0;
+    }
+    .vee-band__inner { display: flex; align-items: center; justify-content: center; gap: var(--spacing-2xl); flex-wrap: wrap; }
+    .vee-band__faces { display: flex; gap: var(--spacing-sm); }
+    .vee-band__face {
+      width: 80px; height: 80px;
+      background: var(--acid); border: 2px solid var(--ink);
+      display: grid; place-items: center;
+      position: relative;
+    }
+    .vee-band__face::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0;
+      width: calc(100% + 3px);
+      height: calc(100% + 3px);
+      border-right: 3px solid var(--ink);
+      border-bottom: 3px solid var(--ink);
+      z-index: -1;
+    }
+    .vee-band__face svg { width: 56px; height: 56px; }
+    .vee-band__text { display: flex; flex-direction: column; gap: 4px; }
+    .vee-band__quote { font-family: var(--font-display); font-size: clamp(1.25rem, 3vw, 1.75rem); text-transform: uppercase; line-height: 1.1; }
+    .vee-band__attr { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--gray); letter-spacing: 0.1em; }
+
+    /* CTA：酸黄大色块 */
+    .cta {
+      background: var(--acid); color: var(--ink);
+      padding: var(--spacing-3xl) 0;
+      text-align: center;
+      border-top: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+    }
+    .cta__title { font-family: var(--font-display); font-size: clamp(2.25rem, 5vw, 4rem); text-transform: uppercase; line-height: 1; margin-bottom: var(--spacing-xl); color: var(--ink); }
+    .cta__sub { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink); letter-spacing: 0.1em; margin-bottom: var(--spacing-2xl); }
+    .cta .btn {
+      background: var(--ink);
+      color: var(--acid);
+      border-color: var(--ink);
+      --btn-shadow: var(--acid);
+    }
+
+    /* ═══════════════ FOOTER — 黑底主题 ═══════════════ */
+    .footer {
+      background: var(--ink); color: var(--paper);
+      padding: var(--spacing-3xl) 0 0;
+    }
+    .footer__top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--spacing-3xl); flex-wrap: wrap; margin-bottom: var(--spacing-2xl); }
+    .footer__brand { display: flex; align-items: center; gap: 10px; margin-bottom: var(--spacing-md); }
+    .footer__brand-logo {
+      width: 28px; height: 28px;
+      background: var(--acid);
+      display: grid; place-items: center;
+      border: 1px solid var(--acid);
+    }
+    .footer__brand-logo svg { width: 18px; height: 18px; }
+    .footer__brand-text { font-family: var(--font-display); font-size: 0.875rem; color: var(--paper); }
+    .footer__pipeline { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-30); margin-bottom: 4px; }
+    .footer__copy { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-30); }
+    .footer__cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-2xl); min-width: 340px; }
+    .footer__col-title { font-family: var(--font-mono); font-size: var(--fs-xs); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: var(--spacing-md); color: var(--acid); }
+    .footer__col ul { display: flex; flex-direction: column; gap: 8px; }
+    .footer__col a { font-size: var(--fs-sm); color: var(--paper); }
+    .footer__col a:hover { color: var(--acid); }
+    .footer__bottom {
+      border-top: 1px solid #2a2a2a;
+      padding: var(--spacing-lg) 0;
+      display: flex; justify-content: space-between;
+      font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-30);
+    }
+    .footer__marquee {
+      background: var(--ink); color: var(--acid);
+      height: 44px; overflow: hidden;
+      display: flex; align-items: center;
+      border-top: 1px solid #2a2a2a;
+    }
+    .footer__marquee-track {
+      display: flex; gap: var(--spacing-3xl); white-space: nowrap;
+      animation: var(--animate-marquee); will-change: transform;
+    }
+    .footer__marquee-track span { font-family: var(--font-mono); font-size: var(--fs-xs); letter-spacing: 0.08em; color: var(--acid); }
+    .footer__marquee-track span strong { color: var(--acid); font-weight: 700; }
+
+    /* ── 滚动浮现 ── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── 移动端菜单 ── */
+    .hamburger { display: none; background: none; border: 1px solid var(--white); width: 38px; height: 34px; cursor: pointer; position: relative; }
+    .hamburger span { position: absolute; left: 8px; right: 8px; height: 2px; background: var(--white); }
+    .hamburger span:nth-child(1) { top: 10px; }
+    .hamburger span:nth-child(2) { top: 16px; }
+    .hamburger span:nth-child(3) { top: 22px; }
+    .mobile-menu.open { display: block !important; }
+
+    @media (max-width: 900px) {
+      .hero__grid { grid-template-columns: 1fr; }
+      .topbar__nav { display: none !important; }
+      .topbar__actions { display: none !important; }
+      .hamburger { display: block; }
+      .providers__inner { flex-wrap: wrap; }
+      .providers__track { overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════ TOPBAR ════════ -->
+  <header class="topbar">
+    <a class="topbar__brand" href="#">
+      <span class="topbar__brand-logo">
+        <svg viewBox="0 0 32 32" aria-label="Vee">
+          <rect x="10" y="12" width="3" height="6" fill="#101010"/>
+          <rect x="19" y="12" width="3" height="6" fill="#101010"/>
+          <rect x="12" y="22" width="8" height="2" fill="#101010"/>
+          <rect x="13" y="4" width="6" height="3" fill="#101010"/>
+          <rect x="15" y="1" width="2" height="4" fill="#101010"/>
+        </svg>
+      </span>
+      <span>VECTOREE</span>
+    </a>
+    <nav class="topbar__nav">
+      <a href="#stack">PRODUCT</a>
+      <a href="#line">WORKFLOW</a>
+      <a href="#sdk">DEVELOPERS</a>
+      <a href="#pricing">PRICING</a>
+    </nav>
+    <div class="topbar__spacer"></div>
+    <div class="topbar__actions" style="display: flex; align-items: center; gap: var(--spacing-md);">
+      <div class="lang-switch" data-lang-switch>
+        <button class="active" data-lang="en">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+      <a class="btn btn--ghost btn--sm" href="02_Auth/signin.html">SIGN IN</a>
+      <a class="btn btn--primary btn--sm" href="02_Auth/signup.html">START BUILDING →</a>
+    </div>
+    <button class="hamburger" aria-label="Menu" onclick="document.querySelector('.mobile-menu').classList.toggle('open')"><span></span><span></span><span></span></button>
+  </header>
+
+  <!-- 移动端菜单 -->
+  <div class="mobile-menu" style="display:none; position: fixed; inset: 0; z-index: 99; background: var(--paper); padding: 80px var(--container-pad);">
+    <nav style="display:flex; flex-direction:column; gap: 20px;">
+      <a href="#stack" style="font-family:var(--font-display); font-size:1.5rem; text-transform:uppercase;">PRODUCT</a>
+      <a href="#line" style="font-family:var(--font-display); font-size:1.5rem; text-transform:uppercase;">WORKFLOW</a>
+      <a href="#sdk" style="font-family:var(--font-display); font-size:1.5rem; text-transform:uppercase;">DEVELOPERS</a>
+      <a href="#pricing" style="font-family:var(--font-display); font-size:1.5rem; text-transform:uppercase;">PRICING</a>
+      <a class="btn btn--primary" href="02_Auth/signup.html" style="margin-top:20px;">START BUILDING →</a>
+    </nav>
+  </div>
+
+  <!-- ════════ HERO ════════ -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__grid">
+        <div>
+          <span class="hero__sticker" data-i18n="sticker">v1.0 · NOW LIVE</span>
+          <h1 class="hero__title">
+            <span data-i18n="t1">SHIP</span><br>
+            <span data-i18n="t2">YOUR</span><br>
+            <span class="accent" data-i18n="t3">AGENT.</span>
+          </h1>
+          <p class="hero__stack" data-i18n="stack">models · templates · skills · <strong>auth</strong> · <strong>payments</strong> · <strong>data</strong> · <strong>deploy</strong></p>
+          <p class="hero__sub" data-i18n="sub">
+            <strong>Vectoree fuses</strong> models · templates · skills · auth · payments · data · deploy
+            <strong>into one console.</strong> The OpenRouter + Clerk + Stripe + Supabase + Vercel stack — pre-assembled, so you stop gluing five SaaS tools and start shipping.
+          </p>
+          <div class="hero__cta-row">
+            <a class="btn btn--primary" href="02_Auth/signup.html">START BUILDING →</a>
+            <a class="btn btn--ghost" href="#sdk">READ THE DOCS</a>
+          </div>
+          <p class="hero__meta">// FREE TIER · NO CREDIT CARD · 1M TOKENS/MO INCLUDED</p>
+        </div>
+
+        <div class="hero__visual">
+          <div class="hero__vee-card">
+            <svg class="hero__vee-big" viewBox="0 0 180 180" aria-label="Vee, the Vectoree mascot">
+              <rect x="78" y="4" width="24" height="16" fill="#101010"/>
+              <rect x="70" y="0" width="40" height="10" fill="#101010"/>
+              <rect x="20" y="22" width="140" height="136" fill="#101010"/>
+              <rect x="30" y="32" width="120" height="116" fill="#D8FF00" stroke="#101010" stroke-width="8"/>
+              <rect x="56" y="66" width="22" height="38" fill="#101010"/>
+              <rect x="102" y="66" width="22" height="38" fill="#101010"/>
+              <rect x="68" y="122" width="44" height="8" fill="#101010"/>
+              <rect x="4" y="56" width="16" height="52" fill="#101010"/>
+              <rect x="160" y="56" width="16" height="52" fill="#101010"/>
+              <rect x="62" y="156" width="56" height="12" fill="#101010"/>
+            </svg>
+            <span class="hero__vee-label"><strong>VEE</strong> · YOUR AGENT FOREMAN</span>
+          </div>
+          <div class="terminal">
+            <div class="terminal__bar"><span class="terminal__dot"></span><span class="terminal__dot"></span><span class="terminal__dot"></span></div>
+            <div><span class="prompt">$</span> npx vectoree init my-agent</div>
+            <div class="arrow">▲ 6 blocks wired: models · skills · auth · pay · data · deploy</div>
+            <div><span class="prompt">$</span> vee deploy <span class="arrow">--prod</span></div>
+            <div class="out">→ live at my-agent.vectoree.app  <span class="ok">⚡ 1.8s</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ PROVIDERS MARQUEE ════════ -->
+  <div class="providers">
+    <div class="providers__inner">
+      <span class="providers__label">One key · every provider</span>
+      <div class="providers__track">
+        <span class="providers__item">xAI</span>
+        <span class="providers__item">OpenAI</span>
+        <span class="providers__item">Google</span>
+        <span class="providers__item">Anthropic</span>
+        <span class="providers__item">DeepSeek</span>
+        <span class="providers__item providers__item--meta">36 models · 99.2% uptime</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ APP STACK ════════ -->
+  <section class="section stack-section" id="stack">
+    <div class="container">
+      <div class="section-title-wrap">
+        <h2 class="section-title">One console.<br>Six blocks.</h2>
+        <span class="eyebrow-sticker">APP STACK</span>
+      </div>
+      <p class="section-note">// every block replaces a SaaS you were about to glue in</p>
+
+      <div class="stack-grid reveal">
+        <div class="stack-cell">
+          <span class="stack-cell__slot">OPENROUTER SLOT</span>
+          <h3 class="stack-cell__title">Model Plaza</h3>
+          <p class="stack-cell__body">36 models across 5 providers behind one API key. Benchmark in the Playground, switch models with one line, route by cost or latency.</p>
+          <div class="stack-cell__foot">replaces → <strong>raw provider SDKs</strong></div>
+        </div>
+        <div class="stack-cell">
+          <span class="stack-cell__slot">VERCEL SLOT</span>
+          <h3 class="stack-cell__title">Templates</h3>
+          <p class="stack-cell__body">Production-ready agent &amp; app templates. One click to fork, one more to deploy — your repo, your infra, our plumbing.</p>
+          <div class="stack-cell__foot">replaces → <strong>boilerplate repos</strong></div>
+        </div>
+        <div class="stack-cell">
+          <span class="stack-cell__slot">SKILLS HUB</span>
+          <h3 class="stack-cell__title">Skills Hub</h3>
+          <p class="stack-cell__body">Install skills — broker APIs, MCP servers, CLIs — into your agent like packages. Ship a quant-research agent before lunch.</p>
+          <div class="stack-cell__foot">replaces → <strong>hand-wired integrations</strong></div>
+        </div>
+        <div class="stack-cell">
+          <span class="stack-cell__slot">CLERK SLOT</span>
+          <h3 class="stack-cell__title">Auth</h3>
+          <p class="stack-cell__body">Email &amp; Google sign-in for your users, out of the box. Sessions, orgs, B2B2C — handled, not hand-rolled.</p>
+          <div class="stack-cell__foot">replaces → <strong>Clerk / Auth0</strong></div>
+        </div>
+        <div class="stack-cell">
+          <span class="stack-cell__slot">STRIPE SLOT</span>
+          <h3 class="stack-cell__title">Payments</h3>
+          <p class="stack-cell__body">Charge your users subscriptions or metered usage. You set the price, Vectoree does invoicing, dunning and payout splits.</p>
+          <div class="stack-cell__foot">replaces → <strong>Stripe Billing</strong></div>
+        </div>
+        <div class="stack-cell">
+          <span class="stack-cell__slot">SUPABASE SLOT</span>
+          <h3 class="stack-cell__title">Data &amp; Storage</h3>
+          <p class="stack-cell__body">Postgres, file storage and vector indexes wired to your agent from day one. Migrations and row-level security included.</p>
+          <div class="stack-cell__foot">replaces → <strong>Supabase / S3</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ ASSEMBLY LINE ════════ -->
+  <section class="section line-section" id="line">
+    <div class="container">
+      <div class="section-title-wrap">
+        <h2 class="section-title">THE ASSEMBLY LINE.</h2>
+        <span class="eyebrow-line">4 STEPS</span>
+      </div>
+      <p class="section-note">// login, link, pick a model, then call the gateway or create a table</p>
+
+      <div class="line-steps reveal">
+        <!-- Step 01 -->
+        <div class="line-step">
+          <span class="line-step__num">01</span>
+          <h3 class="line-step__title">INSTALL THE SKILL</h3>
+          <span class="line-step__detail">npx skills add VectoreeAI/vectoree-skills</span>
+          <span class="line-arrow">→</span>
+        </div>
+        <!-- Step 02 -->
+        <div class="line-step">
+          <span class="line-step__num">02</span>
+          <h3 class="line-step__title">LOGIN &amp; LINK</h3>
+          <span class="line-step__detail">npx @vectoree/cli login → link</span>
+          <span class="line-arrow">→</span>
+        </div>
+        <!-- Step 03 -->
+        <div class="line-step">
+          <span class="line-step__num">03</span>
+          <h3 class="line-step__title">PICK A MODEL</h3>
+          <span class="line-step__detail">catalog · vectoree/free · vectoree/auto</span>
+          <span class="line-arrow">→</span>
+        </div>
+        <!-- Step 04 -->
+        <div class="line-step">
+          <span class="line-step__num">04</span>
+          <h3 class="line-step__title">CALL THE API</h3>
+          <span class="line-step__detail">gateway HTTP · db create</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ SDK — SKILL + CLI ════════ -->
+  <section class="section sdk-section" id="sdk">
+    <div class="container">
+      <div class="sdk-grid">
+        <!-- 左侧：代码终端 (SERVER.TS) -->
+        <div class="sdk-code reveal">
+          <div class="terminal">
+            <div class="sdk-terminal-header">
+              <span class="sdk-terminal-file">SERVER.TS</span>
+              <span class="sdk-terminal-badge">OPENAI SDK · COMPATIBLE</span>
+            </div>
+            <div class="sdk-terminal-body">
+              <div><span class="kw">import</span> OpenAI <span class="kw">from</span> <span class="string">"openai"</span></div>
+              <div>&nbsp;</div>
+              <div><span class="kw">const</span> client = <span class="kw">new</span> <span class="type">OpenAI</span>({</div>
+              <div>&nbsp;&nbsp;<span class="prop">baseURL</span>: <span class="string">"https://vectoree.ai/api/v1"</span>,</div>
+              <div>&nbsp;&nbsp;<span class="prop">apiKey</span>: process.env.<span class="type">VECTOREE_API_KEY</span>,</div>
+              <div>});</div>
+              <div>&nbsp;</div>
+              <div><span class="comment">// one project key. OpenAI-compatible.</span></div>
+              <div><span class="kw">const</span> completion = <span class="kw">await</span> client.chat.completions.<span class="fn">create</span>({</div>
+              <div>&nbsp;&nbsp;<span class="prop">model</span>: <span class="string">"vectoree/free"</span>,</div>
+              <div>&nbsp;&nbsp;<span class="prop">messages</span>: [{<span class="prop">role</span>: <span class="string">"user"</span>,</div>
+              <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">content</span>: <span class="string">"Hello from Vectoree"</span> }],</div>
+              <div>});</div>
+              <div>&nbsp;</div>
+              <div><span class="comment">// catalog model – start with vectoree/free</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：SKILL + CLI -->
+        <div class="sdk-info reveal">
+          <h2 class="sdk-info__title">SKILL + CLI.<br>OPENAI-COMPATIBLE.</h2>
+          <p class="sdk-info__desc">The coding agent installs the skill and runs atomic CLI commands. Your app uses the OpenAI SDK against Vectoree. @vectoree/sdk is not a launch deliverable.</p>
+          
+          <code class="sdk-cmd-box">npx skills add VectoreeAI/vectoree-skills</code>
+          
+          <ul class="sdk-steps">
+            <li>
+              <span class="sdk-steps__num">01</span>
+              <span><span class="sdk-steps__label">Install:</span> npx skills add VectoreeAI/vectoree-skills</span>
+            </li>
+            <li>
+              <span class="sdk-steps__num">02</span>
+              <span><span class="sdk-steps__label">CLI:</span> login · link · db · storage · ai</span>
+            </li>
+            <li>
+              <span class="sdk-steps__num">03</span>
+              <span><span class="sdk-steps__label">App runtime:</span> OpenAI SDK + Vectoree baseURL (server-side key)</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ PRICING ════════ -->
+  <section class="section pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-title-wrap">
+        <h2 class="section-title">Pay for glue,<br>not for seats.</h2>
+        <span class="eyebrow-sticker">PRICING</span>
+      </div>
+      <p class="section-note">// model tokens billed at cost — we charge for the platform, not the markup</p>
+
+      <div class="pricing-grid reveal">
+        <div class="pricing-card">
+          <h3 class="pricing-card__plan">FREE</h3>
+          <p class="pricing-card__price">$0</p>
+          <p class="pricing-card__per">forever · side projects</p>
+          <ul class="pricing-card__items">
+            <li>1 project · 1M tokens/mo included</li>
+            <li>Model Plaza + Playground</li>
+            <li>Community templates</li>
+            <li>Deploy to vectoree.app subdomain</li>
+          </ul>
+          <a class="btn" href="02_Auth/signup.html">START FREE</a>
+        </div>
+
+        <div class="pricing-card pricing-card--featured">
+          <span class="pricing-card__hot">MOST SHIPPED</span>
+          <h3 class="pricing-card__plan">PRO</h3>
+          <p class="pricing-card__price">$19</p>
+          <p class="pricing-card__per">per month · solo builders</p>
+          <ul class="pricing-card__items">
+            <li>Unlimited projects &amp; models</li>
+            <li>Skills Hub — install any skill</li>
+            <li>Auth + Payments for your users</li>
+            <li>Custom domains · usage analytics</li>
+          </ul>
+          <a class="btn btn--primary" href="02_Auth/signup.html">GO PRO →</a>
+        </div>
+
+        <div class="pricing-card">
+          <h3 class="pricing-card__plan">TEAM</h3>
+          <p class="pricing-card__price">$49</p>
+          <p class="pricing-card__per">per month · org space</p>
+          <ul class="pricing-card__items">
+            <li>Everything in Pro, for your org</li>
+            <li>Members, roles &amp; audit log</li>
+            <li>SSO / SCIM provisioning</li>
+            <li>Priority routing + shared balance</li>
+          </ul>
+          <a class="btn" href="02_Auth/signup.html">CONTACT SALES</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ VEE BAND ════════ -->
+  <div class="vee-band">
+    <div class="container">
+      <div class="vee-band__inner">
+        <div class="vee-band__faces">
+          <div class="vee-band__face"><svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="46" fill="#101010"/><rect x="12" y="16" width="40" height="42" fill="#D8FF00" stroke="#101010" stroke-width="4"/><rect x="20" y="28" width="9" height="14" fill="#101010"/><rect x="35" y="28" width="9" height="14" fill="#101010"/><rect x="22" y="46" width="20" height="4" fill="#101010"/></svg></div>
+          <div class="vee-band__face"><svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="46" fill="#101010"/><rect x="12" y="16" width="40" height="42" fill="#D8FF00" stroke="#101010" stroke-width="4"/><rect x="20" y="28" width="9" height="14" fill="#101010"/><rect x="35" y="28" width="9" height="14" fill="#101010"/><rect x="20" y="44" width="24" height="6" fill="#101010"/></svg></div>
+          <div class="vee-band__face"><svg viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="46" fill="#101010"/><rect x="12" y="16" width="40" height="42" fill="#D8FF00" stroke="#101010" stroke-width="4"/><rect x="18" y="28" width="12" height="10" fill="#101010"/><rect x="34" y="28" width="12" height="10" fill="#101010"/><rect x="20" y="44" width="24" height="6" fill="#101010"/></svg></div>
+        </div>
+        <div class="vee-band__text">
+          <p class="vee-band__quote">“Vee is watching your deploys.”</p>
+          <p class="vee-band__attr">— EVERY AGENT FOREMAN, EVER</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ CTA ════════ -->
+  <section class="cta">
+    <div class="container">
+      <h2 class="cta__title">Stop gluing.<br>Start shipping.</h2>
+      <p class="cta__sub">YOUR AGENT COULD BE LIVE BEFORE THIS PAGE FINISHES SCROLLING.</p>
+      <a class="btn" href="02_Auth/signup.html" style="padding: 14px 28px;">START BUILDING — FREE →</a>
+    </div>
+  </section>
+
+  <!-- ════════ FOOTER ════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div>
+          <div class="footer__brand">
+            <span class="footer__brand-logo">
+              <svg viewBox="0 0 32 32" aria-label="Vee">
+                <rect x="10" y="12" width="3" height="6" fill="#101010"/>
+                <rect x="19" y="12" width="3" height="6" fill="#101010"/>
+                <rect x="12" y="22" width="8" height="2" fill="#101010"/>
+                <rect x="13" y="4" width="6" height="3" fill="#101010"/>
+                <rect x="15" y="1" width="2" height="4" fill="#101010"/>
+              </svg>
+            </span>
+            <span class="footer__brand-text">VECTOREE</span>
+          </div>
+          <p class="footer__pipeline">MODELS → SKILLS → AUTH → PAYMENTS → DEPLOY</p>
+          <p class="footer__copy">© 2026 VECTOREE INC.</p>
+        </div>
+        <div class="footer__cols">
+          <div class="footer__col">
+            <h4 class="footer__col-title">Product</h4>
+            <ul>
+              <li><a href="#stack">Model Plaza</a></li>
+              <li><a href="#stack">Templates</a></li>
+              <li><a href="#stack">Skills Hub</a></li>
+              <li><a href="#stack">Auth &amp; Payments</a></li>
+              <li><a href="#pricing">Pricing</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h4 class="footer__col-title">Developers</h4>
+            <ul>
+              <li><a href="#sdk">Documentation</a></li>
+              <li><a href="#sdk">SDK Reference</a></li>
+              <li><a href="#">API Status</a></li>
+              <li><a href="#">Changelog</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h4 class="footer__col-title">Company</h4>
+            <ul>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Twitter / X</a></li>
+              <li><a href="#">GitHub</a></li>
+              <li><a href="#">Careers</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>VECTOREE · THE AGENT FACTORY FLOOR</span>
+        <span>EN / 中文</span>
+      </div>
+      <div class="footer__marquee">
+        <div class="footer__marquee-track">
+          <span><strong>PICK A MODEL</strong> → <strong>FORK A TEMPLATE</strong> → <strong>INSTALL SKILLS</strong> → <strong>ADD AUTH</strong> → <strong>CHARGE USERS</strong> → <strong>DEPLOY</strong> → <strong>SHIP YOUR AGENT</strong> · VECTOREE ·</span>
+          <span><strong>PICK A MODEL</strong> → <strong>FORK A TEMPLATE</strong> → <strong>INSTALL SKILLS</strong> → <strong>ADD AUTH</strong> → <strong>CHARGE USERS</strong> → <strong>DEPLOY</strong> → <strong>SHIP YOUR AGENT</strong> · VECTOREE ·</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── 滚动浮现 ──
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── 语言切换（EN / 中文）──
+    const zhDict = {
+      't1': 'SHIP', 't2': 'YOUR', 't3': 'AGENT.',
+      'sticker': 'v1.0 · 现已上线',
+      'stack': 'models · templates · skills · <strong>auth</strong> · <strong>payments</strong> · <strong>data</strong> · <strong>deploy</strong>',
+      'sub': '<strong>Vectoree 融合</strong> models · templates · skills · auth · payments · data · deploy <strong>于一个控制台。</strong>OpenRouter + Clerk + Stripe + Supabase + Vercel 全家桶 —— 预装配，别再拼五家 SaaS，直接开造。'
+    };
+    const enDict = {
+      't1': 'SHIP', 't2': 'YOUR', 't3': 'AGENT.',
+      'sticker': 'v1.0 · NOW LIVE',
+      'stack': 'models · templates · skills · <strong>auth</strong> · <strong>payments</strong> · <strong>data</strong> · <strong>deploy</strong>',
+      'sub': '<strong>Vectoree fuses</strong> models · templates · skills · auth · payments · data · deploy <strong>into one console.</strong> The OpenRouter + Clerk + Stripe + Supabase + Vercel stack — pre-assembled, so you stop gluing five SaaS tools and start shipping.'
+    };
+    const langSwitch = document.querySelector('[data-lang-switch]');
+    if (langSwitch) {
+      langSwitch.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('button');
+        if (!btn) return;
+        const lang = btn.dataset.lang;
+        langSwitch.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+        const dict = lang === 'zh' ? zhDict : enDict;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.dataset.i18n;
+          if (dict[key]) el.innerHTML = dict[key];
+        });
+      });
+    }
+
+    // ── 移动端菜单 ──
+    document.querySelectorAll('.mobile-menu a').forEach(a => {
+      a.addEventListener('click', () => document.querySelector('.mobile-menu').classList.remove('open'));
+    });
+  </script>
+</body>
+</html>

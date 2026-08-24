@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 2,
+  "slug": "card",
+  "name": "Card",
+  "category": "container",
+  "sourceKind": "structured-spec",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    "content card",
+    "metric card",
+    "panel container"
+  ],
+  "variantDimensions": {
+    "tone": [
+      "default",
+      "soft",
+      "inverse"
+    ],
+    "density": [
+      "compact",
+      "default"
+    ]
+  },
+  "representativeVariants": [
+    {
+      "tone": "default",
+      "density": "default"
+    },
+    {
+      "tone": "soft",
+      "density": "default"
+    },
+    {
+      "tone": "inverse",
+      "density": "compact"
+    }
+  ],
+  "anatomy": [
+    "root",
+    "header",
+    "title",
+    "body",
+    "footer"
+  ],
+  "structurePatterns": [
+    "Cards use hard edges, visible borders, and short shadow offsets to feel like physical dashboard modules pinned to graph paper.",
+    "Metric cards favor a mono label plus oversized display value.",
+    "Content cards keep generous internal spacing and rarely rely on tinted fills beyond subtle acid accents."
+  ],
+  "usageHints": [
+    "Default surface is --color-surface with --color-border-strong and --shadow-card.",
+    "Soft cards can use --color-surface-soft for lightweight emphasis areas.",
+    "Inverse cards should be reserved for terminal-like or code-heavy content."
+  ],
+  "doNotInvent": [
+    "No blur, glass, or soft neumorphic treatment.",
+    "No rounded corners or floating borderless surfaces."
+  ],
+  "unknowns": [
+    "Nested card conventions inside dense analytical pages are only partially visible."
+  ],
+  "tokensConsumed": [
+    "--color-surface",
+    "--color-surface-soft",
+    "--color-surface-inverse",
+    "--color-text-primary",
+    "--color-text-secondary",
+    "--color-text-inverse",
+    "--color-border-strong",
+    "--type-font-display",
+    "--type-font-mono",
+    "--type-size-xs",
+    "--type-size-2xl",
+    "--sp-4",
+    "--sp-5",
+    "--shadow-card",
+    "--radius-none"
+  ],
+  "domAnatomy": {
+    "root": {
+      "tag": "section",
+      "class": "ds-card",
+      "children": [
+        {
+          "tag": "header",
+          "class": "ds-card__header"
+        },
+        {
+          "tag": "div",
+          "class": "ds-card__body"
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "preview": "preview/component-card.html",
+    "source": "specs/dashboard-overview.html",
+    "css": {
+      "file": "components.css",
+      "marker": "Card"
+    }
+  }
+}

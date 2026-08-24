@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #101010;
+      color: #F1F1E8;
+      padding: 20px;
+      width: 280px;
+    }
+    
+    h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #D8FF00;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+    
+    .subtitle {
+      font-size: 11px;
+      color: #6B6B60;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    
+    .section {
+      margin-bottom: 16px;
+    }
+    
+    .section-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: #6B6B60;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    
+    button {
+      width: 100%;
+      padding: 12px 16px;
+      background: #D8FF00;
+      color: #101010;
+      border: 2px solid #101010;
+      border-radius: 0;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      box-shadow: 3px 3px 0 #101010;
+      transition: transform 0.05s, box-shadow 0.05s;
+    }
+    
+    button:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 #101010;
+    }
+    
+    button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0 #101010;
+    }
+    
+    button.secondary {
+      background: #FFFFFF;
+    }
+    
+    button.small {
+      padding: 8px 12px;
+      font-size: 10px;
+      box-shadow: 2px 2px 0 #101010;
+    }
+    
+    .status {
+      font-size: 11px;
+      color: #D8FF00;
+      padding: 10px 12px;
+      background: rgba(216, 255, 0, 0.08);
+      border: 1px solid rgba(216, 255, 0, 0.2);
+      margin-top: 12px;
+      font-family: 'SF Mono', Monaco, monospace;
+      line-height: 1.5;
+      min-height: 40px;
+    }
+    
+    .status.error {
+      color: #ff4444;
+      background: rgba(255, 68, 68, 0.08);
+      border-color: rgba(255, 68, 68, 0.2);
+    }
+    
+    .status.done {
+      color: #D8FF00;
+    }
+    
+    .divider {
+      height: 1px;
+      background: #333;
+      margin: 16px 0;
+    }
+    
+    .info {
+      font-size: 10px;
+      color: #555;
+      line-height: 1.5;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #222;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 Vectoree Design System</h1>
+  <p class="subtitle">v1.0 — 从生产环境反推的设计资产</p>
+  
+  <div class="section">
+    <div class="section-title">一键生成全部</div>
+    <button onclick="generate('all')">🚀 Generate All Pages</button>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <div class="section">
+    <div class="section-title">单独生成</div>
+    <button class="secondary small" onclick="generate('design-system')">🎨 Design System</button>
+    <button class="secondary small" onclick="generate('components')">🔘 Components</button>
+    <button class="secondary small" onclick="generate('homepage')">📄 Homepage Sections</button>
+  </div>
+  
+  <div id="status" class="status" style="display:none;"></div>
+  
+  <div class="info">
+    <strong>生成内容：</strong><br>
+    • 颜色板 / 字体 / 间距 / 阴影<br>
+    • 按钮 / 卡片 / 终端 / 定价卡<br>
+    • Hero / Assembly Line / SDK / Pricing
+  </div>
+
+  <script>
+    function generate(type) {
+      const statusEl = document.getElementById('status');
+      statusEl.style.display = 'block';
+      statusEl.className = 'status';
+      statusEl.textContent = '⏳ Generating...';
+      
+      parent.postMessage({ pluginMessage: { type: `generate-${type}` } }, '*');
+    }
+    
+    window.addEventListener('message', event => {
+      const msg = event.data.pluginMessage;
+      const statusEl = document.getElementById('status');
+      
+      if (msg.type === 'status') {
+        statusEl.textContent = msg.message;
+        statusEl.className = 'status';
+      }
+      
+      if (msg.type === 'done') {
+        statusEl.textContent = msg.message + '\n\nPages created:';
+        if (msg.pages) {
+          msg.pages.forEach(p => {
+            statusEl.textContent += '\n✓ ' + p;
+          });
+        }
+        statusEl.className = 'status done';
+      }
+      
+      if (msg.type === 'error') {
+        statusEl.textContent = msg.message;
+        statusEl.className = 'status error';
+      }
+    });
+  </script>
+</body>
+</html>

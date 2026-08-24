@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 2,
+  "slug": "button",
+  "name": "Button",
+  "category": "action",
+  "sourceKind": "structured-spec",
+  "confidence": "medium",
+  "semanticTypeCandidates": [
+    "primary action button",
+    "secondary utility button",
+    "ghost toolbar button"
+  ],
+  "variantDimensions": {
+    "priority": [
+      "primary",
+      "dark",
+      "ghost"
+    ],
+    "size": [
+      "sm",
+      "md"
+    ],
+    "state": [
+      "default",
+      "hover",
+      "pressed",
+      "disabled"
+    ]
+  },
+  "representativeVariants": [
+    {
+      "priority": "primary",
+      "size": "md",
+      "state": "default"
+    },
+    {
+      "priority": "dark",
+      "size": "md",
+      "state": "default"
+    },
+    {
+      "priority": "ghost",
+      "size": "sm",
+      "state": "hover"
+    }
+  ],
+  "anatomy": [
+    "root",
+    "label",
+    "leading-icon",
+    "trailing-icon"
+  ],
+  "structurePatterns": [
+    "Use 2px hard borders with a visible shadow offset to preserve the control-room character.",
+    "Button labels stay uppercase and compact; visual weight comes from contrast and shadow, not corner radius.",
+    "Primary actions use the acid surface while darker variants invert the contrast for header and terminal contexts."
+  ],
+  "usageHints": [
+    "Primary CTA uses --color-accent-primary on --color-text-on-accent.",
+    "Ghost and dark variants rely on --color-surface and --color-surface-inverse with the same border geometry.",
+    "Hover enlarges the hard shadow; pressed collapses to --shadow-card-press."
+  ],
+  "doNotInvent": [
+    "No pill button or rounded CTA treatment.",
+    "No soft gradients or translucent glass states."
+  ],
+  "unknowns": [
+    "Loading spinner treatment is not explicitly defined in the source prototype."
+  ],
+  "tokensConsumed": [
+    "--color-accent-primary",
+    "--color-surface",
+    "--color-surface-inverse",
+    "--color-text-on-accent",
+    "--color-text-inverse",
+    "--color-text-primary",
+    "--color-border-strong",
+    "--type-font-mono",
+    "--type-size-xs",
+    "--type-weight-bold",
+    "--sp-2",
+    "--sp-3",
+    "--sp-4",
+    "--shadow-card",
+    "--shadow-card-hover",
+    "--shadow-card-press",
+    "--radius-none"
+  ],
+  "domAnatomy": {
+    "root": {
+      "tag": "button",
+      "class": "ds-button",
+      "children": [
+        {
+          "tag": "span",
+          "class": "ds-button__label"
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "preview": "preview/component-button.html",
+    "source": "specs/homepage.html",
+    "css": {
+      "file": "components.css",
+      "marker": "Button"
+    }
+  }
+}

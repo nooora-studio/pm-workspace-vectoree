@@ -1,0 +1,7 @@
+{
+  "name": "Vectoree Design System v3",
+  "id": "vectoree-ds-v3",
+  "api": "1.0.0",
+  "main": "figma_vectoree_design_system.js",
+  "editorType": ["figma"]
+}
