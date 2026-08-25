@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>模块八 · 模型上架原型演示</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; margin:0; background:#f5f6f8; color:#1f2329; }
+  header { background:#fff; border-bottom:1px solid #e5e6eb; padding:16px 24px; }
+  header h1 { font-size:18px; margin:0; }
+  header p { margin:4px 0 0; color:#86909c; font-size:13px; }
+  .tabs { display:flex; gap:8px; padding:12px 24px 0; background:#fff; }
+  .tab { padding:8px 16px; border:1px solid #e5e6eb; border-bottom:none; border-radius:6px 6px 0 0; cursor:pointer; font-size:14px; background:#f5f6f8; color:#4e5969; }
+  .tab.active { background:#fff; color:#1f2329; font-weight:600; border-color:#3370ff; }
+  .panel { display:none; padding:24px; max-width:880px; margin:0 auto; }
+  .panel.active { display:block; }
+  .card { background:#fff; border:1px solid #e5e6eb; border-radius:8px; padding:20px; margin-bottom:16px; }
+  .card h3 { margin:0 0 12px; font-size:15px; }
+  .stepbar { display:flex; gap:8px; margin-bottom:16px; }
+  .stepbar .s { flex:1; text-align:center; font-size:12px; padding:8px 4px; border-radius:6px; background:#f2f3f5; color:#86909c; }
+  .stepbar .s.on { background:#3370ff; color:#fff; }
+  .stepbar .s.done { background:#e8f3ff; color:#3370ff; }
+  label { display:block; font-size:13px; margin:12px 0 4px; color:#4e5969; }
+  input, select { width:100%; padding:8px 10px; border:1px solid #d9d9d9; border-radius:6px; font-size:14px; }
+  .row { display:flex; gap:12px; }
+  .row > div { flex:1; }
+  button { padding:8px 18px; border:none; border-radius:6px; font-size:14px; cursor:pointer; }
+  .btn-primary { background:#3370ff; color:#fff; }
+  .btn-ghost { background:#f2f3f5; color:#4e5969; }
+  .actions { display:flex; justify-content:space-between; margin-top:16px; }
+  .hint { font-size:12px; color:#86909c; margin-top:4px; }
+  .calc { background:#f7f8fa; border-radius:6px; padding:10px; margin-top:10px; font-size:13px; line-height:1.7; }
+  .calc b { color:#3370ff; }
+  .checklist { list-style:none; padding:0; margin:0; }
+  .checklist li { padding:10px 0; border-bottom:1px dashed #eee; font-size:14px; }
+  .ok { color:#00b42a; font-weight:600; }
+  .bad { color:#f53f3f; font-weight:600; }
+  table.preview { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+  table.preview th, table.preview td { border:1px solid #e5e6eb; padding:8px; text-align:left; }
+  table.preview th { background:#f2f3f5; }
+  .red { background:#fff1f0; color:#f53f3f; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:12px; background:#e8f3ff; color:#3370ff; margin-right:4px; }
+  .banner { background:#e8f3ff; border:1px solid #cadbff; color:#1d4ed8; padding:10px 14px; border-radius:6px; font-size:13px; margin-bottom:16px; }
+  .bindlist { font-size:13px; color:#4e5969; margin-top:8px; }
+  .bindlist div { padding:4px 0; }
+  .hidden { display:none; }
+  .result { background:#f0faf0; border:1px solid #b7eb8f; color:#237804; padding:12px 14px; border-radius:6px; font-size:14px; margin-top:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>模块八 · 模型上架原型演示</h1>
+  <p>checklist 理想路径 6 步 → 产品化。两条入口：手动向导 / 批量导入。</p>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('wizard')">入口 B · 单模型上架向导</div>
+  <div class="tab" onclick="switchTab('batch')">入口 A · 批量导入（CSV）</div>
+</div>
+
+<!-- ============ 向导 ============ -->
+<div class="panel active" id="wizard">
+  <div class="stepbar">
+    <div class="s on" id="ws1">1 基础信息</div>
+    <div class="s" id="ws2">2 绑渠道</div>
+    <div class="s" id="ws3">3 价格</div>
+    <div class="s" id="ws4">4 预检&amp;验收</div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="card" id="wstep1">
+    <h3>第 1 步 · 基础信息（一次收齐）</h3>
+    <label>对外显示名</label>
+    <input id="dispName" placeholder="如：自动模型" oninput="genSlug()">
+    <label>对外 slug（用户可见的模型名，自动生成 / 可改）</label>
+    <input id="pubSlug" placeholder="vectoree/auto">
+    <div class="hint">系统把"对外名"自动包成 vectoree/ 前缀。这就是"两层 slug"里的对外层。</div>
+    <label>模态</label>
+    <select><option>文本</option><option>图像</option><option>视频</option><option>音频</option><option>Embedding</option></select>
+    <label>计费模式</label>
+    <select><option>Token（文本）</option><option>图像生成</option><option>视频生成</option><option>音频（TTS）</option><option>固定按次</option><option>透传上游成本</option></select>
+    <div class="actions">
+      <span></span>
+      <button class="btn-primary" onclick="goWizard(2)">下一步</button>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="card hidden" id="wstep2">
+    <h3>第 2 步 · 绑渠道（主 + 备，带优先级）</h3>
+    <div class="row">
+      <div>
+        <label>主渠道</label>
+        <select><option>阿里国际</option><option>Azure极云</option><option>火山云</option><option>OpenRouter</option></select>
+      </div>
+      <div>
+        <label>上游 slug（upstream id）</label>
+        <input placeholder="如：google/gemini-flash-001">
+      </div>
+    </div>
+    <label>备用渠道 1 + 优先级</label>
+    <div class="row">
+      <div><select><option>Azure极云</option><option>火山云</option><option>阿里国际</option></select></div>
+      <div><input type="number" value="2" min="1" max="5"></div>
+    </div>
+    <label>备用渠道 2 + 优先级</label>
+    <div class="row">
+      <div><select><option>火山云</option><option>Azure极云</option><option>OpenRouter</option></select></div>
+      <div><input type="number" value="3" min="1" max="5"></div>
+    </div>
+    <div class="bindlist">系统将自动生成：channelBindings + 路由策略 + 容错策略（故障转移链路），取代现状"0 个故障转移步骤"。</div>
+    <div class="actions">
+      <button class="btn-ghost" onclick="goWizard(1)">上一步</button>
+      <button class="btn-primary" onclick="goWizard(3)">下一步</button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="card hidden" id="wstep3">
+    <h3>第 3 步 · 价格三态（选一，系统算）</h3>
+    <label><input type="radio" name="ptype" value="manual" checked onchange="switchPrice()"> 手填售价（导组件，系统算）</label>
+    <label><input type="radio" name="ptype" value="follow" onchange="switchPrice()"> 跟随上游（透传上游成本）</label>
+    <label><input type="radio" name="ptype" value="free" onchange="switchPrice()"> 免费 / 允许零价</label>
+
+    <div id="pManual">
+      <div class="row">
+        <div><label>刊例价（$/M tokens）</label><input id="listPrice" type="number" value="1.25" oninput="calcPrice()"></div>
+        <div><label>成本折扣（供应商，%）</label><input id="costDisc" type="number" value="70" oninput="calcPrice()"></div>
+        <div><label>售价折扣（我们，%）</label><input id="saleDisc" type="number" value="95" oninput="calcPrice()"></div>
+      </div>
+      <div class="calc" id="priceOut"></div>
+    </div>
+    <div id="pFollow" class="hidden">
+      <div class="hint">选"跟随上游"后不填价，系统取主渠道供应商结算价，自动同步波动。</div>
+    </div>
+    <div id="pFree" class="hidden">
+      <div class="hint">开启免费/零价开关，用户调用不扣费（适合引流 / 内部模型）。</div>
+    </div>
+    <div class="actions">
+      <button class="btn-ghost" onclick="goWizard(2)">上一步</button>
+      <button class="btn-primary" onclick="goWizard(4)">下一步</button>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="card hidden" id="wstep4">
+    <h3>第 4 步 · 预检 &amp; 验收</h3>
+    <ul class="checklist">
+      <li>① 渠道健康（密钥可连通） <span id="c1" class="bad">未检查</span></li>
+      <li>② 上游 id 齐全（主+备都绑了） <span id="c2" class="bad">未检查</span></li>
+      <li>③ 价格完整（三态已定、无异常） <span id="c3" class="bad">未检查</span></li>
+      <li>④ 试打一条（真实调用成功） <span id="c4" class="bad">未检查</span></li>
+    </ul>
+    <button class="btn-primary" onclick="runPrecheck()">运行预检</button>
+    <div id="acceptResult"></div>
+    <div class="actions">
+      <button class="btn-ghost" onclick="goWizard(3)">上一步</button>
+      <button class="btn-primary hidden" id="publishBtn" onclick="alert('已上架，Plaza 已可见')">上架</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 批量导入 ============ -->
+<div class="panel" id="batch">
+  <div class="stepbar">
+    <div class="s on" id="bs1">1 上传</div>
+    <div class="s" id="bs2">2 映射校验</div>
+    <div class="s" id="bs3">3 预览</div>
+    <div class="s" id="bs4">4 上架</div>
+  </div>
+
+  <div class="card" id="bstep1">
+    <h3>第 1 步 · 上传规范模板</h3>
+    <div class="banner">运营把 4 张 CSV 按规范模板（两层 slug / 计量单位 / 折扣组件）整理后上传。不改 Excel 习惯，只补缺失列。</div>
+    <button class="btn-ghost" onclick="document.getElementById('fileInput').click()">选择文件</button>
+    <input id="fileInput" type="file" class="hidden" onchange="document.getElementById('fileName').textContent=this.files[0]?this.files[0].name:'未选择'">
+    <div class="hint">已选：<span id="fileName">模型上架导入.csv</span></div>
+    <div class="actions">
+      <span></span>
+      <button class="btn-primary" onclick="goBatch(2)">下一步</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="bstep2">
+    <h3>第 2 步 · 字段映射校验</h3>
+    <p class="hint">系统自动把运营表列对齐到规范列，对不上的标红。</p>
+    <table class="preview">
+      <tr><th>规范列</th><th>来源列</th><th>状态</th></tr>
+      <tr><td>上游 slug</td><td>Base_slug</td><td><span class="ok">✓ 匹配</span></td></tr>
+      <tr><td>对外 slug</td><td><span class="red">（缺失）</span></td><td><span class="bad">需补</span></td></tr>
+      <tr><td>主渠道</td><td>供应商</td><td><span class="ok">✓ 匹配</span></td></tr>
+      <tr><td>备用渠道+优先级</td><td>供应商备1/2/3</td><td><span class="ok">✓ 匹配（已拆结构）</span></td></tr>
+      <tr><td>计费模式</td><td>计量单位</td><td><span class="ok">✓ 匹配</span></td></tr>
+      <tr><td>刊例价</td><td>region刊例</td><td><span class="ok">✓ 匹配</span></td></tr>
+      <tr><td>成本/售价折扣</td><td>供应商折扣/我们设置的折扣</td><td><span class="ok">✓ 匹配</span></td></tr>
+      <tr><td>折扣有效期</td><td><span class="red">（缺失）</span></td><td><span class="bad">需补</span></td></tr>
+    </table>
+    <div class="actions">
+      <button class="btn-ghost" onclick="goBatch(1)">上一步</button>
+      <button class="btn-primary" onclick="goBatch(3)">下一步</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="bstep3">
+    <h3>第 3 步 · 预览（系统算价 + 过滤候选行）</h3>
+    <div class="banner">已自动过滤 <b>12 行</b> 候选（是否调用="-"），仅导入已决策模型。价格由系统按组件算出。</div>
+    <table class="preview">
+      <tr><th>对外 slug</th><th>模态</th><th>主渠道</th><th>刊例价</th><th>算出售价($/M)</th></tr>
+      <tr><td>vectoree/auto</td><td><span class="tag">文本</span></td><td>阿里国际</td><td>1.25</td><td><b>1.19</b></td></tr>
+      <tr><td>vectoree/jamba</td><td><span class="tag">文本</span></td><td>阿里国际</td><td>2.00</td><td><b>1.90</b></td></tr>
+      <tr><td>vectoree/image</td><td><span class="tag">图像</span></td><td>Azure极云</td><td>0.04/张</td><td><b>0.038/张</b></td></tr>
+    </table>
+    <div class="actions">
+      <button class="btn-ghost" onclick="goBatch(2)">上一步</button>
+      <button class="btn-primary" onclick="goBatch(4)">下一步</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="bstep4">
+    <h3>第 4 步 · 批量预检 &amp; 上架</h3>
+    <ul class="checklist">
+      <li>无绑定 / 无价 / 渠道不健康 的行已拦截 <span class="ok">✓</span></li>
+      <li>折扣已过期 的行已拦截 <span class="ok">✓</span></li>
+      <li>3 个模型全部通过预检 <span class="ok">✓</span></li>
+    </ul>
+    <button class="btn-primary" onclick="document.getElementById('batchResult').className='result';document.getElementById('batchResult').textContent='已批量上架 3 个模型，Plaza 已可见。'">批量上架</button>
+    <div id="batchResult"></div>
+    <div class="actions">
+      <button class="btn-ghost" onclick="goBatch(3)">上一步</button>
+      <span></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(id){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(id).classList.add('active');
+  }
+  function goWizard(n){
+    for(let i=1;i<=4;i++){ document.getElementById('wstep'+i).classList.add('hidden'); document.getElementById('ws'+i).className='s'; }
+    document.getElementById('wstep'+n).classList.remove('hidden');
+    document.getElementById('ws'+n).className='s on';
+    if(n>1) for(let i=1;i<n;i++) document.getElementById('ws'+i).className='s done';
+    if(n===3) calcPrice();
+  }
+  function goBatch(n){
+    for(let i=1;i<=4;i++){ document.getElementById('bstep'+i).classList.add('hidden'); document.getElementById('bs'+i).className='s'; }
+    document.getElementById('bstep'+n).classList.remove('hidden');
+    document.getElementById('bs'+n).className='s on';
+    if(n>1) for(let i=1;i<n;i++) document.getElementById('bs'+i).className='s done';
+  }
+  function genSlug(){
+    var n=document.getElementById('dispName').value.trim();
+    document.getElementById('pubSlug').value = n? ('vectoree/'+n.toLowerCase().replace(/\s+/g,'-')) : '';
+  }
+  function switchPrice(){
+    var v=document.querySelector('input[name=ptype]:checked').value;
+    document.getElementById('pManual').classList.toggle('hidden', v!=='manual');
+    document.getElementById('pFollow').classList.toggle('hidden', v!=='follow');
+    document.getElementById('pFree').classList.toggle('hidden', v!=='free');
+  }
+  function calcPrice(){
+    var lp=parseFloat(document.getElementById('listPrice').value)||0;
+    var cd=parseFloat(document.getElementById('costDisc').value)||0;
+    var sd=parseFloat(document.getElementById('saleDisc').value)||0;
+    var cost=lp*cd/100, sale=lp*sd/100, margin=(sale-cost);
+    document.getElementById('priceOut').innerHTML =
+      '成本（刊例×成本折扣）= <b>$'+cost.toFixed(3)+'</b> / 售价（刊例×售价折扣）= <b>$'+sale.toFixed(3)+'</b> / 利差 = <b>$'+margin.toFixed(3)+'</b>';
+  }
+  function runPrecheck(){
+    ['c1','c2','c3','c4'].forEach(id=>{ document.getElementById(id).textContent='✓ 通过'; document.getElementById(id).className='ok'; });
+    document.getElementById('acceptResult').className='result';
+    document.getElementById('acceptResult').textContent='预检全部通过，已试打一条成功，Plaza 已可见。';
+    document.getElementById('publishBtn').classList.remove('hidden');
+  }
+  calcPrice();
+</script>
+</body>
+</html>

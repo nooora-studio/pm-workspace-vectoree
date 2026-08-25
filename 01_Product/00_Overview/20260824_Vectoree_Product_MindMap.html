@@ -1,0 +1,316 @@
+<!--
+  title: "Vectoree 已上线产品 · 产品模块思维导图与操作路径"
+  description: "基于官网 + launch-checklist 的当前已上线版本（四块积木）产品模块思维导图，及两条操作路径（用户/租户控制台、开发者 CLI+Skill）可视化"
+  author: "PM + AI"
+  created: "2026-08-24"
+  updated: "2026-08-24"
+  status: "ACTIVE"
+  version: "1.0"
+  tags: ["product-overview", "mindmap", "vectoree", "modules", "operation-path"]
+  owners: ["PM"]
+  location: "01_Product/00_Overview/"
+  note: "六块积木（模板/技能中心/部署/订阅档）为战略愿景版，非当前产品，已在图内标注"
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vectoree 已上线产品 · 思维导图与操作路径</title>
+<style>
+  :root {
+    --acid: #d8ff00;
+    --ink: #101010;
+    --paper: #f1f1e8;
+    --bg: #14140f;
+    --card: #1d1d22;
+    --card2: #242429;
+    --line: #33332c;
+    --text: #e9e9df;
+    --muted: #9b9b8f;
+    --a: #d8ff00; /* 四大积木 */
+    --b: #38bdf8; /* 计费底座 */
+    --c: #c084fc; /* 开发者入口 */
+    --d: #fb923c; /* 操作路径 */
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Space Grotesk", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    padding: 28px 22px 60px;
+  }
+  header {
+    border: 2px solid var(--acid);
+    box-shadow: 5px 5px 0 var(--acid);
+    background: #1a1a1f;
+    padding: 18px 22px;
+    margin-bottom: 26px;
+  }
+  header h1 {
+    font-family: "Archivo Black", "PingFang SC", sans-serif;
+    margin: 0 0 6px;
+    font-size: 22px;
+    letter-spacing: .5px;
+    color: var(--acid);
+  }
+  header p { margin: 4px 0; font-size: 13px; color: var(--muted); }
+  header .src { color: var(--text); }
+  section { margin-bottom: 34px; }
+  h2 {
+    font-family: "Archivo Black", "PingFang SC", sans-serif;
+    font-size: 17px;
+    border-left: 6px solid var(--acid);
+    padding-left: 12px;
+    margin: 0 0 16px;
+  }
+  .note {
+    font-size: 12.5px;
+    color: var(--muted);
+    background: #1b1b20;
+    border: 1px solid var(--line);
+    padding: 10px 14px;
+    margin-top: 14px;
+  }
+  .note b { color: var(--d); }
+  svg { width: 100%; height: auto; display: block; background: #16160f; border: 1px solid var(--line); }
+  /* 操作路径流 */
+  .flow { margin-bottom: 22px; }
+  .flow h3 {
+    font-size: 14px; margin: 0 0 12px; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tag {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border: 1px solid;
+    text-transform: uppercase;
+  }
+  .tag.d1 { color: var(--d); border-color: var(--d); }
+  .tag.d2 { color: var(--c); border-color: var(--c); }
+  .steps { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; }
+  .step {
+    flex: 1 1 150px; min-width: 150px;
+    background: var(--card2);
+    border: 2px solid var(--line);
+    border-left-width: 5px;
+    padding: 12px 12px;
+    position: relative;
+  }
+  .step.d1 { border-left-color: var(--d); }
+  .step.d2 { border-left-color: var(--c); }
+  .step .n {
+    font-family: "Archivo Black", sans-serif;
+    font-size: 12px; color: var(--muted); margin-bottom: 4px;
+  }
+  .step .t { font-size: 13.5px; font-weight: 600; }
+  .step .s { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  .arrow {
+    flex: 0 0 26px; display: flex; align-items: center; justify-content: center;
+    color: var(--acid); font-size: 20px; font-weight: 700;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 11px; height: 11px; display: inline-block; border: 1px solid #000; }
+  footer {
+    font-size: 12px; color: var(--muted);
+    border-top: 1px solid var(--line); padding-top: 14px; margin-top: 10px;
+  }
+  footer b { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Vectoree.ai · 已上线产品思维导图与操作路径</h1>
+  <p class="src">事实来源：vectoree.ai 官网 + <code>launch-checklist.md</code>（当前已交付版本）</p>
+  <p>口径：One console. Four blocks. —— 模型网关 / Auth / Database / Storage + 组织钱包 PAYG</p>
+</header>
+
+<section>
+  <h2>一、产品模块思维导图（当前已上线 · 四块积木）</h2>
+
+  <svg viewBox="0 0 800 950" role="img" aria-label="Vectoree 产品模块思维导图">
+    <defs>
+      <filter id="hard" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="3" dy="3" stdDeviation="0" flood-color="#000" flood-opacity="0.55"/>
+      </filter>
+    </defs>
+
+    <!-- 连接线：中心 → 分支 -->
+    <g fill="none" stroke-width="2" opacity="0.85">
+      <path d="M204 498 C 250 498 254 131 300 131" stroke="var(--a)"/>
+      <path d="M204 498 C 250 498 254 397 300 397" stroke="var(--b)"/>
+      <path d="M204 498 C 250 498 254 663 300 663" stroke="var(--c)"/>
+      <path d="M204 498 C 250 498 254 865 300 865" stroke="var(--d)"/>
+    </g>
+
+    <!-- 连接线：分支 → 子节点 -->
+    <g fill="none" stroke-width="1.6" opacity="0.7">
+      <!-- A 四大积木 (branch center 131) -->
+      <path d="M460 131 C 500 131 500 35 540 35"   stroke="var(--a)"/>
+      <path d="M460 131 C 500 131 500 99 540 99"   stroke="var(--a)"/>
+      <path d="M460 131 C 500 131 500 163 540 163" stroke="var(--a)"/>
+      <path d="M460 131 C 500 131 500 227 540 227" stroke="var(--a)"/>
+      <!-- B 计费底座 (branch center 397) -->
+      <path d="M460 397 C 500 397 500 301 540 301" stroke="var(--b)"/>
+      <path d="M460 397 C 500 397 500 365 540 365" stroke="var(--b)"/>
+      <path d="M460 397 C 500 397 500 429 540 429" stroke="var(--b)"/>
+      <path d="M460 397 C 500 397 500 493 540 493" stroke="var(--b)"/>
+      <!-- C 开发者入口 (branch center 663) -->
+      <path d="M460 663 C 500 663 500 567 540 567" stroke="var(--c)"/>
+      <path d="M460 663 C 500 663 500 631 540 631" stroke="var(--c)"/>
+      <path d="M460 663 C 500 663 500 695 540 695" stroke="var(--c)"/>
+      <path d="M460 663 C 500 663 500 759 540 759" stroke="var(--c)"/>
+      <!-- D 操作路径 (branch center 865) -->
+      <path d="M460 865 C 500 865 500 833 540 833" stroke="var(--d)"/>
+      <path d="M460 865 C 500 865 500 897 540 897" stroke="var(--d)"/>
+    </g>
+
+    <!-- 中心节点 -->
+    <g filter="url(#hard)">
+      <rect x="24" y="448" width="180" height="100" fill="var(--acid)" stroke="var(--ink)" stroke-width="2"/>
+    </g>
+    <text x="114" y="484" text-anchor="middle" font-family="Archivo Black, sans-serif" font-size="16" fill="var(--ink)">Vectoree.ai</text>
+    <text x="114" y="506" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="700" fill="var(--ink)">已上线产品 v1.0</text>
+    <text x="114" y="526" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-size="11" fill="var(--ink)">四块积木 + 钱包 PAYG</text>
+
+    <!-- 分支节点 -->
+    <g font-family="Space Grotesk, sans-serif" font-size="15" font-weight="700" text-anchor="middle">
+      <g filter="url(#hard)"><rect x="300" y="103" width="160" height="56" fill="var(--card)" stroke="var(--a)" stroke-width="2"/></g>
+      <text x="380" y="137" fill="var(--a)">四大积木</text>
+
+      <g filter="url(#hard)"><rect x="300" y="369" width="160" height="56" fill="var(--card)" stroke="var(--b)" stroke-width="2"/></g>
+      <text x="380" y="403" fill="var(--b)">计费底座</text>
+
+      <g filter="url(#hard)"><rect x="300" y="635" width="160" height="56" fill="var(--card)" stroke="var(--c)" stroke-width="2"/></g>
+      <text x="380" y="669" fill="var(--c)">开发者入口</text>
+
+      <g filter="url(#hard)"><rect x="300" y="837" width="160" height="56" fill="var(--card)" stroke="var(--d)" stroke-width="2"/></g>
+      <text x="380" y="871" fill="var(--d)">操作路径</text>
+    </g>
+
+    <!-- 子节点 A -->
+    <g font-family="Space Grotesk, sans-serif">
+      <g filter="url(#hard)"><rect x="540" y="10"  width="210" height="50" fill="var(--card2)" stroke="var(--a)" stroke-width="1.5"/></g>
+      <text x="552" y="32" font-size="13" font-weight="700" fill="var(--a)">GATEWAY · 模型网关</text>
+      <text x="552" y="48" font-size="10.5" fill="var(--muted)">统一项目Key · OpenAI兼容 chat</text>
+
+      <g filter="url(#hard)"><rect x="540" y="74"  width="210" height="50" fill="var(--card2)" stroke="var(--a)" stroke-width="1.5"/></g>
+      <text x="552" y="96" font-size="13" font-weight="700" fill="var(--a)">AUTH · 认证</text>
+      <text x="552" y="112" font-size="10.5" fill="var(--muted)">Google/邮箱 · 给app用户</text>
+
+      <g filter="url(#hard)"><rect x="540" y="138" width="210" height="50" fill="var(--card2)" stroke="var(--a)" stroke-width="1.5"/></g>
+      <text x="552" y="160" font-size="13" font-weight="700" fill="var(--a)">Database · 数据库</text>
+      <text x="552" y="176" font-size="10.5" fill="var(--muted)">Postgres · vectoree db</text>
+
+      <g filter="url(#hard)"><rect x="540" y="202" width="210" height="50" fill="var(--card2)" stroke="var(--a)" stroke-width="1.5"/></g>
+      <text x="552" y="224" font-size="13" font-weight="700" fill="var(--a)">Storage · 存储</text>
+      <text x="552" y="240" font-size="10.5" fill="var(--muted)">Buckets · 文件上传</text>
+    </g>
+
+    <!-- 子节点 B -->
+    <g font-family="Space Grotesk, sans-serif">
+      <g filter="url(#hard)"><rect x="540" y="276" width="210" height="50" fill="var(--card2)" stroke="var(--b)" stroke-width="1.5"/></g>
+      <text x="552" y="298" font-size="13" font-weight="700" fill="var(--b)">组织钱包 PAYG</text>
+      <text x="552" y="314" font-size="10.5" fill="var(--muted)">Stripe充值 · 无月费 $0/月</text>
+
+      <g filter="url(#hard)"><rect x="540" y="340" width="210" height="50" fill="var(--card2)" stroke="var(--b)" stroke-width="1.5"/></g>
+      <text x="552" y="362" font-size="13" font-weight="700" fill="var(--b)">计费方式</text>
+      <text x="552" y="378" font-size="10.5" fill="var(--muted)">按模型用量扣 · 透传上游价</text>
+
+      <g filter="url(#hard)"><rect x="540" y="404" width="210" height="50" fill="var(--card2)" stroke="var(--b)" stroke-width="1.5"/></g>
+      <text x="552" y="426" font-size="13" font-weight="700" fill="var(--b)">内含能力</text>
+      <text x="552" y="442" font-size="10.5" fill="var(--muted)">Auth/DB/Storage 上线内含</text>
+
+      <g filter="url(#hard)"><rect x="540" y="468" width="210" height="50" fill="var(--card2)" stroke="var(--b)" stroke-width="1.5"/></g>
+      <text x="552" y="490" font-size="13" font-weight="700" fill="var(--b)">硬约束</text>
+      <text x="552" y="506" font-size="10.5" fill="var(--muted)">空钱包不能调网关</text>
+    </g>
+
+    <!-- 子节点 C -->
+    <g font-family="Space Grotesk, sans-serif">
+      <g filter="url(#hard)"><rect x="540" y="542" width="210" height="50" fill="var(--card2)" stroke="var(--c)" stroke-width="1.5"/></g>
+      <text x="552" y="564" font-size="13" font-weight="700" fill="var(--c)">Agent Skill</text>
+      <text x="552" y="580" font-size="10.5" fill="var(--muted)">npx skills add VectoreeAI/…</text>
+
+      <g filter="url(#hard)"><rect x="540" y="606" width="210" height="50" fill="var(--card2)" stroke="var(--c)" stroke-width="1.5"/></g>
+      <text x="552" y="628" font-size="13" font-weight="700" fill="var(--c)">CLI 登录绑定</text>
+      <text x="552" y="644" font-size="10.5" fill="var(--muted)">login → link 写 .vectoree/</text>
+
+      <g filter="url(#hard)"><rect x="540" y="670" width="210" height="50" fill="var(--card2)" stroke="var(--c)" stroke-width="1.5"/></g>
+      <text x="552" y="692" font-size="13" font-weight="700" fill="var(--c)">凭证</text>
+      <text x="552" y="708" font-size="10.5" fill="var(--muted)">VECTOREE_API_KEY · CI可跑</text>
+
+      <g filter="url(#hard)"><rect x="540" y="734" width="210" height="50" fill="var(--card2)" stroke="var(--c)" stroke-width="1.5"/></g>
+      <text x="552" y="756" font-size="13" font-weight="700" fill="var(--c)">SDK 定位</text>
+      <text x="552" y="772" font-size="10.5" fill="var(--muted)">@vectoree/sdk 非交付物(后置)</text>
+    </g>
+
+    <!-- 子节点 D -->
+    <g font-family="Space Grotesk, sans-serif">
+      <g filter="url(#hard)"><rect x="540" y="808" width="210" height="50" fill="var(--card2)" stroke="var(--d)" stroke-width="1.5"/></g>
+      <text x="552" y="830" font-size="13" font-weight="700" fill="var(--d)">D1 用户/租户路径</text>
+      <text x="552" y="846" font-size="10.5" fill="var(--muted)">人在控制台（详见下方）</text>
+
+      <g filter="url(#hard)"><rect x="540" y="872" width="210" height="50" fill="var(--card2)" stroke="var(--d)" stroke-width="1.5"/></g>
+      <text x="552" y="894" font-size="13" font-weight="700" fill="var(--d)">D2 开发者路径</text>
+      <text x="552" y="910" font-size="10.5" fill="var(--muted)">CLI + Skill（详见下方）</text>
+    </g>
+  </svg>
+
+  <div class="legend">
+    <span><i class="dot" style="background:var(--a)"></i>四大积木（上线交付）</span>
+    <span><i class="dot" style="background:var(--b)"></i>计费底座（钱包 PAYG）</span>
+    <span><i class="dot" style="background:var(--c)"></i>开发者入口（Skill + CLI）</span>
+    <span><i class="dot" style="background:var(--d)"></i>操作路径</span>
+  </div>
+
+  <p class="note"><b>口径提醒：</b>六块积木（模型/模板/技能中心/认证/支付/数据）是战略愿景版，来自官网营销落地页。<b>当前已上线只交付四块</b>：模型网关、Auth、Database、Storage；模板、能力中心、部署在上线时已从侧栏与落地页隐藏，未交付。定价为 PAYG 钱包、无月费，不是愿景版里的 Free/Pro/Team 订阅档。</p>
+</section>
+
+<section>
+  <h2>二、操作路径</h2>
+
+  <div class="flow">
+    <h3><span class="tag d1">D1</span> 用户 / 租户路径（人在控制台）</h3>
+    <div class="steps">
+      <div class="step d1"><div class="n">01</div><div class="t">注册 / 登录</div><div class="s">Google 一键 / 邮箱验证码(OTP)</div></div>
+      <div class="arrow">→</div>
+      <div class="step d1"><div class="n">02</div><div class="t">建组织 · 项目</div><div class="s">拿项目 API Key</div></div>
+      <div class="arrow">→</div>
+      <div class="step d1"><div class="n">03</div><div class="t">Model Plaza 选模型</div><div class="s">Playground 试跑 · 生成 Key</div></div>
+      <div class="arrow">→</div>
+      <div class="step d1"><div class="n">04</div><div class="t">配 Auth</div><div class="s">登录方式给 app 用户用</div></div>
+      <div class="arrow">→</div>
+      <div class="step d1"><div class="n">05</div><div class="t">建 Database / Storage</div><div class="s">Dashboard 建表 · 建 Bucket</div></div>
+      <div class="arrow">→</div>
+      <div class="step d1"><div class="n">06</div><div class="t">钱包充值 → 调网关</div><div class="s">Stripe 充值 · 按用量扣费</div></div>
+    </div>
+    <p class="note">硬约束：<b>空钱包不能调网关</b>。Auth / Database / Storage 上线内含（共享实例配额），不单独出账。</p>
+  </div>
+
+  <div class="flow">
+    <h3><span class="tag d2">D2</span> 开发者 / Coding Agent 路径（Skill + CLI · OpenAI 兼容）</h3>
+    <div class="steps">
+      <div class="step d2"><div class="n">01</div><div class="t">装 Agent Skill</div><div class="s">npx skills add VectoreeAI/vectoree-skills</div></div>
+      <div class="arrow">→</div>
+      <div class="step d2"><div class="n">02</div><div class="t">CLI 登录绑定</div><div class="s">npx @vectoree/cli login(PKCE) → link</div></div>
+      <div class="arrow">→</div>
+      <div class="step d2"><div class="n">03</div><div class="t">调模型网关</div><div class="s">vectoree ai models list → ai chat / snippet</div></div>
+      <div class="arrow">→</div>
+      <div class="step d2"><div class="n">04</div><div class="t">用 DB / Storage</div><div class="s">vectoree db * / vectoree storage *</div></div>
+      <div class="arrow">→</div>
+      <div class="step d2"><div class="n">05</div><div class="t">CI / 无浏览器直跑</div><div class="s">VECTOREE_API_KEY 即可（OpenAI 兼容 endpoint）</div></div>
+    </div>
+    <p class="note"><b>说明：</b>开发者主路径是 Skill（场景编排）+ CLI（原子命令），<b>不是 @vectoree/sdk</b>。SDK 是应用运行时，上线不交付、列为后置。</p>
+  </div>
+</section>
+
+<footer>
+  <b>事实来源</b>：vectoree.ai 官网（AI MaaS 定位，One console. Four blocks.）+ <code>launch-checklist.md</code>（上线范围事实补充）。<br/>
+  <b>非当前产品（仅未来方向参考）</b>：模板 / 能力中心 / 部署 / 向用户收费的订阅档 —— 来自 <code>20260813_Vectoree_Product_Deconstruction_Report.md</code> 六块积木愿景版，上线已隐藏。
+</footer>
+
+</body>
+</html>

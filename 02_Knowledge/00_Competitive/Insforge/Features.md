@@ -112,7 +112,7 @@ sources: ["https://docs.insforge.dev/", "https://www.toolworthy.ai/tool/insforge
 |------------------|------------------|---------|
 | 模型商城 / Catalog | ✅ Model Gateway | InsForge 网关支持多 Provider，但没看到按模型单独的「商城详情页」和分层定价展示 |
 | 模板 Templates | ❓ 未见独立模板市场 | InsForge 有 Examples 但不像 Vectoree 有前台可浏览的模板广场 |
-| 技能中心 / Skill | ✅✅ 深度整合 CLI + MCP Skills | 这块是 InsForge 最大差异化，比 Vectoree 走得更远（把 Skill 作为 Agent 接入入口） |
+| 技能中心 / Skill | ✅✅ CLI + MCP + Skills 三件套 | 两者都用 Skill 作 agent 入口（Vectoree 也有 `vectoree-skills`），差距在深度：InsForge 的 MCP 是 **backend-control 型**（暴露 schema/存储/项目/用量管控），Vectoree 的 MCP 仅 **agent-tools 型**（`/mcp` 的 search/extract）；且 InsForge 的 CLI 在 `login`+`link` 后**自动装官方 skill**（桥接），Vectoree 仍手动 `npx skills add`。详见 `CLI_MCP_Deep_Integration.md` |
 | 认证 Auth / B2B2C | ✅ Authentication + 内置 OAuth Server | 功能层面有，但没看到 Vectoree 强调的「最终用户属主+数据隔离」定价模式 |
 | 支付 & 钱包 Billing | ❌ 未见面向「应用开发者向终端用户收费」的支付集成 | InsForge 只收平台使用费，不提供 Stripe 接入帮开发者收 C 端/B 端用户的钱（这块是 Vectoree 的关键差异化） |
 | 数据存储 DB / Storage | ✅ Database(+pgvector) + Storage + Realtime | 能力比 Vectoree 更全（已支持 pgvector、迁移、RLS、Realtime） |
