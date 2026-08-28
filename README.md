@@ -48,6 +48,11 @@ owners: ["PM"]
 - **说明**：此模块不记录调研过程，仅沉淀各竞品的 Profile、Features、Pricing、SWOT 等结构化详细档案文件。
 - **入口**：`02_Knowledge/00_Competitive/`
 
+### 03_Execution — 产出层（决策与交付）
+承载需求、方案、规划、会议、复盘等过程性交付物，是团队「决定了 / 交付了什么」的记录。
+- **核心内容**：需求文档（PRD）、方案文档（Solutions）、规划 / 路线图、会议纪要、复盘。需求池（Backlog）当前在飞书多维表格维护，暂不落地工程。
+- **入口**：`03_Execution/`
+
 ### 00_Meta — 规则与治理层
 知识库的「规则手册」。
 - **核心内容**：目录结构规范、协作流程、文档元数据（Front Matter）标准、[可视化结构图谱](file:///Users/yuke/Documents/pm-workspace-vect/00_Meta/Knowledge_Structure_Map.html)。
@@ -74,3 +79,4 @@ owners: ["PM"]
 
 - 2026-08-14：重构 README，移除硬性的文件推介与底层进度追踪，采用广义的项目背景与导读模块，全面提升 README 的概述价值与框架指引作用。
 - 2026-08-16：工程推送至 GitHub（yuki-studio/pm-workspace-vectorre），启用 git 增量更新流程。
+- 2026-08-25：建立 03_Execution 产出层路径（02_PRD / 03_Solutions / 00_Meta/Templates 目录就位，文档由 PM 填写，不预建）；需求池（Backlog）维持飞书多维表格，暂不落地工程。

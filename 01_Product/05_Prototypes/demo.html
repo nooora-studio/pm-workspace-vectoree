@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vectoree Demo Launcher</title>
+  <link rel="icon" type="image/svg+xml" href="_Assets/vee-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="_Assets/tokens.css">
+  <link rel="stylesheet" href="_Assets/layout.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; font-size: 14px; }
+    body::before { content: ""; position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px); background-size: 24px 24px; background-color: var(--paper); pointer-events: none; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    .launcher { max-width: 1200px; margin: 0 auto; padding: 56px 28px 80px; }
+    .launcher__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; flex-wrap: wrap; gap: 16px; }
+    .launcher__brand { display: flex; align-items: center; gap: 12px; }
+    .launcher__logo { width: 40px; height: 40px; background: var(--acid); border: 2px solid var(--ink); display: grid; place-items: center; box-shadow: 4px 4px 0 var(--ink); }
+    .launcher__logo svg { width: 26px; height: 26px; }
+    .launcher__title { font-family: var(--font-display); font-size: 32px; text-transform: uppercase; line-height: 1; letter-spacing: -0.01em; }
+    .launcher__title small { display: block; font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--gray); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 6px; }
+    .launcher__meta { font-family: var(--font-mono); font-size: 12px; color: var(--gray); display: flex; align-items: center; gap: 8px; }
+    .launcher__meta .pill { background: var(--acid); color: var(--ink); padding: 3px 9px; border: 1.5px solid var(--ink); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+    .intro { background: var(--white); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); padding: 20px 24px; margin-bottom: 28px; }
+    .intro h2 { font-family: var(--font-display); font-size: 18px; text-transform: uppercase; margin-bottom: 8px; }
+    .intro p { font-family: var(--font-mono); font-size: 12px; color: var(--ink); line-height: 1.7; }
+    .intro p b { color: var(--ink); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    @media (max-width: 1100px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    .card-section { background: var(--white); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); padding: 0; display: flex; flex-direction: column; transition: transform 0.08s, box-shadow 0.08s; }
+    .card-section:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 var(--ink); }
+    .card-section__head { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 2px solid var(--ink); background: var(--ink); color: var(--paper); }
+    .card-section__head--ink { background: var(--ink); color: var(--paper); }
+    .card-section__head--paper { background: var(--paper); color: var(--ink); border-bottom: 2px solid var(--ink); }
+    .card-section__num { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; background: var(--acid); color: var(--ink); padding: 3px 8px; }
+    .card-section__title { font-family: var(--font-display); font-size: 16px; text-transform: uppercase; line-height: 1.1; letter-spacing: 0.01em; }
+    .card-section__sub { font-family: var(--font-mono); font-size: 11px; margin-top: 3px; opacity: 0.85; }
+    .card-section__body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; }
+    .card-section__desc { font-family: var(--font-body); font-size: 12.5px; color: #3a3a32; line-height: 1.6; margin-bottom: 12px; }
+    .pages { display: flex; flex-direction: column; gap: 6px; }
+    .pages a { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border: 1.5px solid var(--ink); background: var(--paper); font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--ink); transition: background 0.08s; }
+    .pages a:hover { background: var(--acid); transform: translate(-1px,-1px); box-shadow: 2px 2px 0 var(--ink); }
+    .pages a .name { display: flex; align-items: center; gap: 8px; }
+    .pages a .arrow { font-size: 12px; }
+    .pages a .tag { font-size: 9px; font-weight: 700; padding: 1px 5px; border: 1px solid var(--ink); background: var(--white); text-transform: uppercase; letter-spacing: 0.06em; }
+    .pages a .tag--new { background: var(--acid); }
+    .pages a .tag--fix { background: var(--white); }
+    .footer-note { margin-top: 32px; padding: 14px 18px; background: var(--ink); color: var(--paper); font-family: var(--font-mono); font-size: 11px; line-height: 1.7; border: 2px solid var(--ink); }
+    .footer-note b { color: var(--acid); }
+  </style>
+</head>
+<body>
+
+  <div class="launcher">
+    <div class="launcher__head">
+      <div class="launcher__brand">
+        <span class="launcher__logo">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <rect x="10" y="12" width="3" height="6" fill="#101010"/>
+            <rect x="19" y="12" width="3" height="6" fill="#101010"/>
+            <rect x="12" y="22" width="8" height="2" fill="#101010"/>
+            <rect x="13" y="4" width="6" height="3" fill="#101010"/>
+            <rect x="15" y="1" width="2" height="4" fill="#101010"/>
+          </svg>
+        </span>
+        <div class="launcher__title">
+          Vectoree Demo
+          <small>1:1 prototype launcher · live build of the product shell</small>
+        </div>
+      </div>
+      <div class="launcher__meta">
+        <span class="pill">Updated 2026-08-26</span>
+        <span>// run python3 -m http.server 7842 in this folder</span>
+      </div>
+    </div>
+
+    <div class="intro">
+      <h2>What lives here</h2>
+      <p>
+        This is the maintainable 1:1 prototype for Vectoree. It mirrors the production product shell — topbar, sidebar, content grid, cards — extracted from the live CSS plus calibrated against the dashboard / admin screenshots under <b>01_Product/_Assets/Screenshots/</b>. Use this demo to ship new requirements: edit any HTML file in place, the shared shell lives in <b>_Assets/tokens.css</b> + <b>_Assets/layout.css</b>.
+      </p>
+    </div>
+
+    <div class="grid">
+
+      <!-- 01 · Home -->
+      <div class="card-section">
+        <div class="card-section__head card-section__head--ink">
+          <div>
+            <div class="card-section__title">01 · Homepage</div>
+            <div class="card-section__sub">vectoree.ai 1:1</div>
+          </div>
+          <span class="card-section__num">01</span>
+        </div>
+        <div class="card-section__body">
+          <p class="card-section__desc">Marketing home — hero, providers marquee, six blocks, assembly line, SDK, pricing, footer. Linked to Auth and Dashboard.</p>
+          <div class="pages">
+            <a href="index.html"><span class="name">index.html <span class="tag tag--fix">legacy</span></span><span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 · Auth -->
+      <div class="card-section">
+        <div class="card-section__head card-section__head--ink">
+          <div>
+            <div class="card-section__title">02 · Auth</div>
+            <div class="card-section__sub">sign in / sign up</div>
+          </div>
+          <span class="card-section__num">02</span>
+        </div>
+        <div class="card-section__body">
+          <p class="card-section__desc">Email + Google sign-in flows. Both submit forward to the project dashboard.</p>
+          <div class="pages">
+            <a href="02_Auth/signin.html"><span class="name">signin.html</span><span class="arrow">→</span></a>
+            <a href="02_Auth/signup.html"><span class="name">signup.html</span><span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 · Project Dashboard -->
+      <div class="card-section">
+        <div class="card-section__head card-section__head--ink">
+          <div>
+            <div class="card-section__title">03 · Project Dashboard</div>
+            <div class="card-section__sub">默认项目 · rebuilt 1:1</div>
+          </div>
+          <span class="card-section__num">03</span>
+        </div>
+        <div class="card-section__body">
+          <p class="card-section__desc">Project-level console. Black topbar with org + project switchers. Sidebar grouped into Overview / Build / App Stack / Ship. Content on paper grid.</p>
+          <div class="pages">
+            <a href="03_Dashboard/overview.html"><span class="name">overview.html <span class="tag tag--new">1:1</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/model-plaza.html"><span class="name">model-plaza.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/api-keys.html"><span class="name">api-keys.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/templates.html"><span class="name">templates.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/skills-hub.html"><span class="name">skills-hub.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/auth.html"><span class="name">auth.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/payments.html"><span class="name">payments.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/database.html"><span class="name">database.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/storage.html"><span class="name">storage.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/deploy.html"><span class="name">deploy.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/logs.html"><span class="name">logs.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+            <a href="03_Dashboard/settings.html"><span class="name">settings.html <span class="tag tag--fix">shell only</span></span><span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 · Organization -->
+      <div class="card-section">
+        <div class="card-section__head card-section__head--ink">
+          <div>
+            <div class="card-section__title">04 · Organization</div>
+            <div class="card-section__sub">NORA 的组织 · 1:1</div>
+          </div>
+          <span class="card-section__num">04</span>
+        </div>
+        <div class="card-section__body">
+          <p class="card-section__desc">Org-level console. Same black topbar without project switcher. Sidebar has Org Space (7 items) + Org Admin. Tabs + stat cards + projects table.</p>
+          <div class="pages">
+            <a href="04_Organization/overview.html"><span class="name">overview.html <span class="tag tag--new">1:1</span></span><span class="arrow">→</span></a>
+            <a href="04_Organization/members.html"><span class="name">members.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="04_Organization/billing.html"><span class="name">billing.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="04_Organization/usage.html"><span class="name">usage.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="04_Organization/audit-log.html"><span class="name">audit-log.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="04_Organization/org-settings.html"><span class="name">org-settings.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="04_Organization/employee-ai.html"><span class="name">employee-ai.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="04_Organization/my-ai.html"><span class="name">my-ai.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 · Admin (the model entry requirement lives here) -->
+      <div class="card-section">
+        <div class="card-section__head card-section__head--ink">
+          <div>
+            <div class="card-section__title">05 · Admin</div>
+            <div class="card-section__sub">模型运营 · 本次需求</div>
+          </div>
+          <span class="card-section__num">05</span>
+        </div>
+        <div class="card-section__body">
+          <p class="card-section__desc">Separate admin app: ADMIN pill topbar, ENV·PROD, local:admin, Chinese sidebar (运营 / 模型运营 / 租户). 1:1 with production admin screenshots.</p>
+          <div class="pages">
+            <a href="05_Admin/index.html"><span class="name">index.html <span class="tag tag--new">1:1</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/channels.html"><span class="name">channels.html <span class="tag tag--new">1:1</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/models.html"><span class="name">models.html <span class="tag tag--new">1:1</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/models-add.html"><span class="name">models-add.html <span class="tag tag--new">需求</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/models-edit-billing.html"><span class="name">models-edit-billing.html <span class="tag tag--new">1:1</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/routing-policies.html"><span class="name">routing-policies.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/fault-tolerance.html"><span class="name">fault-tolerance.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/logs.html"><span class="name">logs.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/organizations.html"><span class="name">organizations.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+            <a href="05_Admin/billing-reconciliation.html"><span class="name">billing-reconciliation.html <span class="tag tag--fix">stub</span></span><span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 06 · Demo meta -->
+      <div class="card-section">
+        <div class="card-section__head card-section__head--paper">
+          <div>
+            <div class="card-section__title">06 · Meta</div>
+            <div class="card-section__sub">design system + changelog</div>
+          </div>
+          <span class="card-section__num" style="background: var(--ink); color: var(--acid);">META</span>
+        </div>
+        <div class="card-section__body">
+          <p class="card-section__desc">Design tokens, screenshot source-of-truth, the design-system extraction report, and the Figma plugin scaffold.</p>
+          <div class="pages">
+            <a href="_Assets/tokens.css"><span class="name">tokens.css</span><span class="arrow">→</span></a>
+            <a href="_Assets/layout.css"><span class="name">layout.css</span><span class="arrow">→</span></a>
+            <a href="_Assets/components.css"><span class="name">components.css</span><span class="arrow">→</span></a>
+            <a href="_Assets/Design_System_Extraction_Report.md"><span class="name">design system report</span><span class="arrow">→</span></a>
+            <a href="README.md"><span class="name">README (this folder)</span><span class="arrow">→</span></a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-note">
+      <b>Tag legend:</b> <span style="color: var(--acid);">1:1</span> = rebuilt from a production screenshot · <span style="color: var(--acid);">需求</span> = the active product requirement (model entry) · <span style="color: var(--acid);">shell only</span> / <span style="color: var(--acid);">stub</span> = inherits the new shell, page body to be filled · <span style="color: var(--acid);">legacy</span> = kept as-is, known follow-up.
+    </div>
+  </div>
+
+</body>
+</html>

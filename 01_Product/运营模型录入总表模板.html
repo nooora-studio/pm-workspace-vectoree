@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>运营模型录入总表 · 模板（基于录入表单字段 1:1 推导）</title>
+<style>
+  * { box-sizing:border-box; }
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; margin:0; background:#f5f6f8; color:#1f2329; font-size:14px; line-height:1.6; }
+  header { background:#fff; border-bottom:1px solid #e5e6eb; padding:18px 28px; }
+  header h1 { font-size:19px; margin:0; }
+  header p { margin:6px 0 0; color:#86909c; font-size:13px; }
+  .wrap { max-width:1180px; margin:0 auto; padding:24px 28px; }
+  .card { background:#fff; border:1px solid #e5e6eb; border-radius:8px; padding:20px; margin-bottom:20px; }
+  .card h2 { margin:0 0 4px; font-size:16px; }
+  .card .desc { margin:0 0 14px; color:#86909c; font-size:12.5px; }
+  .banner { background:#e8f3ff; border:1px solid #cadbff; color:#1d4ed8; padding:10px 14px; border-radius:6px; font-size:12.5px; margin-bottom:16px; line-height:1.7; }
+  .banner.warn { background:#fff7e8; border-color:#ffcf8b; color:#9c5e00; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  th,td { border:1px solid #e5e6eb; padding:7px 9px; text-align:left; vertical-align:top; }
+  th { background:#f2f3f5; font-weight:600; white-space:nowrap; }
+  td.req { background:#f7faff; }
+  td.ex { background:#f0faf0; color:#237804; }
+  .tag { display:inline-block; padding:1px 7px; border-radius:4px; font-size:11px; font-weight:600; }
+  .tag.req { background:#3370ff; color:#fff; }
+  .tag.opt { background:#f2f3f5; color:#86909c; }
+  .note { font-size:12.5px; color:#4e5969; line-height:1.8; }
+  .note code { background:#f2f3f5; padding:1px 5px; border-radius:4px; font-size:12px; }
+  details { margin-top:10px; }
+  summary { cursor:pointer; color:#3370ff; font-size:13px; }
+  .reglist { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .reglist span { background:#f2f3f5; border-radius:4px; padding:2px 8px; font-size:12px; color:#4e5969; }
+  .stepref { color:#a9aeb8; font-size:11.5px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>运营模型录入总表 · 模板</h1>
+  <p>由「单模型上架向导」录入字段 1:1 推导，供运营同学批量维护、再经批量导入落库。区域为标准受控词表（43 个，见文末）。</p>
+</header>
+
+<div class="wrap">
+
+  <div class="banner">
+    <b>使用方式</b>：① 主表每行一个模型（核心字段）；② 区域价、限时折扣是「一个模型对多条」的明细，单独成表（Sheet 2 / Sheet 3）；③ 三张 CSV 已生成在同目录，可直接发运营填写，再走 v2 表单「批量导入」标签页映射落库。
+  </div>
+
+  <!-- ============ 主表 ============ -->
+  <div class="card">
+    <h2>Sheet 1 · 模型主表（每行一个模型）</h2>
+    <p class="desc">核心字段。<span class="tag req">必填</span> 列缺失会在批量预检被拦截。示例行（绿底）可直接删。</p>
+    <table>
+      <tr>
+        <th>序号</th><th>对外显示名 <span class="tag req">必填</span></th><th>对外 slug（逻辑模型名）<span class="tag req">必填</span></th>
+        <th>模态</th><th>计费模式</th><th>计量单位</th><th>渠道决策</th>
+        <th>主渠道 <span class="tag req">必填</span></th><th>主渠道上游模型ID <span class="tag req">必填</span></th><th>主优先级</th>
+        <th>备1渠道</th><th>备1上游ID</th><th>备1优先级</th>
+        <th>备2渠道</th><th>备2上游ID</th><th>备2优先级</th>
+        <th>价格模式</th><th>刊例价</th><th>成本折扣(%)</th><th>售价折扣(%)</th>
+        <th>输入价(USD)</th><th>输出价(USD)</th><th>缓存输入价(USD)</th>
+        <th>刊例价来源/同步地址</th><th>备注</th>
+      </tr>
+      <tr class="ex">
+        <td>1</td><td>DeepSeek V4 Flash</td><td>deepseek/deepseek-v4-flash</td>
+        <td>文本</td><td>Token（文本）</td><td>1M tokens</td><td>调供应商</td>
+        <td>阿里国际</td><td>qwen-max（示例）</td><td>1</td>
+        <td>火山云</td><td>bytedance-seed/seed-2.0-mini</td><td>2</td>
+        <td></td><td></td><td></td>
+        <td>手填</td><td>1.25</td><td>70</td><td>95</td>
+        <td>1.25</td><td>1.25</td><td>1.25</td>
+        <td></td><td>示例行，删除</td>
+      </tr>
+      <tr>
+        <td>2</td><td class="req"></td><td class="req"></td>
+        <td></td><td></td><td></td><td></td>
+        <td class="req"></td><td class="req"></td><td></td>
+        <td></td><td></td><td></td>
+        <td></td><td></td><td></td>
+        <td></td><td></td><td></td><td></td>
+        <td></td><td></td><td></td><td></td><td></td>
+      </tr>
+    </table>
+    <div class="note" style="margin-top:12px">
+      <b>字段说明</b><br>
+      · <b>对外 slug</b>：沿用运营表 <code>Base_slug</code>（厂商/型号原名，如 <code>deepseek/deepseek-v4-flash</code>），斜杠前是命名习惯<b>不是渠道</b>；暂不强加 <code>vectoree/</code> 前缀。<br>
+      · <b>渠道决策</b>：<code>调供应商</code>＝用「主渠道」列；<code>走openrouter</code>＝主渠道填 openrouter 默认聚合。<br>
+      · <b>主/备上游模型ID</b>：Layer 2，按渠道类型取（OpenRouter 远程下拉 / 直连厂 from provider.csv / Azure·Custom 手填）；<b>主备的上游ID 不同</b>。<br>
+      · <b>计费模式</b>：10 选 1（Token文本 / Token Embedding / Token视觉 / 图像生成 / 音频TTS / 音频转写 / Token音频 / 视频生成 / 固定按次 / 透传上游成本）。<br>
+      · <b>成本折扣 / 售价折扣</b>：对应 openrouter.csv「供应商折扣 / 我们设置的折扣」；成本＝刊例×成本折扣，售价＝刊例×售价折扣，利差＝售价−成本。<br>
+      · <b>输入/输出/缓存价</b>：仅 Token 模态填，来自 provider.csv 的 Input/Output/Cached。<br>
+      · <b>刊例价来源/同步地址</b>：若该刊例价由定时抓取脚本维护，填同步地址或标注「定时任务维护」。
+    </div>
+  </div>
+
+  <!-- ============ 区域明细 ============ -->
+  <div class="card">
+    <h2>Sheet 2 · 区域价明细（每行 模型 × 区域）</h2>
+    <p class="desc">一个模型可挂多区域价。<b>区域必须从标准词表下拉选择</b>（见文末 43 个），不可手填。无此表行＝全局统一价。</p>
+    <table>
+      <tr><th>对外 slug</th><th>区域（受控下拉）<span class="tag req">必填</span></th><th>计量项</th><th>区域价(USD) <span class="tag req">必填</span></th></tr>
+      <tr class="ex"><td>deepseek/deepseek-v4-flash</td><td>Australia East</td><td>Input</td><td>1.30</td></tr>
+      <tr class="ex"><td>deepseek/deepseek-v4-flash</td><td>Japan East</td><td>Input</td><td>1.28</td></tr>
+      <tr><td></td><td class="req"></td><td></td><td class="req"></td></tr>
+    </table>
+    <div class="note" style="margin-top:10px">来源：<code>region刊例.csv</code>（章节 / 模型 / 定价类型 / 计量项 / 单位 / 区域 / 价格）。区域名须与刊例表完全一致，否则 join 失败。</div>
+  </div>
+
+  <!-- ============ 折扣明细 ============ -->
+  <div class="card">
+    <h2>Sheet 3 · 限时折扣明细（每行 模型 × 折扣活动）</h2>
+    <p class="desc">限时折扣为独立生命周期事件（待生效→进行中→已结束），可多层叠加。<b>生效止必填</b>，否则批量预检拦截（对应 update.csv wan3.0「时间待定」）。</p>
+    <table>
+      <tr><th>对外 slug</th><th>折扣率(%) <span class="tag req">必填</span></th><th>生效起</th><th>生效止 <span class="tag req">必填</span></th></tr>
+      <tr class="ex"><td>阿里/wan3.0</td><td>80</td><td>2026-09-01</td><td>2026-09-30</td></tr>
+      <tr><td></td><td class="req"></td><td></td><td class="req"></td></tr>
+    </table>
+    <div class="note" style="margin-top:10px">来源：<code>update.csv</code>（模型 / 折扣 / 有效期）。「时间待定」必须补预计区间再上架。</div>
+  </div>
+
+  <!-- ============ 区域词表 ============ -->
+  <div class="card">
+    <h2>附：标准区域词表（43 个，受控下拉）</h2>
+    <p class="desc">区域价明细表的「区域」列只能从下表取值。</p>
+    <details open>
+      <summary>展开 / 收起区域列表</summary>
+      <div class="reglist" id="regList"></div>
+    </details>
+  </div>
+
+  <div class="banner warn" style="margin-top:4px">
+    <b>与主线的边界</b>：本总表是「模型上架」产出的运营录入载体；「刊例价监控脚本 → 价格变动推送 → 变更确认策略」是独立子线模块，脚本只维护主表「刊例价」列与「刊例价来源/同步地址」，不直接改售价（售价走提醒+人工确认）。
+  </div>
+
+</div>
+
+<script>
+  var REGIONS = ["Australia East","Australia Southeast","Brazil South","Canada Central","Canada East","Central India","Central US","Denmark East","East Asia","East US","East US 2","France Central","Germany West Central","Indonesia Central","Italy North","Japan East","Japan West","Korea Central","Malaysia West","North Central US","North Europe","Norway East","Poland Central","Qatar Central","South Africa North","South Central US","South India","Southeast Asia","Spain Central","Sweden Central","Switzerland North","Switzerland West","UAE North","UK South","UK West","US Gov Arizona","US Gov Texas","US Gov Virginia","West Central US","West Europe","West US","West US 2","West US 3"];
+  document.getElementById('regList').innerHTML = REGIONS.map(function(r){return '<span>'+r+'</span>';}).join('');
+</script>
+</body>
+</html>

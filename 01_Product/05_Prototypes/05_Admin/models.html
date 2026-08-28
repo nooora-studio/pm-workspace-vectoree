@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模型 — Vectoree Admin</title>
+  <link rel="icon" type="image/svg+xml" href="../_Assets/vee-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_Assets/tokens.css">
+  <link rel="stylesheet" href="../_Assets/layout.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); font-size: var(--fs-md); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    .icon-btn { width: 30px; height: 30px; border: 2px solid var(--ink); background: var(--white); color: var(--ink); display: grid; place-items: center; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    .icon-btn:hover { background: var(--acid-soft); }
+    .icon-btn--danger:hover { background: #ffe5e5; }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ════ Admin Sidebar ════ -->
+    <aside class="sidebar">
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">运营</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="index.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            概览
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">模型运营</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="channels.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8M8 18h8M7 7l4 4M17 7l-4 4M7 17l4-4M17 17l-4-4"/></svg>
+            模型渠道
+          </a></li>
+          <li><a class="sidebar__link sidebar__link--active" href="models.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+            模型
+          </a></li>
+          <li><a class="sidebar__link" href="routing-policies.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M3 7h7l3 5h8M3 17h7l3-5h8"/><path d="M14 9l3 3-3 3"/></svg>
+            模型调度策略
+          </a></li>
+          <li><a class="sidebar__link" href="fault-tolerance.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            容错策略
+          </a></li>
+          <li><a class="sidebar__link" href="logs.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>
+            Logs
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">租户</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="organizations.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            组织列表
+          </a></li>
+          <li><a class="sidebar__link" href="billing-reconciliation.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+            对账管理
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__footer">
+        <a class="sidebar__back" href="../index.html">← 返回 Vectoree</a>
+      </div>
+    </aside>
+
+    <!-- ════ Main ════ -->
+    <div class="app__main">
+
+      <header class="topbar">
+        <a class="topbar__brand" href="../index.html">
+          <span class="topbar__logo">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="10" y="12" width="3" height="6" fill="#101010"/>
+              <rect x="19" y="12" width="3" height="6" fill="#101010"/>
+              <rect x="12" y="22" width="8" height="2" fill="#101010"/>
+              <rect x="13" y="4" width="6" height="3" fill="#101010"/>
+              <rect x="15" y="1" width="2" height="4" fill="#101010"/>
+            </svg>
+          </span>
+          <span class="topbar__wordmark">Vectoree</span>
+        </a>
+        <div class="topbar__switchers"><span class="topbar__switcher topbar__switcher--admin">Admin</span></div>
+        <div class="topbar__spacer"></div>
+        <div class="topbar__actions">
+          <div class="topbar__lang">
+            <button data-lang="en">EN</button>
+            <button class="active" data-lang="zh">中文</button>
+          </div>
+          <span class="topbar__switcher" style="background: var(--acid); border-color: var(--ink);">ENV · PROD</span>
+          <span class="topbar__user">local:admin</span>
+          <div class="topbar__avatar">L</div>
+          <button class="topbar__logout" title="Logout">⏻</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">
+              <svg class="page-title__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--ink);">
+                <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>
+              </svg>
+              模型
+            </h1>
+            <p class="page-sub">管理逻辑模型目录。可按渠道筛选，全选后批量上架 / 下架。</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn">↻ 同步 OpenRouter</button>
+            <button class="btn btn--primary" id="openAddModal">+ 添加模型</button>
+          </div>
+        </div>
+
+        <!-- Filter row -->
+        <div class="filter-row">
+          <input class="input" placeholder="搜索标识、名称或上游模型">
+          <select class="select"><option>全部渠道</option><option>OpenRouter</option><option>阿里国际</option><option>Azure 极云</option><option>火山云</option></select>
+          <select class="select"><option>全部状态</option><option>已上架</option><option>已下架</option></select>
+          <select class="select"><option>全部计费状态</option><option>Token（文本）</option><option>图像生成</option><option>透传上游成本</option><option>免费</option></select>
+          <label class="filter-check"><input type="checkbox"> 全选筛选结果（538）</label>
+        </div>
+        <p class="hint" style="margin-bottom: 14px;">提示：先按渠道筛选，再点「全选筛选结果」即可一键下架该渠道相关模型。模型渠道页的启用开关会切断该上游路由，但不改目录上架状态。</p>
+
+        <!-- Model cards -->
+        <div class="model-card">
+          <div class="model-card__head">
+            <div class="model-card__title">
+              <input type="checkbox" class="model-card__check">
+              <span class="model-card__name">AI21: JAMBA LARGE 1.7</span>
+              <span class="model-card__slug">ai21/jamba-large-1.7</span>
+            </div>
+            <div class="model-card__actions">
+              <button class="icon-btn" title="编辑" onclick="location.href='models-edit-billing.html'">✎</button>
+              <span class="mono" style="font-size: 11px; color: var(--ink);">已上架</span>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle__track"><span class="toggle__knob"></span></span></label>
+              <button class="icon-btn icon-btn--danger" title="删除">🗑</button>
+            </div>
+          </div>
+          <div class="model-card__row">
+            <span class="lbl">输入 $2 / 输出 $8 每百万 token</span>
+          </div>
+          <div class="model-card__row">
+            <span class="lbl">计费：</span>Token（文本） <span class="lbl">· 免费：</span>否 <span class="lbl">· 允许零价：</span>否
+          </div>
+          <div class="model-card__row">
+            <span class="lbl">输入 $/M：</span>$2 <span class="lbl">· 输出 $/M：</span>$8
+          </div>
+          <div class="model-card__binding">
+            <span class="chip">渠道绑定</span>
+            <span><b>OpenRouter</b></span>
+            <span class="mono">ai21/jamba-large-1.7</span>
+            <span class="meta">权重 100 · 优先级 100 · 已启用</span>
+          </div>
+        </div>
+
+        <div class="model-card">
+          <div class="model-card__head">
+            <div class="model-card__title">
+              <input type="checkbox" class="model-card__check">
+              <span class="model-card__name">AIONLABS: AION-2.0</span>
+              <span class="model-card__slug">aion-labs/aion-2.0</span>
+            </div>
+            <div class="model-card__actions">
+              <button class="icon-btn" title="编辑" onclick="location.href='models-edit-billing.html'">✎</button>
+              <span class="mono" style="font-size: 11px; color: var(--ink);">已上架</span>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle__track"><span class="toggle__knob"></span></span></label>
+              <button class="icon-btn icon-btn--danger" title="删除">🗑</button>
+            </div>
+          </div>
+          <div class="model-card__row">
+            <span class="lbl">输入 $0.8 / 输出 $1.6 每百万 token</span>
+          </div>
+          <div class="model-card__row">
+            <span class="lbl">计费：</span>Token（文本） <span class="lbl">· 免费：</span>否 <span class="lbl">· 允许零价：</span>否
+          </div>
+          <div class="model-card__row">
+            <span class="lbl">输入 $/M：</span>$0.8 <span class="lbl">· 输出 $/M：</span>$1.6
+          </div>
+          <div class="model-card__binding">
+            <span class="chip">渠道绑定</span>
+            <span><b>OpenRouter</b></span>
+            <span class="mono">aion-labs/aion-2.0</span>
+            <span class="meta">权重 100 · 优先级 100 · 已启用</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ════════ 添加模型 Modal（1:1 admin-creat-models.png） ════════ -->
+  <div class="modal-backdrop" id="addModal" style="display: none;">
+    <div class="modal">
+      <div class="modal__head">
+        <span class="modal__title">添加模型</span>
+        <button class="modal__close" data-close>✕</button>
+      </div>
+      <div class="modal__body">
+        <div class="field">
+          <label class="field__label">标识</label>
+          <input class="input" value="gpt-4o" placeholder="gpt-4o">
+        </div>
+        <div class="field">
+          <label class="field__label">显示名称</label>
+          <input class="input" value="GPT-4o" placeholder="GPT-4o">
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label class="field__label">输入价格覆盖（$/M）</label>
+            <input class="input" placeholder="">
+          </div>
+          <div class="field">
+            <label class="field__label">输出价格覆盖（$/M）</label>
+            <input class="input" placeholder="">
+          </div>
+        </div>
+      </div>
+      <div class="modal__foot">
+        <button class="btn" data-close>取消</button>
+        <a class="btn btn--primary" href="models-add.html">创建</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.topbar__lang').forEach(g => {
+      g.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('button');
+        if (!btn) return;
+        g.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+
+    // Modal open/close
+    const modal = document.getElementById('addModal');
+    document.getElementById('openAddModal').addEventListener('click', () => modal.style.display = 'grid');
+    modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', () => modal.style.display = 'none'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+  </script>
+</body>
+</html>

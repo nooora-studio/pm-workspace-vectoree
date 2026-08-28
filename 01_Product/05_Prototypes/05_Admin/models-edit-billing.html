@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编辑模型价格 — Vectoree Admin</title>
+  <link rel="icon" type="image/svg+xml" href="../_Assets/vee-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_Assets/tokens.css">
+  <link rel="stylesheet" href="../_Assets/layout.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); font-size: var(--fs-md); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    /* 编辑模型价格 modal — dropdown open */
+    .bill-modal { background: var(--white); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); max-width: 520px; width: 100%; }
+    .bill-modal__head { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--line-soft); }
+    .bill-modal__title { font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+    .bill-modal__close { background: transparent; border: 0; font-size: 18px; cursor: pointer; padding: 4px 8px; }
+    .bill-modal__sub { padding: 10px 18px; font-family: var(--font-mono); font-size: 12px; color: var(--gray); }
+    .bill-modal__sub b { color: var(--ink); font-weight: 700; }
+    .bill-modal__body { padding: 4px 18px 18px; }
+    .bill-modal__foot { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--line-soft); background: var(--paper); }
+    .select-open { position: relative; }
+    .select-open__current { width: 100%; padding: 9px 30px 9px 11px; font-family: var(--font-mono); font-size: 12px; background: var(--white); border: 2px solid var(--ink); cursor: pointer; }
+    .select-open__list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--white); border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); z-index: 10; max-height: 320px; overflow-y: auto; }
+    .select-open__item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; cursor: pointer; }
+    .select-open__item:hover { background: var(--acid-soft); }
+    .select-open__item--active { background: var(--acid); font-weight: 700; }
+    .select-open__check { width: 14px; display: inline-block; color: var(--ink); }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">运营</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="index.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            概览
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">模型运营</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="channels.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8M8 18h8M7 7l4 4M17 7l-4 4M7 17l4-4M17 17l-4-4"/></svg>
+            模型渠道
+          </a></li>
+          <li><a class="sidebar__link sidebar__link--active" href="models.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+            模型
+          </a></li>
+          <li><a class="sidebar__link" href="routing-policies.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M3 7h7l3 5h8M3 17h7l3-5h8"/><path d="M14 9l3 3-3 3"/></svg>
+            模型调度策略
+          </a></li>
+          <li><a class="sidebar__link" href="fault-tolerance.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            容错策略
+          </a></li>
+          <li><a class="sidebar__link" href="logs.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>
+            Logs
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">租户</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="organizations.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            组织列表
+          </a></li>
+          <li><a class="sidebar__link" href="billing-reconciliation.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+            对账管理
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__footer">
+        <a class="sidebar__back" href="../index.html">← 返回 Vectoree</a>
+      </div>
+    </aside>
+
+    <div class="app__main">
+      <header class="topbar">
+        <a class="topbar__brand" href="../index.html">
+          <span class="topbar__logo">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="10" y="12" width="3" height="6" fill="#101010"/>
+              <rect x="19" y="12" width="3" height="6" fill="#101010"/>
+              <rect x="12" y="22" width="8" height="2" fill="#101010"/>
+              <rect x="13" y="4" width="6" height="3" fill="#101010"/>
+              <rect x="15" y="1" width="2" height="4" fill="#101010"/>
+            </svg>
+          </span>
+          <span class="topbar__wordmark">Vectoree</span>
+        </a>
+        <div class="topbar__switchers"><span class="topbar__switcher topbar__switcher--admin">Admin</span></div>
+        <div class="topbar__spacer"></div>
+        <div class="topbar__actions">
+          <div class="topbar__lang">
+            <button data-lang="en">EN</button>
+            <button class="active" data-lang="zh">中文</button>
+          </div>
+          <span class="topbar__switcher" style="background: var(--acid); border-color: var(--ink);">ENV · PROD</span>
+          <span class="topbar__user">local:admin</span>
+          <div class="topbar__avatar">L</div>
+          <button class="topbar__logout" title="Logout">⏻</button>
+        </div>
+      </header>
+
+      <!-- dim background (models list state) -->
+      <main class="content" style="position: relative; min-height: 70vh;">
+        <div style="opacity: 0.4; pointer-events: none;">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">模型</h1>
+              <p class="page-sub">管理逻辑模型目录。可按渠道筛选，全选后批量上架 / 下架。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- centered modal -->
+        <div style="position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.45); margin: -20px -28px;">
+          <div class="bill-modal">
+            <div class="bill-modal__head">
+              <span class="bill-modal__title">编辑模型价格</span>
+              <a class="bill-modal__close" href="models.html">✕</a>
+            </div>
+            <div class="bill-modal__sub"><b>AI21: Jamba Large 1.7</b> · <span class="mono">ai21/jamba-large-1.7</span></div>
+            <div class="bill-modal__body">
+              <div class="field">
+                <label class="field__label">计费模式</label>
+                <div class="select-open">
+                  <div class="select-open__current">Token（文本）</div>
+                  <ul class="select-open__list">
+                    <li class="select-open__item select-open__item--active"><span class="select-open__check">✓</span>Token（文本）</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>Token（Embedding）</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>Token（视觉）</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>图像生成</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>音频（语音/TTS）</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>音频（转写）</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>Token（音频）</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>视频生成</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>固定按次</li>
+                    <li class="select-open__item"><span class="select-open__check"></span>透传上游成本</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="bill-modal__foot">
+              <a class="btn" href="models.html">取消</a>
+              <button class="btn btn--primary">保存</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.topbar__lang').forEach(g => {
+      g.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('button');
+        if (!btn) return;
+        g.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+  </script>
+</body>
+</html>

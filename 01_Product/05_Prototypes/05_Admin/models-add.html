@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>添加模型 — Vectoree Admin</title>
+  <link rel="icon" type="image/svg+xml" href="../_Assets/vee-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_Assets/tokens.css">
+  <link rel="stylesheet" href="../_Assets/layout.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); font-size: var(--fs-md); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    .icon-btn { width: 30px; height: 30px; border: 2px solid var(--ink); background: var(--white); color: var(--ink); display: grid; place-items: center; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+    .icon-btn:hover { background: var(--acid-soft); }
+    .icon-btn--danger:hover { background: #ffe5e5; }
+    /* Wizard step indicator: 5 steps */
+    .wizard-num { display: inline-block; font-family: var(--font-mono); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; margin-right: 6px; }
+    .pico { font-size: 10px; color: var(--gray); font-family: var(--font-mono); margin-left: 6px; }
+    .decision { border-left: 3px solid var(--ink); padding: 8px 12px; margin-top: 10px; background: var(--acid-soft); font-family: var(--font-mono); font-size: 11px; line-height: 1.6; }
+    .decision b { color: var(--ink); }
+    .summary { font-family: var(--font-mono); font-size: 12px; line-height: 1.9; }
+    .summary div { padding: 4px 0; border-bottom: 1px dashed var(--line-soft); }
+    .summary div:last-child { border-bottom: none; }
+    .summary b { color: var(--ink); }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ════ Admin Sidebar ════ -->
+    <aside class="sidebar">
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">运营</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="index.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            概览
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">模型运营</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="channels.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8M8 18h8M7 7l4 4M17 7l-4 4M7 17l4-4M17 17l-4-4"/></svg>
+            模型渠道
+          </a></li>
+          <li><a class="sidebar__link sidebar__link--active" href="models.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+            模型
+          </a></li>
+          <li><a class="sidebar__link" href="routing-policies.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M3 7h7l3 5h8M3 17h7l3-5h8"/><path d="M14 9l3 3-3 3"/></svg>
+            模型调度策略
+          </a></li>
+          <li><a class="sidebar__link" href="fault-tolerance.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            容错策略
+          </a></li>
+          <li><a class="sidebar__link" href="logs.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></svg>
+            Logs
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">租户</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="organizations.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            组织列表
+          </a></li>
+          <li><a class="sidebar__link" href="billing-reconciliation.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+            对账管理
+          </a></li>
+        </ul>
+      </div>
+      <div class="sidebar__footer">
+        <a class="sidebar__back" href="../index.html">← 返回 Vectoree</a>
+      </div>
+    </aside>
+
+    <div class="app__main">
+      <header class="topbar">
+        <a class="topbar__brand" href="../index.html">
+          <span class="topbar__logo">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="10" y="12" width="3" height="6" fill="#101010"/>
+              <rect x="19" y="12" width="3" height="6" fill="#101010"/>
+              <rect x="12" y="22" width="8" height="2" fill="#101010"/>
+              <rect x="13" y="4" width="6" height="3" fill="#101010"/>
+              <rect x="15" y="1" width="2" height="4" fill="#101010"/>
+            </svg>
+          </span>
+          <span class="topbar__wordmark">Vectoree</span>
+        </a>
+        <div class="topbar__switchers"><span class="topbar__switcher topbar__switcher--admin">Admin</span></div>
+        <div class="topbar__spacer"></div>
+        <div class="topbar__actions">
+          <div class="topbar__lang">
+            <button data-lang="en">EN</button>
+            <button class="active" data-lang="zh">中文</button>
+          </div>
+          <span class="topbar__switcher" style="background: var(--acid); border-color: var(--ink);">ENV · PROD</span>
+          <span class="topbar__user">local:admin</span>
+          <div class="topbar__avatar">L</div>
+          <button class="topbar__logout" title="Logout">⏻</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">
+              <svg class="page-title__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--ink);">
+                <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>
+              </svg>
+              添加模型
+            </h1>
+            <p class="page-sub">逻辑模型层 × 渠道层 × 绑定层 × 价格组件化。一次走完 5 步，自动生成路由 + 容错策略。</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn btn--sm" href="models.html">← 返回模型列表</a>
+          </div>
+        </div>
+
+        <div class="banner">
+          本流程吸收了 <b>8.25 运营表对齐结论</b> 与 <b>模型网关概念文档</b>：① 逻辑模型 = 用户调用的名字（卖价挂这层）② 渠道 = 哪本账、哪个入口 ③ 绑定 = 商品×渠道×上游 ID（一条可走的路）④ 调度 + 容错 = 多路怎么挑、挂了切谁。
+        </div>
+
+        <!-- Wizard steps -->
+        <div class="wizard">
+          <div class="wizard__step wizard__step--on" data-step="1">01<span>基础信息</span></div>
+          <div class="wizard__step" data-step="2">02<span>货源与渠道</span></div>
+          <div class="wizard__step" data-step="3">03<span>价格组件化</span></div>
+          <div class="wizard__step" data-step="4">04<span>预检验收</span></div>
+          <div class="wizard__step" data-step="5">05<span>上架</span></div>
+        </div>
+
+        <!-- ═══ Step 1: 基础信息 ═══ -->
+        <div class="wizard__card" data-panel="1">
+          <h3>第 1 步 · 基础信息（逻辑模型层）</h3>
+          <p class="sub">这一层决定用户看到的名字与计费口径。改这一层不改，用户仍调同一个名。</p>
+
+          <div class="field">
+            <label class="field__label">对外显示名 <span class="field__opt">（选填，Plaza 展示用）</span></label>
+            <input class="input" id="dispName" placeholder="如：DeepSeek V4 Flash" oninput="genSlug()">
+          </div>
+          <div class="field">
+            <label class="field__label">对外 slug <span class="field__opt">（逻辑模型名，用户可见，自动生成可改）</span></label>
+            <input class="input" id="pubSlug" placeholder="deepseek/deepseek-v4-flash">
+            <div class="hint">默认沿用运营表 Base_slug。斜杠前是命名习惯，<b>不是渠道</b>。不强制 vectoree/ 前缀——是否统一前缀待拍板。</div>
+            <div class="decision">⚠ <b>待拍板</b>：对外 slug 是否统一包 <code>vectoree/</code> 前缀。运营表当前用厂商/型号原名，若强行改前缀会影响「是否调用=调供应商」的货源追踪，建议先沿用原名。</div>
+          </div>
+
+          <div class="row-2">
+            <div class="field">
+              <label class="field__label">模态</label>
+              <select class="select">
+                <option>文本（Text）</option><option>图像（Image）</option><option>视频（Video）</option><option>音频（Audio / TTS）</option><option>Embedding</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field__label">计量单位 <span class="field__opt">（已做归一）</span></label>
+              <select class="select" id="unit">
+                <option>1M tokens</option><option>second（秒）</option><option>张</option><option>次</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label">计费模式</label>
+            <select class="select" id="billingMode">
+              <option>Token 计费（按 1M tokens）</option>
+              <option>按秒计费（second，阿里 wan 用此）</option>
+              <option>按张计费（图像生成）</option>
+              <option>按次计费（固定）</option>
+              <option>透传上游成本</option>
+            </select>
+            <div class="hint">计量单位已归一：阿里 <b>wan</b> 模型按 <b>second</b> 计（官网口径有误，以运营表修正为准）。单位选错会导致单价与计费偏差。</div>
+          </div>
+
+          <div class="wizard__actions">
+            <span></span>
+            <button class="btn btn--primary" onclick="go(2)">下一步：货源与渠道 →</button>
+          </div>
+        </div>
+
+        <!-- ═══ Step 2: 货源与渠道 ═══ -->
+        <div class="wizard__card wizard__hidden" data-panel="2">
+          <h3>第 2 步 · 货源与渠道（渠道层 + 绑定层）</h3>
+          <p class="sub">决定「走哪条管道」。数据来自运营表「供应商 / 供应商备 1-3 / 是否调用」列。一个商品可绑 1..N 条路。</p>
+
+          <div class="field">
+            <label class="field__label">渠道决策来源 <span class="field__opt">（对应运营表「是否调用」列）</span></label>
+            <select class="select" id="callMode" onchange="syncCallMode()">
+              <option value="supplier">调供应商（用下方「供应商」列渠道）</option>
+              <option value="openrouter">走 OpenRouter 默认聚合（「是否调用=-」）</option>
+            </select>
+          </div>
+
+          <div class="row-2">
+            <div class="field">
+              <label class="field__label">主渠道（Channel） <span class="field__opt">（对应「供应商」列）</span></label>
+              <select class="select" id="mainChannel" onchange="toggleNewChannel()">
+                <option>阿里国际（aliyun-intl）</option>
+                <option>Azure 极云（azure）</option>
+                <option>火山云（volcano）</option>
+                <option>openrouter（默认聚合）</option>
+                <option>汕头移动</option>
+                <option value="__new">＋ 新建渠道…</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field__label">上游模型 ID <span class="field__opt">（部署名）</span></label>
+              <input class="input" id="upstreamId" placeholder="如：deepseek/deepseek-v4-flash" value="deepseek/deepseek-v4-flash">
+            </div>
+          </div>
+          <div class="hint">上游模型 ID = 发给上游的真实名字。默认 = 对外 slug；直连时可能是厂商部署名（如 <code>deepseek-v4-pro-0816-us</code>）。</div>
+
+          <div id="newChannelBox" class="wizard__hidden" style="margin-top: 12px; padding: 14px; background: var(--paper); border: 1.5px dashed var(--ink);">
+            <div class="field__label" style="margin-bottom: 10px;">新建渠道配置（base_url + 密钥，需测通）</div>
+            <div class="row-2">
+              <div class="field" style="margin: 0;">
+                <label class="field__label">渠道类型</label>
+                <select class="select"><option>OpenAI 兼容</option><option>Azure OpenAI</option><option>OpenRouter</option><option>自定义</option></select>
+              </div>
+              <div class="field" style="margin: 0;">
+                <label class="field__label">base_url</label>
+                <input class="input" placeholder="https://... 不含 /chat/completions">
+              </div>
+            </div>
+            <div class="field" style="margin-top: 10px;">
+              <label class="field__label">API Key <span class="field__opt">（上游发给我司的门禁卡，掩码存储）</span></label>
+              <input class="input" type="password" placeholder="sk-... 输入后点测试连通">
+            </div>
+            <button class="btn btn--sm" onclick="alert('已向该 base_url 发探测请求：连通 ✅（演示）')">📶 测试连通</button>
+            <div class="hint" style="margin-top: 8px;">⚠ 密钥脱敏显示（sk-****1234）+ 权限控制；多 key 是「同渠道换钥匙/额度」，不是换云。</div>
+          </div>
+
+          <div class="row-2" style="margin-top: 14px;">
+            <div class="field">
+              <label class="field__label">备用渠道 1（failover）+ 优先级 <span class="field__opt">（对应「供应商备 1」）</span></label>
+              <div class="row" style="gap: 8px;">
+                <select class="select" style="flex: 1;"><option>火山云（volcano）</option><option>Azure 极云（azure）</option><option>阿里国际（aliyun-intl）</option><option>openrouter</option></select>
+                <input class="input" type="number" value="2" min="1" max="5" style="width: 80px;">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field__label">备用渠道 2（failover）+ 优先级 <span class="field__opt">（对应「供应商备 2」）</span></label>
+              <div class="row" style="gap: 8px;">
+                <select class="select" style="flex: 1;"><option>openrouter</option><option>Azure 极云（azure）</option><option>阿里国际（aliyun-intl）</option></select>
+                <input class="input" type="number" value="3" min="1" max="5" style="width: 80px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="banner banner--ok" style="margin-top: 14px;">
+            系统将自动生成：<b>channelBindings</b>（商品×渠道×上游 ID）+ <b>路由策略</b>（按优先级/权重排序）+ <b>容错策略</b>（故障转移名单，会话亲和性钉在渠道上）。取代现状「0 个故障转移步骤」。
+          </div>
+
+          <div class="wizard__actions">
+            <button class="btn" onclick="go(1)">← 上一步</button>
+            <button class="btn btn--primary" onclick="go(3)">下一步：价格 →</button>
+          </div>
+        </div>
+
+        <!-- ═══ Step 3: 价格组件化 ═══ -->
+        <div class="wizard__card wizard__hidden" data-panel="3">
+          <h3>第 3 步 · 价格组件化（逻辑模型卖价层）</h3>
+          <p class="sub">成本/售价来自运营表「供应商折扣 / 我们设置的折扣」；维度覆盖会议结论：波峰波谷 / 区域 / 调用类型 / 限时折扣。</p>
+
+          <div class="field">
+            <label class="field__label">价格模式</label>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; cursor: pointer;">
+                <input type="radio" name="ptype" value="manual" checked onchange="switchPrice()"> 手填售价（系统算成本/利差）
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; cursor: pointer;">
+                <input type="radio" name="ptype" value="follow" onchange="switchPrice()"> 跟随上游（透传上游成本，不填价）
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; cursor: pointer;">
+                <input type="radio" name="ptype" value="free" onchange="switchPrice()"> 免费 / 允许零价
+              </label>
+            </div>
+          </div>
+
+          <div id="pManual">
+            <div class="row-3">
+              <div class="field">
+                <label class="field__label">刊例价 <span class="field__opt">（按计量单位）</span></label>
+                <input class="input" id="listPrice" type="number" value="1.25" oninput="calcPrice()">
+              </div>
+              <div class="field">
+                <label class="field__label">供应商折扣（成本，%）</label>
+                <input class="input" id="costDisc" type="number" value="70" oninput="calcPrice()">
+              </div>
+              <div class="field">
+                <label class="field__label">我们设置的折扣（售价，%）</label>
+                <input class="input" id="saleDisc" type="number" value="95" oninput="calcPrice()">
+              </div>
+            </div>
+            <div class="calc" id="priceOut"></div>
+
+            <div class="field__label" style="margin: 18px 0 8px;">价格维度（可叠加，对应会议 4 维度）</div>
+
+            <div style="padding: 10px 12px; background: var(--paper); border: 1px dashed var(--line-soft);">
+              <div class="field__label" style="margin-bottom: 6px;">① 波峰 / 波谷（分时）</div>
+              <div class="row-2">
+                <select class="select"><option>统一价（不区分）</option><option>波峰价 ×1.2</option><option>波谷价 ×0.8</option></select>
+                <input class="input" placeholder="波峰时段（如 09:00-21:00）">
+              </div>
+            </div>
+
+            <div style="padding: 10px 12px; background: var(--paper); border: 1px dashed var(--line-soft); margin-top: 8px;">
+              <div class="field__label" style="margin-bottom: 6px;">② 区域（来自 region 刊例.csv）</div>
+              <div id="regionRows">
+                <div class="row" style="margin-bottom: 6px; gap: 8px;">
+                  <input class="input" placeholder="区域，如 Australia East" style="flex: 1;">
+                  <input class="input" type="number" placeholder="该区域价 (USD)" style="flex: 1;">
+                  <button class="btn btn--sm" onclick="addRegion(this)">＋ 区域</button>
+                </div>
+              </div>
+              <div class="hint">同一逻辑模型可挂多区域价；无区域行 = 全局统一价。</div>
+            </div>
+
+            <div style="padding: 10px 12px; background: var(--paper); border: 1px dashed var(--line-soft); margin-top: 8px;">
+              <div class="field__label" style="margin-bottom: 6px;">③ 调用类型（Input / Output / Cached）</div>
+              <div class="row-3">
+                <input class="input" placeholder="Input 价">
+                <input class="input" placeholder="Output 价">
+                <input class="input" placeholder="Cached Input 价">
+              </div>
+              <div class="hint">对齐 provider.csv 的 Input / Output / Cached Input / 其它单位。</div>
+            </div>
+
+            <div style="padding: 10px 12px; background: var(--paper); border: 1px dashed var(--line-soft); margin-top: 8px;">
+              <div class="field__label" style="margin-bottom: 6px;">④ 限时折扣 <span class="field__opt">（来自 update.csv：wan3.0 限时折扣、时间待定）</span></div>
+              <div class="row-3">
+                <div><label class="field__label">折扣率（%）</label><input class="input" id="promoDisc" type="number" placeholder="如 80"></div>
+                <div><label class="field__label">生效起</label><input class="input" id="promoFrom" type="date"></div>
+                <div><label class="field__label">生效止</label><input class="input" id="promoTo" type="date" onchange="checkPromo()"></div>
+              </div>
+              <div class="hint" id="promoHint">不填有效期 = 长期有效；「时间待定」必须填预计区间，否则预检拦截上架。</div>
+            </div>
+          </div>
+
+          <div id="pFollow" class="wizard__hidden">
+            <div class="hint">选「跟随上游」后不填价，系统取主渠道供应商结算价，自动同步波动。适合价格随上游频繁变动的模型。</div>
+          </div>
+          <div id="pFree" class="wizard__hidden">
+            <div class="hint">开启免费/零价开关，用户调用不扣费（适合引流 / 内部模型）。</div>
+          </div>
+
+          <div class="wizard__actions">
+            <button class="btn" onclick="go(2)">← 上一步</button>
+            <button class="btn btn--primary" onclick="go(4)">下一步：预检 →</button>
+          </div>
+        </div>
+
+        <!-- ═══ Step 4: 预检验收 ═══ -->
+        <div class="wizard__card wizard__hidden" data-panel="4">
+          <h3>第 4 步 · 预检 &amp; 验收</h3>
+          <p class="sub">系统自动跑 5 项检查；通过后才能上架。</p>
+
+          <ul class="checklist" id="checklist">
+            <li><span>① 渠道健康（密钥可连通）</span><span id="c1" class="bad">未检查</span></li>
+            <li><span>② 上游 ID 齐全（主+备都绑了）</span><span id="c2" class="bad">未检查</span></li>
+            <li><span>③ 价格完整（三态已定、无异常）</span><span id="c3" class="bad">未检查</span></li>
+            <li><span>④ 限时折扣有效期（非「待定」）</span><span id="c4" class="bad">未检查</span></li>
+            <li><span>⑤ 试打一条（真实调用成功）</span><span id="c5" class="bad">未检查</span></li>
+          </ul>
+
+          <div class="row" style="margin-top: 14px; gap: 10px;">
+            <button class="btn btn--primary" onclick="runPrecheck()">▶ 运行预检</button>
+            <span class="hint" id="precheckHint" style="margin: 0;">// 模拟端到端校验（连通 / 价格毛利 / 折扣期 / 试打）</span>
+          </div>
+          <div id="acceptResult" style="margin-top: 12px;"></div>
+
+          <div class="wizard__actions">
+            <button class="btn" onclick="go(3)">← 上一步</button>
+            <button class="btn btn--primary" id="toPublish" style="display: none;" onclick="go(5)">去上架 →</button>
+          </div>
+        </div>
+
+        <!-- ═══ Step 5: 上架 ═══ -->
+        <div class="wizard__card wizard__hidden" data-panel="5">
+          <h3>第 5 步 · 上架</h3>
+          <p class="sub">预检全部通过。确认本次提交会自动生成路由策略 + 容错策略。</p>
+
+          <div class="banner banner--ok" id="publishBanner">预检全部通过，上架后该逻辑模型在 Plaza 立即可见、Playground 可打通。</div>
+
+          <div class="summary" id="summaryBox"></div>
+
+          <div class="wizard__actions">
+            <button class="btn" onclick="go(4)">← 上一步</button>
+            <button class="btn btn--primary" onclick="alert('已上架，Plaza 已可见（演示）')">↑ 上架</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // ── Wizard navigation ──
+    function go(n) {
+      document.querySelectorAll('[data-panel]').forEach(p => p.classList.add('wizard__hidden'));
+      document.querySelector(`[data-panel="${n}"]`).classList.remove('wizard__hidden');
+      document.querySelectorAll('.wizard__step').forEach(s => {
+        const k = parseInt(s.dataset.step, 10);
+        s.classList.remove('wizard__step--on', 'wizard__step--done');
+        if (k < n) s.classList.add('wizard__step--done');
+        else if (k === n) s.classList.add('wizard__step--on');
+      });
+      if (n === 3) calcPrice();
+      if (n === 5) buildSummary();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Step 1: slug auto-gen ──
+    function genSlug() {
+      const n = document.getElementById('dispName').value.trim();
+      document.getElementById('pubSlug').value = n ? n.toLowerCase().replace(/\s+/g, '-') : '';
+    }
+
+    // ── Step 2: channel mode + new channel toggle ──
+    function syncCallMode() {
+      const v = document.getElementById('callMode').value;
+      const sel = document.getElementById('mainChannel');
+      if (v === 'openrouter') {
+        for (const o of sel.options) if (o.value && o.value.startsWith('openrouter')) { sel.value = o.value; break; }
+        document.getElementById('upstreamId').value = '';
+      } else {
+        if (sel.value && sel.value.startsWith('openrouter')) sel.selectedIndex = 0;
+      }
+    }
+    function toggleNewChannel() {
+      const v = document.getElementById('mainChannel').value;
+      document.getElementById('newChannelBox').classList.toggle('wizard__hidden', v !== '__new');
+    }
+
+    // ── Step 3: price switch + calc + region rows ──
+    function switchPrice() {
+      const v = document.querySelector('input[name="ptype"]:checked').value;
+      document.getElementById('pManual').classList.toggle('wizard__hidden', v !== 'manual');
+      document.getElementById('pFollow').classList.toggle('wizard__hidden', v !== 'follow');
+      document.getElementById('pFree').classList.toggle('wizard__hidden', v !== 'free');
+    }
+    function calcPrice() {
+      const lp = parseFloat(document.getElementById('listPrice').value) || 0;
+      const cd = parseFloat(document.getElementById('costDisc').value) || 0;
+      const sd = parseFloat(document.getElementById('saleDisc').value) || 0;
+      const unit = document.getElementById('unit').value;
+      const cost = lp * cd / 100;
+      const sale = lp * sd / 100;
+      const margin = sale - cost;
+      const mpct = lp > 0 ? (margin / lp * 100).toFixed(1) : '0';
+      const tag = cd >= sd ? '<span class="bad">⚠ 成本折扣 ≥ 售价折扣，利差 ≤ 0</span>' : '<span class="ok">✓ 利差为正</span>';
+      document.getElementById('priceOut').innerHTML =
+        '成本（刊例 × 供应商折扣）= <b>$' + cost.toFixed(3) + '</b> / 售价（刊例 × 我们折扣）= <b>$' + sale.toFixed(3) + '</b><br>' +
+        '利差 = <b>$' + margin.toFixed(3) + '</b>（占刊例 ' + mpct + '%）/ 单位：<b>' + unit + '</b> &nbsp; ' + tag;
+    }
+    function addRegion(btn) {
+      const row = document.createElement('div');
+      row.className = 'row'; row.style.cssText = 'margin-bottom: 6px; gap: 8px;';
+      row.innerHTML = '<input class="input" placeholder="区域，如 Japan East" style="flex: 1;"><input class="input" type="number" placeholder="该区域价 (USD)" style="flex: 1;"><button class="btn btn--sm" onclick="this.parentNode.remove()">－ 删除</button>';
+      document.getElementById('regionRows').appendChild(row);
+    }
+    function checkPromo() {
+      const to = document.getElementById('promoTo').value;
+      const hint = document.getElementById('promoHint');
+      if (to) { hint.innerHTML = '有效期至 <b>' + to + '</b>。为空则预检判「时间待定」并拦截上架。'; hint.style.color = 'var(--gray)'; }
+      else { hint.innerHTML = '⚠ 限时折扣未填有效期 =「时间待定」，预检将拦截上架（对应 update.csv wan3.0）。'; hint.style.color = '#9c5e00'; }
+    }
+
+    // ── Step 4: precheck ──
+    function runPrecheck() {
+      let ok = true;
+      // ① 渠道健康 — 模拟
+      document.getElementById('c1').textContent = '✓ 通过'; document.getElementById('c1').className = 'ok';
+      // ② 上游 ID 齐全
+      const up = document.getElementById('upstreamId').value.trim();
+      const c2 = document.getElementById('c2');
+      if (up) { c2.textContent = '✓ 通过'; c2.className = 'ok'; } else { c2.textContent = '✗ 主渠道上游 ID 缺失'; c2.className = 'bad'; ok = false; }
+      // ③ 价格完整
+      const v = document.querySelector('input[name="ptype"]:checked').value;
+      const c3 = document.getElementById('c3');
+      if (v === 'manual') {
+        const sd = parseFloat(document.getElementById('saleDisc').value) || 0;
+        const cd = parseFloat(document.getElementById('costDisc').value) || 0;
+        if (cd < sd) { c3.textContent = '✓ 通过'; c3.className = 'ok'; } else { c3.textContent = '✗ 利差 ≤ 0'; c3.className = 'bad'; ok = false; }
+      } else {
+        c3.textContent = '✓ 通过（' + (v === 'follow' ? '跟随上游' : '免费') + '）'; c3.className = 'ok';
+      }
+      // ④ 限时折扣有效期
+      const c4 = document.getElementById('c4');
+      const promoOn = document.getElementById('promoDisc').value !== '';
+      if (promoOn && !document.getElementById('promoTo').value) { c4.textContent = '✗ 折扣期待定'; c4.className = 'bad'; ok = false; }
+      else { c4.textContent = promoOn ? '✓ 有效' : '— 无'; c4.className = promoOn ? 'ok' : 'warn'; }
+      // ⑤ 试打 — 模拟
+      document.getElementById('c5').textContent = '✓ 通过'; document.getElementById('c5').className = 'ok';
+
+      const r = document.getElementById('acceptResult');
+      if (ok) {
+        r.className = 'banner banner--ok';
+        r.textContent = '预检全部通过，已试打一条成功。点击「去上架」完成发布。';
+        document.getElementById('toPublish').style.display = 'inline-flex';
+      } else {
+        r.className = 'banner banner--warn';
+        r.textContent = '预检未通过：请修正标红项后再上架（毛利 / 上游 ID / 折扣期）。';
+        document.getElementById('toPublish').style.display = 'none';
+      }
+    }
+
+    // ── Step 5: summary ──
+    function buildSummary() {
+      const slug = document.getElementById('pubSlug').value || '(未填)';
+      const ch = document.getElementById('mainChannel').value;
+      const up = document.getElementById('upstreamId').value || '(默认=slug)';
+      const billing = document.getElementById('billingMode').value;
+      const unit = document.getElementById('unit').value;
+      const v = document.querySelector('input[name="ptype"]:checked').value;
+      let priceLine = '—';
+      if (v === 'manual') {
+        const lp = parseFloat(document.getElementById('listPrice').value) || 0;
+        const cd = parseFloat(document.getElementById('costDisc').value) || 0;
+        const sd = parseFloat(document.getElementById('saleDisc').value) || 0;
+        priceLine = `成本 $${(lp*cd/100).toFixed(3)} / 售价 $${(lp*sd/100).toFixed(3)} / 利差 $${(lp*(sd-cd)/100).toFixed(3)}`;
+      } else if (v === 'follow') priceLine = '跟随上游（透传成本）';
+      else priceLine = '免费 / 允许零价';
+      document.getElementById('summaryBox').innerHTML =
+        '<div><b>逻辑模型</b>：' + slug + '</div>' +
+        '<div><b>计费</b>：' + billing + ' · 单位 ' + unit + '</div>' +
+        '<div><b>主渠道</b>：' + ch + ' ｜ <b>上游 ID</b>：' + up + '</div>' +
+        '<div><b>容错</b>：备 1 / 备 2 已生成故障转移名单</div>' +
+        '<div><b>价格</b>：' + priceLine + '（含波峰波谷 / 区域 / 调用类型 / 限时折扣 4 维度）</div>';
+    }
+
+    // init
+    calcPrice();
+    document.querySelectorAll('.topbar__lang').forEach(g => {
+      g.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('button');
+        if (!btn) return;
+        g.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+  </script>
+</body>
+</html>

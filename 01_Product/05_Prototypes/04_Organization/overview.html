@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NORA 的组织 — Vectoree</title>
+  <link rel="icon" type="image/svg+xml" href="../_Assets/vee-logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_Assets/tokens.css">
+  <link rel="stylesheet" href="../_Assets/layout.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--ink); font-size: var(--fs-md); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ════ Sidebar (ORG view) ════ -->
+    <aside class="sidebar">
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">Org Space</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link sidebar__link--active" href="overview.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Overview
+          </a></li>
+          <li><a class="sidebar__link" href="members.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M15 20c0-2 1.5-4 4-4"/></svg>
+            Members
+          </a></li>
+          <li><a class="sidebar__link" href="employee-ai.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M12 3v4M8 12h.01M16 12h.01M9 16h6"/></svg>
+            Employee AI
+          </a></li>
+          <li><a class="sidebar__link" href="my-ai.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M12 2l3 6 6 1-4.5 4.5L18 20l-6-3-6 3 1.5-6.5L3 9l6-1z"/></svg>
+            My AI
+          </a></li>
+          <li><a class="sidebar__link" href="billing.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12"/><path d="M3 10h18"/></svg>
+            Billing
+          </a></li>
+          <li><a class="sidebar__link" href="usage.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M3 20h18M5 16l4-6 4 3 6-9"/></svg>
+            Usage Analytics
+          </a></li>
+          <li><a class="sidebar__link" href="audit-log.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><path d="M9 3h6l5 5v13H4V3h5z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>
+            Audit Log
+          </a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar__group">
+        <div class="sidebar__group-title">Org Admin</div>
+        <ul class="sidebar__list">
+          <li><a class="sidebar__link" href="org-settings.html">
+            <svg class="sidebar__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 0 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 0 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+            Org Settings
+          </a></li>
+        </ul>
+      </div>
+
+      <div class="sidebar__footer">
+        <a class="sidebar__back" href="../03_Dashboard/overview.html">← Back to project</a>
+        <div class="sidebar__cmd"><span class="sidebar__cmd-box">⌘I</span></div>
+      </div>
+    </aside>
+
+    <!-- ════ Main ════ -->
+    <div class="app__main">
+
+      <!-- Topbar (org view, no project switcher) -->
+      <header class="topbar">
+        <a class="topbar__brand" href="../index.html">
+          <span class="topbar__logo">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="10" y="12" width="3" height="6" fill="#101010"/>
+              <rect x="19" y="12" width="3" height="6" fill="#101010"/>
+              <rect x="12" y="22" width="8" height="2" fill="#101010"/>
+              <rect x="13" y="4" width="6" height="3" fill="#101010"/>
+              <rect x="15" y="1" width="2" height="4" fill="#101010"/>
+            </svg>
+          </span>
+          <span class="topbar__wordmark">Vectoree</span>
+        </a>
+
+        <div class="topbar__switchers">
+          <button class="topbar__switcher">NORA 的组织 <span class="topbar__switcher-caret">▾</span></button>
+        </div>
+
+        <div class="topbar__spacer"></div>
+
+        <div class="topbar__actions">
+          <div class="topbar__lang" data-lang-switch>
+            <button class="active" data-lang="en">EN</button>
+            <button data-lang="zh">中文</button>
+          </div>
+          <button class="topbar__kbd">⌘K</button>
+          <button class="btn btn--primary btn--sm">CONNECT</button>
+          <div class="topbar__avatar">WE</div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="content">
+
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">
+              NORA 的组织
+              <span class="page-title__sub">Org Space</span>
+            </h1>
+            <p class="page-sub">Organization-level members, billing, and settings live here. Project work stays in the project console.</p>
+          </div>
+        </div>
+
+        <div class="page-actions" style="margin-bottom: 18px;">
+          <button class="btn btn--primary btn--sm">↑ Top up</button>
+          <a class="btn btn--sm" href="../03_Dashboard/overview.html">← Back to project</a>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab tab--active">Overview</button>
+          <button class="tab">Members</button>
+          <button class="tab">Employee AI</button>
+          <button class="tab">My AI</button>
+          <button class="tab">Billing</button>
+          <button class="tab">Usage</button>
+          <button class="tab">Audit Log</button>
+          <button class="tab">Settings</button>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="stats">
+          <div class="stat">
+            <div class="stat__label">Your role</div>
+            <div class="stat__value" style="font-size: 26px;">owner</div>
+            <div class="stat__sub">Full access to org &amp; projects</div>
+          </div>
+          <div class="stat">
+            <div class="stat__label">Balance</div>
+            <div class="stat__value">$0.000000</div>
+            <button class="btn btn--primary btn--sm stat__cta">↑ Top up</button>
+          </div>
+          <div class="stat">
+            <div class="stat__label">Projects</div>
+            <div class="stat__value">2</div>
+            <div class="stat__sub">1 default · 1 custom</div>
+          </div>
+          <div class="stat">
+            <div class="stat__label">Can create project</div>
+            <div class="stat__value" style="font-size: 26px;">Yes</div>
+            <div class="stat__sub">Owners may create projects</div>
+          </div>
+        </div>
+
+        <!-- Projects in this organization -->
+        <div class="card">
+          <div class="card__head">
+            <span class="card__title">Projects in this organization</span>
+            <span class="card__hint">// click OPEN to enter project console</span>
+          </div>
+          <table class="table">
+            <thead>
+              <tr><th>Project</th><th>Status</th><th style="text-align: right;">Action</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>默认项目</td>
+                <td><span class="badge">Default</span></td>
+                <td style="text-align: right;"><a class="btn btn--sm" href="../03_Dashboard/overview.html">Open →</a></td>
+              </tr>
+              <tr>
+                <td>test</td>
+                <td><span class="muted mono">—</span></td>
+                <td style="text-align: right;"><a class="btn btn--sm" href="../03_Dashboard/overview.html">Open →</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const langSwitch = document.querySelector('[data-lang-switch]');
+    if (langSwitch) {
+      langSwitch.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('button');
+        if (!btn) return;
+        langSwitch.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    }
+    document.querySelectorAll('.tabs .tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.tabs .tab').forEach(x => x.classList.remove('tab--active'));
+        t.classList.add('tab--active');
+      });
+    });
+  </script>
+</body>
+</html>

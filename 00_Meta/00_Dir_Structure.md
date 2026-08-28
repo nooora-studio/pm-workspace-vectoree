@@ -169,7 +169,8 @@ pm-workspace-vect/
 │
 ├── 00_Meta/
 │   ├── 00_Dir_Structure.md         # ← 本文件
-│   └── Knowledge_Structure_Map.html
+│   ├── Knowledge_Structure_Map.html
+│   └── Templates/                  # 模板库（PRD / 方案模板，待 PM 确认后建文件）
 │
 ├── 01_Product/                     # 事实层 · 产品事实
 │   ├── 00_Overview/
@@ -187,6 +188,12 @@ pm-workspace-vect/
 │       ├── Supabase/
 │       └── Vercel/
 │
+├── 03_Execution/                   # L2 产出层 · 决策交付（需求池在飞书多维表格，暂不落地）
+│   ├── 02_PRD/                     # 需求文档（路径就位，文档待 PM 填写）
+│   ├── 03_Solutions/               # 方案文档（飞书方案导出 MD 放入）
+│   ├── 04_Planning/                # 规划文档（已存在）
+│   ├── 05_Meetings/                # 会议纪要（已存在）
+│   └── 06_Figma_Plugin/            # Figma 插件（已存在）
 └── _Personal/                      # 个人认知层（不共享）
     ├── Product_Discovery_Journal.md
     └── Drafts/
@@ -579,4 +586,6 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 | 2026-08-14 | 2.2 | 编号规则修正为**按实际创建顺序编号**：规划蓝图不占编号，只有真实创建的子目录才占用（`02_Competitive/` → `00_Competitive/`；规划区的 Glossary/Industry/Templates 让位，将来新建时依次接续 01/02/03）；同步调整三个规划扩展区的编号表述 |
 | 2026-08-14 | 2.3 | 编号规则回归**按规划编号**：common 类资源（Glossary/Templates）固定排前，避免按创建顺序导致基础文件编号靠后；`00_Competitive/` → `02_Competitive/`；**新增「依赖创建规则（总分一体）」**：总分/父子/引用依赖必须一起创建，杜绝悬空引用 |
 | 2026-08-14 | 2.4 | 新增 `01_Product/05_Prototypes/`：Vectoree 高保真原型 demo 16 页（1 Landing + 2 Auth + 12 Dashboard + 设计系统 + 维护说明） |
+| 2026-08-25 | 3.1 | 建立 03_Execution 产出层路径：新增 02_PRD / 03_Solutions 目录与 00_Meta/Templates 路径（文档由 PM 填写，不预建骨架）；需求池（Backlog）维持飞书多维表格，暂不落地工程，故不建 01_Backlog；README 架构概览同步 |
 | 2026-08-14 | 3.0 | **核心分层模型重构**：知识=事实（沉淀的客观真相）、产出=文档（工作的交付物）、认知=个人（不共享）。术语词典/行业认知移出共享区归 `_Personal/`；`02_Knowledge/` 重新定位为**外部事实层**（竞品/用户/市场事实档案）；`01_Product/` 扩展为**产品事实层**（定位/功能逻辑/边界/技术模型/设计规范/原型）；`03_Execution/` 重定义为**产出层**（调研报告/需求/方案/规划/会议/复盘）；新增**调研拆分规则**（档案→知识层，报告→产出层）；模板统一至 `00_Meta/Templates/`；竞品目录归位 `02_Competitive/` → `00_Competitive/` |
+| 2026-08-25 | 3.1 | 落地 `03_Execution/01_Backlog`、`02_PRD`、`03_Solutions` 三个产出层子目录（Admin 后台模型录入需求 / 方案落位）；新增 `00_Meta/Templates/` 模板库（Template_PRD / Template_Solution，草稿待确认）；同步 README 架构概览 |
