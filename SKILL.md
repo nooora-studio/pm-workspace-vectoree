@@ -41,6 +41,7 @@ owners: ["PM"]
 - 竞品调研、竞品对比、竞品档案更新
 - 产品功能讨论，定位/边界/架构/设计规范的沉淀
 - 写需求、PRD、方案、规划、会议纪要、复盘
+- 整理个人周进度汇报（周报 / 周产出汇总）
 - 记录术语、行业认知、学习笔记、个人想法
 - 任何「这个内容应该放哪」的归类请求
 
@@ -90,9 +91,10 @@ owners: ["PM"]
 | 行业认知 | `_Personal/Industry_Notes.md` | 个人区，不共享 | 已存在 |
 | 学习笔记 | `_Personal/Learning_Notes.md` | 个人区，不共享 | 已存在 |
 | 个人草稿 | `_Personal/Drafts/` | 个人区 | 已存在 |
+| 个人周进度汇报 | `_Personal/Weekly_Reports/` | 按模板汇总本周工作重点 / 产出 / 需求进度 / 待确认 / 需同步事项 | 已存在 |
 | 截图素材 | `01_Product/_Assets/Screenshots/` | 按截图命名规范 | 已存在 |
 
-> 「规划中」目录：按需创建，命名遵循 `00_Meta/00_Dir_Structure.md`（v3.0）。
+> 「规划中」目录：按需创建，命名遵循 `00_Meta/00_Dir_Structure.md`（v3.2）。
 
 ---
 
@@ -138,10 +140,11 @@ owners: ["PM"]
 
 ---
 
-## 结构现状（v3.0 已落地）
+## 结构现状（v3.2 已落地）
 
-- 本 skill 按「事实层 / 产出层 / 认知层」三层框架执行，规范见 `00_Meta/00_Dir_Structure.md`（v3.0）
+- 本 skill 按「事实层 / 产出层 / 认知层」三层框架执行，规范见 `00_Meta/00_Dir_Structure.md`（v3.2）
 - 竞品目录已调整为 `02_Knowledge/00_Competitive/`；其余映射表路径为规划占位，按需创建
+- `_Personal/Weekly_Reports/` 已落地（README + 模板 + 按月归档周报）
 - 规划占位目录不建实体；实际落地后同步更新规范文档 As-Is 与 README
 
 ---

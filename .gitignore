@@ -10,3 +10,6 @@ __pycache__/
 
 # Vectoree 本地凭据（含 API Key / Token，禁止提交到仓库）
 .vectoree/
+
+# 个人层（认知 / 草稿 / 周报，仅本地保留，不进版本控制、不共享）
+_Personal/

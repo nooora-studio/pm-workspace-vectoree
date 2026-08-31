@@ -3,9 +3,9 @@ title: "Vectoree 知识库"
 description: "[Vectoree](https://vectoree.ai/) 对标产品知识库，覆盖产品拆解、竞品分析、调研沉淀"
 author: "PM"
 created: "2026-08-13"
-updated: "2026-08-14"
+updated: "2026-08-28"
 status: "ACTIVE"
-version: "1.1"
+version: "1.2"
 tags: ["readme", "knowledge-base", "index", "vectoree", "ai-platform"]
 owners: ["PM"]
 ---
@@ -60,7 +60,7 @@ owners: ["PM"]
 
 ### _Personal — 个人认知层（私有边界）
 记录调研期间的过程性思考、学习笔记与非正式内容，不作为团队决策的直接事实依据。
-- **核心内容**：MaaS 平台深度认知框架、日常调研日志、AI 协作工作台草稿、术语词典。
+- **核心内容**：MaaS 平台深度认知框架、日常调研日志、AI 协作工作台草稿、术语词典、个人周进度汇报。
 - **入口**：`_Personal/`
 
 ---
@@ -80,3 +80,4 @@ owners: ["PM"]
 - 2026-08-14：重构 README，移除硬性的文件推介与底层进度追踪，采用广义的项目背景与导读模块，全面提升 README 的概述价值与框架指引作用。
 - 2026-08-16：工程推送至 GitHub（yuki-studio/pm-workspace-vectorre），启用 git 增量更新流程。
 - 2026-08-25：建立 03_Execution 产出层路径（02_PRD / 03_Solutions / 00_Meta/Templates 目录就位，文档由 PM 填写，不预建）；需求池（Backlog）维持飞书多维表格，暂不落地工程。
+- 2026-08-28：新增 `_Personal/Weekly_Reports/` 个人周进度汇报目录（README 使用说明 + 周报模板），支持每周五生成周进度汇报。
