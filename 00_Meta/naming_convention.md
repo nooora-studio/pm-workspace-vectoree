@@ -78,5 +78,5 @@ Vectoree - 方案文档 - Onboarding 模板能力
 ## 7. 关联
 
 - 目录结构规范：`00_Dir_Structure.md`（同层）
-- 方案 / 需求文档母版：`03_Execution/templates/`
+- 方案 / 需求文档母版：`00_Meta/Templates/`（全库唯一模板来源，见 `00_Dir_Structure.md`）
 - 飞书副本：飞书产品知识库《文档规范》（与本文件同一规范，同步维护）

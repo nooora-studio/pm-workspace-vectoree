@@ -171,7 +171,7 @@ pm-workspace-vect/
 ├── 00_Meta/
 │   ├── 00_Dir_Structure.md         # ← 本文件
 │   ├── Knowledge_Structure_Map.html
-│   └── Templates/                  # 模板库（PRD / 方案模板，待 PM 确认后建文件）
+│   └── Templates/                  # 模板库（全库唯一模板来源；已落 Template_PRD / Template_Solution）
 │
 ├── 01_Product/                     # 事实层 · 产品事实
 │   ├── 00_Overview/
