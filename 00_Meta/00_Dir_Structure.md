@@ -191,7 +191,7 @@ pm-workspace-vect/
 │
 ├── 03_Execution/                   # L2 产出层 · 决策交付（需求池在飞书多维表格，暂不落地）
 │   ├── 02_PRD/                     # 需求文档（路径就位，文档待 PM 填写）
-│   ├── 03_Solutions/               # 方案文档（飞书方案导出 MD 放入）
+│   ├── 03_Solutions/               # 方案文档（方案/提案交付物；已落入：Onboarding Template 产品方案、产品文档结构规划）
 │   ├── 04_Planning/                # 规划文档（已存在）
 │   ├── 05_Meetings/                # 会议纪要（已存在）
 │   └── 06_Figma_Plugin/            # Figma 插件（已存在）

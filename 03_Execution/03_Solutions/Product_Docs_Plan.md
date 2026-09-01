@@ -1,3 +1,15 @@
+---
+title: "Vectoree 产品文档结构规划"
+description: "9.4 首版产品文档（GitHub docs / docs.vectoree.ai）的创建维护方法、目录结构规划、缺口对照与落地时序，待 leader 与研发确认"
+author: "PM"
+created: "2026-08-28"
+updated: "2026-08-31"
+status: "DRAFT"
+version: "1.0"
+tags: ["product_docs", "onboarding", "docs_site", "solution"]
+owners: ["PM"]
+---
+
 # Vectoree 产品文档规划（GitHub docs：创建 / 维护 / 结构与内容）
 
 > 生成时间：2026-08-28
