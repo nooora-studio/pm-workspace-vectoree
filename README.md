@@ -3,7 +3,7 @@ title: "Vectoree 知识库"
 description: "[Vectoree](https://vectoree.ai/) 对标产品知识库，覆盖产品拆解、竞品分析、调研沉淀"
 author: "PM"
 created: "2026-08-13"
-updated: "2026-08-28"
+updated: "2026-09-03"
 status: "ACTIVE"
 version: "1.2"
 tags: ["readme", "knowledge-base", "index", "vectoree", "ai-platform"]
@@ -40,6 +40,7 @@ owners: ["PM"]
 ### 01_Product — 内部产品层（事实与核心产出）
 承载 [Vectoree](https://vectoree.ai/) 产品的既定事实与团队级、战略级产出。
 - **核心内容**：产品战略洞察、版本路线图、深度拆解报告、高保真原型与 UI 资产、产品模块思维导图（HTML 可视化）。
+- **Badcase 管理**：`01_Product/Badcase/` 收录劣质/异常案例（Badcase），含标准录入模板与汇总索引，用于质量闭环与回归沉淀。
 - **入口**：`01_Product/`
 
 ### 02_Knowledge — 外部事实层（市场与竞品档案）

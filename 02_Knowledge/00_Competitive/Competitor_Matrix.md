@@ -1,107 +1,107 @@
 ---
 title: "Competitor Matrix"
-description: "竞品横向对比矩阵：直接竞品(Insforge) vs 间接竞品(OpenRouter/Clerk/Supabase/Vercel) 核心维度对比"
+description: "竞品横向对比矩阵：直接竞品(Insforge) vs 间接竞品(OpenRouter/Clerk/Supabase/Vercel/Monid) 核心维度对比"
 author: "PM"
 created: "2026-08-13"
-updated: "2026-08-20"
+updated: "2026-09-03"
 status: "DONE"
-version: "1.0"
-competitors: ["Insforge (DIRECT)", "OpenRouter (INDIRECT)", "Clerk (INDIRECT)", "Supabase (INDIRECT)", "Vercel (INDIRECT)"]
+version: "1.1"
+competitors: ["Insforge (DIRECT)", "OpenRouter (INDIRECT)", "Clerk (INDIRECT)", "Supabase (INDIRECT)", "Vercel (INDIRECT)", "Monid (INDIRECT · Tool Hub 模块级)"]
 tags: ["competitive", "matrix", "analysis", "overview"]
 owners: ["PM"]
 ---
 
 # 竞品横向对比矩阵（Competitor Matrix）
 
-> 第一版已完成：直接竞品 **InsForge** + 4 家间接竞品（**OpenRouter / Clerk / Supabase / Vercel**）全部核心维度已填充。各家的详细调研见 `00_Competitive/<Name>/{Profile,Features,Pricing,SWOT}.md`。
+> 第一版已完成：直接竞品 **InsForge** + 4 家间接竞品（**OpenRouter / Clerk / Supabase / Vercel**）全部核心维度已填充；**Monid** 于 2026-09-03 作为 Tool Hub 模块级强相关间接竞品补入。各家的详细调研见 `00_Competitive/<Name>/{Profile,Features,Pricing,SWOT}.md`（Monid 为单文档 `Monid_Competitor_Analysis.md`）。
 >
-> 关系总览：**InsForge = 直接竞品**（同做 Agent SaaS 无代码平台）；**OpenRouter / Supabase = 100% 互补伙伴**（分别做模型层与后端层）；**Clerk = 互补 + 可接入 Provider**（只做 Auth 层）；**Vercel = 70% 互补 + 30% 潜在平台级威胁**（2025-2026 战略升级向上扩张，但商业模型硬边界同样不碰 B2B2C 分润与模板市场）。
+> 关系总览：**InsForge = 直接竞品**（同做 Agent SaaS 无代码平台）；**OpenRouter / Supabase = 100% 互补伙伴**（分别做模型层与后端层）；**Clerk = 互补 + 可接入 Provider**（只做 Auth 层）；**Vercel = 70% 互补 + 30% 潜在平台级威胁**（2025-2026 战略升级向上扩张，但商业模型硬边界同样不碰 B2B2C 分润与模板市场）；**Monid = 间接竞品（Tool Hub 模块级强相关参照）**：Agent 工具路由 + 统一钱包，与 Vectoree Tool Hub 在「统一钱包 + Agent-native 接入」同构，差异在后端上下文与 B2B2C 结算层。
 
 ---
 
 ## 🎯 核心定位 & 品牌叙事对比
 
-| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel |
-|------|---------------------|---------------|----------|-------------|-----------|
-| **官方一句话定位** | **The Agent-Native AWS** | The Unified Interface For LLMs | Drop-in Authentication & User Management for Modern Apps | The Open Source Firebase Alternative | Agentic Infrastructure — Build agents. Ship apps. Host platforms.（Frontend Cloud → AI Cloud） |
-| **Slogan/Headline** | The Agent-Native Cloud Infrastructure Platform | Better prices, better uptime, no subscriptions | `<SignIn />` 一个组件 = 完整注册/登录/MFA/组织 | Build in a weekend. Scale to millions. | Agentic Infrastructure |
-| **目标用户（主）** | 用 Claude Code/Cursor 开发的 Agent Native 开发者 | Indie Hacker / 独立开发者（原型快速出 Demo） | Indie / Hobby（Next.js 开发者） | Indie Hacker / 单人 SaaS 创始人 | Indie Hacker / 1-3 人 SaaS 团队 |
-| **目标用户（次）** | 早期创业团队（2-5人技术栈） | Agent Builders / AI Native 开发团队 | Growth B2B SaaS（10-50人） | YC / Pre-A 早期 AI 创业团队 | Next.js / React 核心开发者社区 |
-| **融资/背书** | YC P26（Spring 2026，Active） | Series B $113M（2026-05，CapitalG 领投），$1.3B 估值 | Series B $30M（2024-01，CRV + Stripe 战投） | Series E $100M（2025-10），$5B 估值 | Series F $300M（2025-09，Accel + GIC），$9.3B 估值 |
-| **团队大本营** | 旧金山 Bay Area（美） | 纽约 NYC（Alex Atallah，前 OpenSea CTO） | 旧金山（Colin Sidoti） | 新加坡（Paul Copplestone / Ant Wilson） | 旧金山（Guillermo Rauch，Next.js 作者） |
+| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel | ⚪ Monid (INDIRECT) |
+|------|---------------------|---------------|----------|-------------|-----------|---------------------|
+| **官方一句话定位** | **The Agent-Native AWS** | The Unified Interface For LLMs | Drop-in Authentication & User Management for Modern Apps | The Open Source Firebase Alternative | Agentic Infrastructure — Build agents. Ship apps. Host platforms.（Frontend Cloud → AI Cloud） | Connect your agent to every tool it needs.（Agent 工具的 OpenRouter） |
+| **Slogan/Headline** | The Agent-Native Cloud Infrastructure Platform | Better prices, better uptime, no subscriptions | `<SignIn />` 一个组件 = 完整注册/登录/MFA/组织 | Build in a weekend. Scale to millions. | Agentic Infrastructure | We killed the subscriptions. / One balance for every tool, every provider. |
+| **目标用户（主）** | 用 Claude Code/Cursor 开发的 Agent Native 开发者 | Indie Hacker / 独立开发者（原型快速出 Demo） | Indie / Hobby（Next.js 开发者） | Indie Hacker / 单人 SaaS 创始人 | Indie Hacker / 1-3 人 SaaS 团队 | 自建 Agent 的开发者 / 研究型团队 |
+| **目标用户（次）** | 早期创业团队（2-5人技术栈） | Agent Builders / AI Native 开发团队 | Growth B2B SaaS（10-50人） | YC / Pre-A 早期 AI 创业团队 | Next.js / React 核心开发者社区 | 量化/FinTech 分析师、增长营销、电商卖家（需社媒/情报数据） |
+| **融资/背书** | YC P26（Spring 2026，Active） | Series B $113M（2026-05，CapitalG 领投），$1.3B 估值 | Series B $30M（2024-01，CRV + Stripe 战投） | Series E $100M（2025-10），$5B 估值 | Series F $300M（2025-09，Accel + GIC），$9.3B 估值 | 未披露（早期，无公开融资/背书） |
+| **团队大本营** | 旧金山 Bay Area（美） | 纽约 NYC（Alex Atallah，前 OpenSea CTO） | 旧金山（Colin Sidoti） | 新加坡（Paul Copplestone / Ant Wilson） | 旧金山（Guillermo Rauch，Next.js 作者） | 未披露 |
 
 ---
 
 ## 📊 产品规模 & 量化指标对比
 
-| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel |
-|------|---------------------|---------------|----------|-------------|-----------|
-| **GitHub Stars** | **12.4K ⭐** | N/A（SaaS-only，核心路由闭源） | N/A（闭源 SaaS） | **82.9K ⭐**（Apache 2.0） | **Next.js 125K+ ⭐**（开源矩阵合计 180K+） |
-| **GitHub Commits（主干）** | **4,433+** | N/A | N/A | 高活跃（社区驱动） | 高活跃（开源框架） |
-| **开源协议** | ✅ 开源（主仓库公开） | ❌ 闭源 SaaS（无自托管） | ❌ 闭源 | ✅ Apache 2.0 | ✅ 开源（Next.js/Eve/Turborepo） |
-| **自托管能力** | ✅ GCE 一键部署文档 | ❌ SaaS-only | ❌ SaaS-only | ✅ K8s Helm / Docker Compose（社区向） | ⚠️ Fluid Compute + Dockerfile，但核心 SaaS |
-| **MCP Benchmark（Pass⁴ DB Task）** | **47.6%**（vs Supabase 28.6% / Postgres 38.1%） | N/A | N/A | 28.6%（基准已知） | N/A |
-| **MCP Benchmark（平均耗时）** | **150s**（1.6x 快于 Supabase/Postgres） | N/A | N/A | 239.2s | N/A |
-| **MCP Benchmark（Token 消耗）** | **8.2M**（比 Supabase 少 ~30%） | N/A | N/A | 11.6M | N/A |
-| **规模量化指标** | YC P26 背书 | **200T+ tokens/月** · 8M+ 开发者 · **400+ 模型** · 70+ Provider | $10-50M ARR · 100-200 人 · 3-8K 付费客户 | **4M+ 开发者** · 15.1M+ DB · $70M ARR | **$340M ARR** · 6M+ Next.js MAD · 1B+ 部署 |
+| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel | ⚪ Monid (INDIRECT) |
+|------|---------------------|---------------|----------|-------------|-----------|---------------------|
+| **GitHub Stars** | **12.4K ⭐** | N/A（SaaS-only，核心路由闭源） | N/A（闭源 SaaS） | **82.9K ⭐**（Apache 2.0） | **Next.js 125K+ ⭐**（开源矩阵合计 180K+） | N/A（闭源 SaaS） |
+| **GitHub Commits（主干）** | **4,433+** | N/A | N/A | 高活跃（社区驱动） | 高活跃（开源框架） | N/A |
+| **开源协议** | ✅ 开源（主仓库公开） | ❌ 闭源 SaaS（无自托管） | ❌ 闭源 | ✅ Apache 2.0 | ✅ 开源（Next.js/Eve/Turborepo） | ❌ 闭源 SaaS |
+| **自托管能力** | ✅ GCE 一键部署文档 | ❌ SaaS-only | ❌ SaaS-only | ✅ K8s Helm / Docker Compose（社区向） | ⚠️ Fluid Compute + Dockerfile，但核心 SaaS | ❌ SaaS-only |
+| **MCP Benchmark（Pass⁴ DB Task）** | **47.6%**（vs Supabase 28.6% / Postgres 38.1%） | N/A | N/A | 28.6%（基准已知） | N/A | N/A |
+| **MCP Benchmark（平均耗时）** | **150s**（1.6x 快于 Supabase/Postgres） | N/A | N/A | 239.2s | N/A | N/A |
+| **MCP Benchmark（Token 消耗）** | **8.2M**（比 Supabase 少 ~30%） | N/A | N/A | 11.6M | N/A | N/A |
+| **规模量化指标** | YC P26 背书 | **200T+ tokens/月** · 8M+ 开发者 · **400+ 模型** · 70+ Provider | $10-50M ARR · 100-200 人 · 3-8K 付费客户 | **4M+ 开发者** · 15.1M+ DB · $70M ARR | **$340M ARR** · 6M+ Next.js MAD · 1B+ 部署 | **1,608 endpoints / 54 providers**（2026-08-19 第三方 API 实测下限；主页口径 1.3k~2k 自相矛盾）；TikHub 单供应商占 56% 端点，Top10 占 82% |
 
 ---
 
 ## 🧱 后端原语 & 核心模块对比（Vectoree 相关）
 
-| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel |
-|------|---------------------|---------------|----------|-------------|-----------|
-| **🔑 Authentication（鉴权）** | ✅ Users/Sessions/OAuth/JWT + RLS + 内置 OAuth Server | ❌ | ✅✅ 核心产品 | ✅✅ Auth 模块（GoTrue + RLS） | ⚠️ Passport（企业 IdP，终端用户 Auth 需外接） |
-| **💾 Database（数据库）** | ✅ Postgres + Migrations + **pgvector 向量** | ❌ | ❌ | ✅✅ 核心（Postgres + pgvector） | ✅ Durable Postgres（基于 Neon） |
-| **☁️ Storage（对象存储）** | ✅ S3 Compatible API | ❌ | ❌ | ✅ Storage 模块（S3 兼容 + RLS） | ✅ Blob（S3 兼容） |
-| **🤖 Model Gateway（模型网关）** | ✅ OpenAI 兼容格式 + 多 Provider | ✅✅ **核心产品**（400+ 模型，路由/Failover） | ❌ | ❌ | ✅ AI Gateway（70+ 模型，限流/缓存） |
-| **⚡ Edge Functions（边缘函数）** | ✅ Deno Runtime + Webhook + Cron | ❌ | ❌ | ✅ Edge Functions（Deno） | ✅✅ 核心（Functions + Edge + Fluid + Containers） |
-| **🔴 Realtime（实时通信）** | ✅ DB Changes + Pub/Sub（WebSocket） | ❌ | ❌ | ✅ Realtime 模块（Elixir） | ❌（非主打） |
-| **🌐 Sites（前端部署）** | ⚠️ **EXPERIMENTAL**（借 Vercel Platform API 转发，非自研） | ❌ | ❌ | ⚠️ 弱（仅 Edge Functions，不发 HTML） | ✅✅ 核心（Next.js 首推部署） |
-| **🐳 Compute（长时容器）** | ✅ Long-running Containers | ❌ | ❌ | ❌（需配第三方） | ✅ Fluid Compute + Dockerfile + Sandboxed VMs |
-| **📦 总模块数（自研+整合）** | **8 个原语**（Auth/DB/Storage/Gateway/Functions/Realtime/Sites/Compute） | 1 个核心 | 1 个核心 | 6 个核心（DB/Auth/Storage/Edge/Realtime/Vector） | 2 个核心 + 扩展（部署 / AI / 后端多件） |
+| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel | ⚪ Monid (INDIRECT) |
+|------|---------------------|---------------|----------|-------------|-----------|---------------------|
+| **🔑 Authentication（鉴权）** | ✅ Users/Sessions/OAuth/JWT + RLS + 内置 OAuth Server | ❌ | ✅✅ 核心产品 | ✅✅ Auth 模块（GoTrue + RLS） | ⚠️ Passport（企业 IdP，终端用户 Auth 需外接） | ❌ |
+| **💾 Database（数据库）** | ✅ Postgres + Migrations + **pgvector 向量** | ❌ | ❌ | ✅✅ 核心（Postgres + pgvector） | ✅ Durable Postgres（基于 Neon） | ❌ |
+| **☁️ Storage（对象存储）** | ✅ S3 Compatible API | ❌ | ❌ | ✅ Storage 模块（S3 兼容 + RLS） | ✅ Blob（S3 兼容） | ❌ |
+| **🤖 Model Gateway（模型网关）** | ✅ OpenAI 兼容格式 + 多 Provider | ✅✅ **核心产品**（400+ 模型，路由/Failover） | ❌ | ❌ | ✅ AI Gateway（70+ 模型，限流/缓存） | ❌ |
+| **⚡ Edge Functions（边缘函数）** | ✅ Deno Runtime + Webhook + Cron | ❌ | ❌ | ✅ Edge Functions（Deno） | ✅✅ 核心（Functions + Edge + Fluid + Containers） | ❌ |
+| **🔴 Realtime（实时通信）** | ✅ DB Changes + Pub/Sub（WebSocket） | ❌ | ❌ | ✅ Realtime 模块（Elixir） | ❌（非主打） | ❌ |
+| **🌐 Sites（前端部署）** | ⚠️ **EXPERIMENTAL**（借 Vercel Platform API 转发，非自研） | ❌ | ❌ | ⚠️ 弱（仅 Edge Functions，不发 HTML） | ✅✅ 核心（Next.js 首推部署） | ❌ |
+| **🐳 Compute（长时容器）** | ✅ Long-running Containers | ❌ | ❌ | ❌（需配第三方） | ✅ Fluid Compute + Dockerfile + Sandboxed VMs | ❌ |
+| **📦 总模块数（自研+整合）** | **8 个原语**（Auth/DB/Storage/Gateway/Functions/Realtime/Sites/Compute） | 1 个核心 | 1 个核心 | 6 个核心（DB/Auth/Storage/Edge/Realtime/Vector） | 2 个核心 + 扩展（部署 / AI / 后端多件） | **1 个核心**（Tool/API Router + 统一钱包） |
 
 ---
 
 ## 🛠️ Agent 集成能力对比（Agent-Native 深度）
 
-| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel |
-|------|---------------------|---------------|----------|-------------|-----------|
-| **CLI 接入（任意终端通用）** | ✅ `npx @insforge/cli`，官方推荐 | ❌（API 通用，无专属 CLI） | ❌ | ⚠️ 有 CLI 但非 Agent-first 设计 | ✅ `vercel` CLI |
-| **MCP Server（编辑器直连）** | ✅✅ 云版 + 自托管双支持；**MCPMark 性能第一** | ❌ | ❌ | ✅ 官方支持（2026） | ✅ 官方 Agentic Infra（API/CLI/MCP/Skills） |
-| **Skill / 插件体系（Agent 级）** | ✅✅ CLI + MCP Skills + `insforge.dev/skill.md`（官方强制 AI 先读） | ❌ | ❌ | ❌ | ❌（v0/Eve 为工作流，非 Skill 市场） |
-| **支持的 Agent 编辑器** | ✅ Claude Code / Cursor / Windsurf / Codex 每款独立 Setup Guide | ❌（OpenAI 兼容 API 可被任意 Agent 调用） | ❌ | ✅ Claude Code / Cursor / Windsurf 可直接操作 | ✅ 为 coding agents 原生设计 |
-| **Agent 结构化返回** | ✅ 每个原语 JSON Schema + Readable Errors | ❌ | ❌ | ⚠️ PostgREST API 返回 | ✅ AI SDK 流式 UI |
-| **Agent 可回滚写入** | ✅ 分支 + Dry Run + 可回滚 | ❌ | ❌ | ❌ | ⚠️ Deploy Rollback |
-| **Agent 细粒度权限** | ✅ CLI/MCP 权限隔离 + 人类 Review | ❌ | ❌ | ✅ RLS（DB 层生效） | ✅ Preview Protection / SSO |
-| **Config-as-Code** | ✅ 所有配置版本控制 | ❌ | ❌ | ✅ schema / migration as code | ✅ `vercel.json` |
+| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel | ⚪ Monid (INDIRECT) |
+|------|---------------------|---------------|----------|-------------|-----------|---------------------|
+| **CLI 接入（任意终端通用）** | ✅ `npx @insforge/cli`，官方推荐 | ❌（API 通用，无专属 CLI） | ❌ | ⚠️ 有 CLI 但非 Agent-first 设计 | ✅ `vercel` CLI | ✅ CLI（install + run），官方推荐 |
+| **MCP Server（编辑器直连）** | ✅✅ 云版 + 自托管双支持；**MCPMark 性能第一** | ❌ | ❌ | ✅ 官方支持（2026） | ✅ 官方 Agentic Infra（API/CLI/MCP/Skills） | ✅✅ 远程 MCP（**OAuth 鉴权，非 API Key**） |
+| **Skill / 插件体系（Agent 级）** | ✅✅ CLI + MCP Skills + `insforge.dev/skill.md`（官方强制 AI 先读） | ❌ | ❌ | ❌ | ❌（v0/Eve 为工作流，非 Skill 市场） | ✅✅ `monid.ai/SKILL.md` 一行注入 + discover/inspect/run 元工具 |
+| **支持的 Agent 编辑器** | ✅ Claude Code / Cursor / Windsurf / Codex 每款独立 Setup Guide | ❌（OpenAI 兼容 API 可被任意 Agent 调用） | ❌ | ✅ Claude Code / Cursor / Windsurf 可直接操作 | ✅ 为 coding agents 原生设计 | ✅ Claude Code / Cursor / Codex / OpenCode（MCP quickstart 点名） |
+| **Agent 结构化返回** | ✅ 每个原语 JSON Schema + Readable Errors | ❌ | ❌ | ⚠️ PostgREST API 返回 | ✅ AI SDK 流式 UI | ✅ discover 返回 `scoreBreakdown`（可审计） |
+| **Agent 可回滚写入** | ✅ 分支 + Dry Run + 可回滚 | ❌ | ❌ | ❌ | ⚠️ Deploy Rollback | ❌（只读/查询型工具为主） |
+| **Agent 细粒度权限** | ✅ CLI/MCP 权限隔离 + 人类 Review | ❌ | ❌ | ✅ RLS（DB 层生效） | ✅ Preview Protection / SSO | ⚠️ 仅 workspace 单一余额，**无 per-key / per-user 预算上限**（短板） |
+| **Config-as-Code** | ✅ 所有配置版本控制 | ❌ | ❌ | ✅ schema / migration as code | ✅ `vercel.json` | ⚠️ 无显式 config-as-code，靠 API/CLI |
 
 ---
 
 ## 💰 定价 & 商业化对比
 
-| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel |
-|------|---------------------|---------------|----------|-------------|-----------|
-| **Free 版月费** | **$0** | **$0**（无订阅） | **$0**（Hobby） | **$0** | **$0**（Hobby） |
-| **Free 版机制** | ⚠️ **1 周无活动自动休眠**（需手动唤醒） | 免费模型池 28+ + 每日免费请求（充值 $10+ 后额度提升） | 50K MRU/月；Organizations/SSO 受限 | ⚠️ **2 项目上限 + 1 周自动休眠** | ✅ Unlimited 项目 + 域名 + 100GB Egress（最慷慨） |
-| **Pro 版月费** | **$25 / month** | 无订阅（按量 + 充值手续费 5.5%） | **$20/月年付** · $25/月付 | **$25/月**（含 $10 Compute） | **$20/Seat/月**（+ Team Pro $120/月） |
-| **Enterprise 版** | ✅ 联系销售定制（SSO/SAML/SLA） | Contact Sales | 定制（≥$12K/年起） | 定制 | 定制（≥$2,000/月合同起） |
-| **核心计费逻辑** | 平台订阅费 $25 起 + 基础设施（DB/Storage/Functions）**按量超额** | 充值手续费 **5.5%**（Token 原价直通）+ BYOK 超额 5% | MRU + 附加项（Orgs $1/个 · SSO $75/连接 · Satellite $10/域） | Plan + 项目数（$10/个）+ Compute 阶梯 + 用量（MAU/Disk/Egress） | Seat 订阅 + **30+ 维度** Usage Add-ons |
-| **计费透明度** | ⚠️ 模糊：Pro 超额项未在官方明确披露 | ✅ 极高（5.5% 明牌 + 每模型 Token 价公开） | ⚠️ 低（「钩子陷阱」模式，核心能力按量高价） | ✅ 高（明细列出但维度多） | ⚠️ 中低（30+ 维度惊喜账单，Pricing Transparency 8.0/10） |
-| **B2B2C 终用户收款集成（Stripe Connect 等）** | ❌ 未见 | ❌ | ❌ | ❌ | ❌ |
-| **利润来源优先级** | 1. 平台订阅费 2. 基础设施超额 3. 模型薄利（非核心） | 1. 充值手续费 2. BYOK 超额 3. 企业定制 | 1. 订阅 2. 附加项（Orgs/SSO/Satellite） | 1. 后端订阅 2. 用量 | 1. Seat 2. 用量 3. v0 订阅 |
+| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel | ⚪ Monid (INDIRECT) |
+|------|---------------------|---------------|----------|-------------|-----------|---------------------|
+| **Free 版月费** | **$0** | **$0**（无订阅） | **$0**（Hobby） | **$0** | **$0**（Hobby） | **$0**（无订阅，$1 免费额度） |
+| **Free 版机制** | ⚠️ **1 周无活动自动休眠**（需手动唤醒） | 免费模型池 28+ + 每日免费请求（充值 $10+ 后额度提升） | 50K MRU/月；Organizations/SSO 受限 | ⚠️ **2 项目上限 + 1 周自动休眠** | ✅ Unlimited 项目 + 域名 + 100GB Egress（最慷慨） | $1 启动额度，无订阅承诺 |
+| **Pro 版月费** | **$25 / month** | 无订阅（按量 + 充值手续费 5.5%） | **$20/月年付** · $25/月付 | **$25/月**（含 $10 Compute） | **$20/Seat/月**（+ Team Pro $120/月） | 无（纯按量） |
+| **Enterprise 版** | ✅ 联系销售定制（SSO/SAML/SLA） | Contact Sales | 定制（≥$12K/年起） | 定制 | 定制（≥$2,000/月合同起） | Contact（become a tool provider 分润模式） |
+| **核心计费逻辑** | 平台订阅费 $25 起 + 基础设施（DB/Storage/Functions）**按量超额** | 充值手续费 **5.5%**（Token 原价直通）+ BYOK 超额 5% | MRU + 附加项（Orgs $1/个 · SSO $75/连接 · Satellite $10/域） | Plan + 项目数（$10/个）+ Compute 阶梯 + 用量（MAU/Disk/Egress） | Seat 订阅 + **30+ 维度** Usage Add-ons | 预付费单一余额，按调用计费（PER_CALL / PER_RESULT 等）；中位 **$0.0015/次**，78% < 1¢；供给端分润 + x402 USDC 可选 |
+| **计费透明度** | ⚠️ 模糊：Pro 超额项未在官方明确披露 | ✅ 极高（5.5% 明牌 + 每模型 Token 价公开） | ⚠️ 低（「钩子陷阱」模式，核心能力按量高价） | ✅ 高（明细列出但维度多） | ⚠️ 中低（30+ 维度惊喜账单，Pricing Transparency 8.0/10） | ✅ 极高（微美元级、失败 $0、不四舍五入；第三方实测背书） |
+| **B2B2C 终用户收款集成（Stripe Connect 等）** | ❌ 未见 | ❌ | ❌ | ❌ | ❌ | ⚠️ 供给端分润 + x402 加密结算，但非 Stripe Connect 级终用户收款 |
+| **利润来源优先级** | 1. 平台订阅费 2. 基础设施超额 3. 模型薄利（非核心） | 1. 充值手续费 2. BYOK 超额 3. 企业定制 | 1. 订阅 2. 附加项（Orgs/SSO/Satellite） | 1. 后端订阅 2. 用量 | 1. Seat 2. 用量 3. v0 订阅 | 1. 调用抽成/价差 2. 供给端分润分成 3. x402 结算 |
 
 ---
 
 ## 🚀 Human（人类开发者体验）对比
 
-| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel |
-|------|---------------------|---------------|----------|-------------|-----------|
-| **Dashboard 可视化体验** | ⚠️ CLI/MCP 优先，人类 Dashboard 相比 Supabase/Firebase 弱 | ⚠️ Activity Dashboard（消费/Token 看板，偏硬核） | ✅✅ 优秀可视化 Dashboard | ✅✅ 优秀（Studio：表/SQL/RLS 可视化） | ✅✅ 业界标杆 Dashboard |
-| **可视化拖配置** | ❌ 几乎没有，以 Code + CLI 为主 | ❌ | ✅ SignIn/UserProfile 组件可配置 | ✅ Table Editor + SQL Editor + Auth UI | ✅ v0 文字生成 UI + Dashboard 配置 |
-| **上手文档友好度（给人读的）** | ⚠️ Docs 给 Agent 看的更多（强制要求读 `skill.md`） | ✅ Docs 完善（Quickstart/Routing/Privacy） | ✅✅ Docs 完善，Quickstarts 齐全 | ✅✅ Docs 完善，Quickstarts 齐全 | ✅✅ Docs 业界标杆 |
-| **框架 Quickstarts** | ✅ Next/React/Vue/Nuxt/Svelte 5 款 | ⚠️ 模型接入，非框架级 | ✅ Next.js/React 全栈 | ✅ Next.js + 各种官方模板 | ✅✅ Next.js 首推 |
-| **SDK 支持** | ✅ TypeScript SDK 齐全 | ✅ OpenAI SDK 兼容（任意语言） | ✅ 多语言官方 SDK + React 组件 | ✅ JS/TS/Python/Go/Dart/Flutter… | ✅ AI SDK 等多语言 |
+| 维度 | 🟥 InsForge (DIRECT) | ⚪ OpenRouter | ⚪ Clerk | ⚪ Supabase | ⚪ Vercel | ⚪ Monid (INDIRECT) |
+|------|---------------------|---------------|----------|-------------|-----------|---------------------|
+| **Dashboard 可视化体验** | ⚠️ CLI/MCP 优先，人类 Dashboard 相比 Supabase/Firebase 弱 | ⚠️ Activity Dashboard（消费/Token 看板，偏硬核） | ✅✅ 优秀可视化 Dashboard | ✅✅ 优秀（Studio：表/SQL/RLS 可视化） | ✅✅ 业界标杆 Dashboard | ⚠️ app.monid.ai 钱包/Key 管理，偏硬核，无丰富可视化 |
+| **可视化拖配置** | ❌ 几乎没有，以 Code + CLI 为主 | ❌ | ✅ SignIn/UserProfile 组件可配置 | ✅ Table Editor + SQL Editor + Auth UI | ✅ v0 文字生成 UI + Dashboard 配置 | ❌ |
+| **上手文档友好度（给人读的）** | ⚠️ Docs 给 Agent 看的更多（强制要求读 `skill.md`） | ✅ Docs 完善（Quickstart/Routing/Privacy） | ✅✅ Docs 完善，Quickstarts 齐全 | ✅✅ Docs 完善，Quickstarts 齐全 | ✅✅ Docs 业界标杆 | ✅ Docs 完善（Skill/MCP/CLI/HTTP 齐全），但给人读的少、给 Agent 多 |
+| **框架 Quickstarts** | ✅ Next/React/Vue/Nuxt/Svelte 5 款 | ⚠️ 模型接入，非框架级 | ✅ Next.js/React 全栈 | ✅ Next.js + 各种官方模板 | ✅✅ Next.js 首推 | ✅ Claude Code/Cursor/Codex/OpenCode + HTTP/钱包 API |
+| **SDK 支持** | ✅ TypeScript SDK 齐全 | ✅ OpenAI SDK 兼容（任意语言） | ✅ 多语言官方 SDK + React 组件 | ✅ JS/TS/Python/Go/Dart/Flutter… | ✅ AI SDK 等多语言 | ⚠️ 以 REST/CLI/MCP 为主，无多语言 SDK |
 
 ---
 
@@ -184,6 +184,19 @@ owners: ["PM"]
 
 ---
 
+### 🟦 Monid（间接 · Agent 工具路由 / Tool Hub 模块级强相关）强项 & Vectoree 借势点
+1. **验证了「统一钱包 + Agent-native 工具层」方向**：三动词 `discover / inspect / run` + Skill/MCP/CLI/HTTP 四接入，计量体验被第三方实测评为「该品类最佳」（微美元级、失败 $0、不四舍五入），等于给 Vectoree Tool Hub 路线背书
+2. **元工具抗上下文膨胀**：用 discover/inspect/run 三个元工具承载无限目录，Agent 上下文不随目录膨胀——是 Vectoree 规划中「技能能力中心」可直接采用的原则（替代静态工具堆砌）
+3. **Agentic Commerce 已跑通**：供给端分润 + x402 USDC 结算，证明「工具市场 + 机器对机器付费」成立，为 Vectoree 组织钱包作结算底座提供外部论据
+
+### 🟢 Vectoree 可切入的差异化（Monid 的明确弱项）
+1. **治理缺失（无隐私/条款页 404、无按 Key 支出上限）** → Vectoree 以「合规 + 支出护栏 + 后端上下文」三件套切入企业/出海客户
+2. **目录注水 + 单供应商集中（TikHub 占 56% 端点，Top10 占 82%）** → Vectoree 只讲已验证、可调用、已标注的工具数，不拼广度
+3. **排名不纳价格因子（实测贵 26x 的端点排第一）** → Vectoree 工具发现机制须把价格纳入打分并返回可审计分解
+4. **纯路由无后端上下文** → Vectoree 工具可「调用即落库 / 基于用户数据 enrichment」，且组织钱包可作 Agent 工具 micropayment 结算底座（Stripe Connect 级），是相对 Monid 最大战略卡位
+
+---
+
 ## 📌 补全状态说明
 
 | 竞品 | 类型 | 完成度 | 最后更新 |
@@ -193,5 +206,6 @@ owners: ["PM"]
 | ⚪ **Clerk** | INDIRECT | ✅ **100%（定位/规模/原语/Agent/定价/Human 全填充）** | 2026-08-20 |
 | ⚪ **Supabase** | INDIRECT | ✅ **100%（定位/规模/原语/Agent/定价/Human 全填充）** | 2026-08-20 |
 | ⚪ **Vercel** | INDIRECT | ✅ **100%（定位/规模/原语/Agent/定价/Human 全填充）** | 2026-08-20 |
+| ⚪ **Monid** | INDIRECT (Tool Hub 模块级) | ✅ **100%（定位/规模/原语/Agent/定价/Human 全填充）** | 2026-09-03 |
 
-> 数据来源：各竞品目录下 `{Profile,Features,Pricing,SWOT}.md`（2026-08-13 ~ 2026-08-14 调研，2026-08-20 汇总回填）。
+> 数据来源：各竞品目录下 `{Profile,Features,Pricing,SWOT}.md`（2026-08-13 ~ 2026-08-14 调研，2026-08-20 汇总回填）；Monid 详见 `Monid_Competitor_Analysis.md`（2026-09-03 调研）。

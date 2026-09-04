@@ -131,6 +131,7 @@ pm-workspace-vect/
 │   ├── 03_Technical/               # 技术模型（架构/数据/技术栈）
 │   ├── 04_Design/                  # 设计规范（主题色/design token/组件）
 │   ├── 05_Prototypes/              # 原型与交互说明
+│   ├── Badcase/                   # 劣质/异常案例（Badcase）管理
 │   └── _Assets/                    # 截图/设计资源
 │
 ├── 02_Knowledge/                   # L1 事实层 · 外部事实
@@ -605,3 +606,4 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 | 2026-08-25 | 3.1 | 落地 `03_Execution/01_Backlog`、`02_PRD`、`03_Solutions` 三个产出层子目录（Admin 后台模型录入需求 / 方案落位）；新增 `00_Meta/Templates/` 模板库（Template_PRD / Template_Solution，草稿待确认）；同步 README 架构概览 |
 | 2026-08-25 | 3.1 | 建立 03_Execution 产出层路径：新增 02_PRD / 03_Solutions 目录与 00_Meta/Templates 路径（文档由 PM 填写，不预建骨架）；需求池（Backlog）维持飞书多维表格，暂不落地工程，故不建 01_Backlog；README 架构概览同步 |
 | 2026-08-28 | 3.2 | 新增 `_Personal/Weekly_Reports/` 个人周进度汇报目录：README 使用说明 + Template 周报模板；周报含本周工作重点 / 关键产出 / 关键需求进度 / 待确认事项 / 需同事同步事项 |
+| 2026-09-03 | 3.3 | 新增 `01_Product/Badcase/` 劣质/异常案例（Badcase）管理模块：含 `00_Badcase_Template.md`（标准录入模板）与 `01_Badcase_Index.md`（汇总索引，含 2 条示例）；同步 README 架构概览与 §12 操作指南（场景 I） |
