@@ -1,148 +1,189 @@
 ---
 title: "Vectoree - 需求文档 - Onboarding 连接全链路"
-description: "基于已交付 demo 的 onboarding 与编程代理连接需求文档：双轨引导流程、首次弹窗、Header 连接态、校验与 $5 奖励规则、完整后端接口契约与字段映射，供研发直接照此实现数据接口"
+description: "新用户把本地工程接上 Vectoree 后端的全链路需求：触达范围、双轨引导、连接态判定、InstallBonusService 发奖风控、探针生命周期矩阵与后端接口契约。全栈交付型文档，研发照此实现与验收"
 author: "PM"
 created: "2026-09-10"
-updated: "2026-09-11"
+updated: "2026-09-12"
 status: "REVIEW"
-version: "1.5"
+version: "3.2"
 tags: ["prd", "onboarding", "connect", "activation", "api_contract"]
 owners: ["PM"]
 ---
 
 # Vectoree - 需求文档 - Onboarding 连接全链路
 
-> 用途：方案对齐后，落定"要做什么、做成什么样算完"，供研发按条实现与验收。
-> 写法：本需求的 UI / 交互 / 动效已由 demo 承载并验收完毕，故本文不重复描述长相，重点落在**规则、边界、异常与接口契约**上；细节直接跑 demo 看。
-> 目标：研发拿到本文即可开工，**不需要打开页面**——第「关键设计」章的数据结构与接口定义、附录 A 的字段映射、附录 B 的替换点清单三者合起来是完整的后端开发依据。
+> **怎么读这份文档。** 按 §1 → §8 顺序推进：先弄清谁能看到（§2），再看怎么流转（§3），然后是每个界面的规则（§4）与跨界面的业务规则（§5），最后是数据契约（§6）与验收（§8）。本文是交付稿，正文只含已定口径，研发按此实现。
+>
+> **每条规则只在一个地方定义**，其他位置只引用章节号、不复述。看到引用就去那一节，那里是唯一的事实来源。
+>
+> **UI 长相不在本文。** 界面已由 demo 承载并验收完毕，研发 1:1 实现即可；本文只讲规则、边界、异常与接口契约。实现细节、踩坑记录与对接替换点在配套的 [技术笔记](../03_Solutions/Vectoree%20-%20Tech%20Note%20-%20Onboarding.md)。
 
 ---
 
-## 文档更新记录
+## 0 文档信息
 
-| 版本 | 日期 | 更新人 | 变更摘要 |
+### 0.1 变更记录
+
+| 版本 | 日期 | 变更摘要 | 状态 |
 | - | - | - | - |
-| v1.0 | 2026-09-10 | PM | 初稿：基于 pm-demo-v1 分支已交付 demo 逆向产出，含双轨流程、首次弹窗、Header 连接态、6 个接口契约与字段映射 |
-| v1.1 | 2026-09-11 | PM | 四处规则调整：① 取消未完成用户的强制重定向，改为默认落点 + 不阻断浏览；② 关闭 Modal 由「整体重置进度」改为「保留进度、仅记录已展示」；③ 明确 Newbie 轨 Step 1 不做本地 Agent 物理检测；④ 侧边栏 Onboarding 入口由 overview 分组首位移至底部区域。demo 代码已同步 |
-| v1.2 | 2026-09-11 | PM | 明确账号-组织-项目三层生命周期边界：① 新增账号级 `has_ever_connected` 字段，取代 `connection_success` 作为奖励与侧边栏入口的唯一依据；② **修正 v1.0 的奖励范围规则**——改为「在任意组织的任意项目首次连接均可得奖，奖励统一入账默认组织钱包」；③ 明确 Modal 每账号仅自动弹一次（靠 `modal_revealed` 的账号级作用域保证），切换/新建组织不再弹；④ 侧边栏 Tab 由 onboarding 进度绑定改为账号级 `has_ever_connected` 绑定，跨组织继承；⑤ 非首次连接不播礼花、不展示额度提示，仅轻量绿色成功态。demo 代码已同步 |
-| v1.3 | 2026-09-11 | PM | 按拍板结论封版：① 奖励范围确认按 v1.2 执行（任意组织首连即发，统一入账默认组织钱包，校验条件 `Account.has_ever_connected === false`）；② 成功态时长**拆为双参数**——`CONFETTI_CELEBRATION_DURATION = 8000`（Modal 礼花，不自动跳转，等用户点击）与 `ONBOARDING_TAB_DESTROY_DELAY = 3000`（页面胜利 Card 停留后销毁 Tab），附录 C3 待决项关闭；③ 修复路由竞态：`completeOnboarding` 与 `navigate` 双重驱动同一次跳转，现改为页面侧只标记完成、路由由落地重定向单点处理，并对停留定时器加单次闩锁；④ 确认 `modal_revealed` 维持「关闭/收起/完成时写入」，不因重定向或组件重挂载被秒关。demo 代码已同步 |
-| v1.4 | 2026-09-11 | PM | 多成员、防刷与命名补充：① **奖励口径第三次修订**——由「每账号一次、入账默认组织」改为「**每组织一次、入账该组织钱包**」，新增 `is_org_first_connection`，团队第二位成员仅连通不发奖；② 新增**设备级防刷**：CLI link 时上报硬件特征 Hash，已在别处领过奖则 `reward_eligible: false`，仅连通不发奖；③ 明确侧边栏 Tab 与全局连接态的**强联动**约束，禁止出现关闭 Modal 后 Tab 残余；④ 新增**项目命名约束**：默认项目固化为 `default`，用户新建项目名必填且禁用 `default`。demo 代码已同步 |
-| v1.5 | 2026-09-11 | PM | Header 连接态口径收紧：① `isProjectConnected` **严格按项目判定，取消对账号级 `has_ever_connected` 的兜底回退**——已走完引导的账号切到未连接的组织/项目时，Header 必须恢复黄色呼吸灯 `CONNECT`，而侧边栏入口仍不回来（新增边界 #25）；② 团队成员二次连接在界面上与「设备指纹已领奖」走同一套非首次分支，无独立 UI 状态，demo 面板据此撤销该独立场景，验收改为 mock 接口 C 返回 `is_org_first_connection: false`；③ 清理 v1.2 遗留的「入账默认组织钱包」表述，统一为 v1.4 的组织钱包口径。demo 代码已同步 |
+| v1.0 | 2026-09-10 | 初稿，基于 pm-demo-v1 分支已交付 demo 逆向产出 | 已被覆盖 |
+| v1.1 | 2026-09-11 | 取消强制重定向；关闭 Modal 保留进度；Newbie Step 1 不做本地检测；侧边栏入口移至底部 | 生效 |
+| v1.2–v1.5 | 2026-09-11 | 奖励口径三次修订（账号级 → 任意组织 → 每组织一次）；Header 连接态收紧为严格项目级 | 奖励口径已被 v1.9 覆盖；连接态口径生效 |
+| v1.6–v1.7 | 2026-09-11 | 弹窗退出编排两次重写，最终定为「先跳 Dashboard，再播退出动画」 | 生效 |
+| v1.8 | 2026-09-11 | 废弃通用占位项目名；状态条与 Prompt 共用同一项目解析器 | 生效 |
+| v1.9 | 2026-09-11 | **对齐现网 `InstallBonusService`**：主动弹窗收紧为默认组织默认项目 Owner；发奖改为四条件同时满足；新增探针生命周期矩阵；文案全线正向 | 生效 |
+| v2.0 | 2026-09-12 | **心跳整体下线**：删除轮询与秒数读数，连接改为一次握手永久成立，接口 D 废弃；CONNECT 状态条改为本地工程视角 | 生效 |
+| v3.0 | 2026-09-12 | **文档重构**：按「谁能看到 → 怎么流转 → 界面规则 → 业务规则 → 数据契约 → 验收」重排；每条规则归位到单一事实来源，删除各处复述；实现细节与对接清单剥离到技术笔记；验收标准重新编号并与章节双向引用。**规则内容无变化** | 生效 |
+| v3.1 | 2026-09-12 | **交付定稿**：删除原 §9 待确认表；产品与实现口径写入正文（跨设备以服务端为准、本期不做深链、指纹缺失不拦截、删项目级联清理、重建组织按新 id 过四条件、verify 同步 2s / 超时走 socket、发奖走 `InstallBonusService`）。研发按 §1–§8 实现 | 已被 v3.2 覆盖部分口径 |
+| v3.2 | 2026-09-12 | **三条定案写入正文**：发奖改为账号首次连通一次、额度入默认组织钱包；弹窗成功态拆成观赏 8s + 销毁延迟 3s；风控未发奖只确认连通、不披露原因。同步修订 §4.7 / §5.2 / §5.5 / §6 / §7 / §8 | 生效 |
 
-## 发布计划
+> 正文只陈述**现行口径**。被覆盖的历史结论不在正文出现，需要考古时查本表与 git 历史。
 
-- **计划发布时间**：待研发确认排期后填入
-- **发布倒计时**：—
+### 0.2 发布计划
 
-## 背景描述
+计划发布时间待研发确认排期后填入。
 
-Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后才成立。当前新用户注册后进入 Dashboard，面对的是一个空壳：没有明确的下一步，没有连接状态反馈，没有激励。本需求要解决的是**激活（Activation）**问题。
+### 0.3 关联文档
 
-产品策略上有三条核心判断，是后续所有交互设计的依据：
-
-1. **不教用户敲命令，让编程代理替用户干活。** 所有连接动作封装成一段可复制的自然语言 Prompt，用户粘贴到 Cursor / Claude Code / Codex，由代理完成 `login → link → ai status`。用户全程不需要理解 CLI。这是本次相较上一版需求（直接给 `npx @vectoree/cli login` 命令行）最大的方向调整。
-2. **双轨分流。** 已有工程的开发者和完全没有工程的新手路径不同，第一步就让用户自选，避免一条流程同时服务两类人。
-3. **连接状态是项目的属性，不是账号的属性。** 一个账号可以有多个组织、多个项目，用户切到没连过的项目时 Header 必须显示未连接。
-
-**衡量指标**：注册 → 首次连接成功的转化率与中位时长；校验失败后 24h 内重试率；$5 欢迎额度领取率。
-
-## 相关文档
-
-- [方案文档：Onboarding Dashboard 页面结构设计](../03_Solutions/Solution_Onboarding_Dashboard_Page.md)
-- [Onboarding Template 功能产品方案](../03_Solutions/Onboarding_Template_Solution.md)
-- [前置需求文档：Onboarding Dashboard 页面](./Vectoree%20-%20需求文档%20-%20Onboarding%20Dashboard%20页面.md)（v1.0，本文为其方向调整后的替代版本，详见「产品现状」）
-- [2026-08-27 Onboarding 体验优化对齐会议](../05_Meetings/2026_08/20260827_Onboarding_Optimization_Meeting.md)
-- [2026-09-04 周会](../05_Meetings/2026_09/20260904_Weekly_Meeting.md)
-- 交付约束：`vectoree` 仓库 `design/DEMO_DELIVERY_CONSTRAINTS.md`
-
-## 产品现状
-
-### 与上一版需求的差异
-
-上一版《Onboarding Dashboard 页面》定义的是**四步横向向导 + CLI 命令行**方案。demo 迭代过程中方向发生了实质调整，本文覆盖以下变化：
-
-| 维度 | 上一版 | 本版 |
-| - | - | - |
-| 连接方式 | 展示 `npx @vectoree/cli login` / `link` 命令让用户执行 | 展示自然语言 Prompt，由编程代理代为执行 |
-| 步骤结构 | 固定 4 步（选 agent → 连项目 → 验证 → 奖励） | 双轨：developer 2 步 / newbie 3 步 |
-| 入口 | Dashboard 首页内嵌区域 + `/dashboard/install` | 首次进入弹窗 + 左侧常驻 Onboarding 页 + Header 右上角连接按钮 |
-| 连接状态 | 账号级 | **项目级**，随 Header 选中项目切换 |
-| 状态持久化 | localStorage，不做服务端 | **服务端存储**，跨设备同步 |
-| 验证方式 | 前端每 3s 轮询 cli-activity，最多 60s | 后端一次性判定并返回，前端只管 UI 态 |
-| 奖励条件 | 新用户（注册 7 天内且未加入组织） | **默认组织的默认项目**首次连接 |
-
-### 当前实现状态
-
-功能已在 `vectoree@pm-demo-v1` 分支完成 demo，UI / 交互 / 动效 / 空态 / 加载态 / 失败态 / 成功态全部实现并验收。**所有数据为前端 mock**：
-
-- 状态用 `localStorage`（key `vectoree_onboarding_demo_v2`）持久化
-- 校验用 `setTimeout(1500)` 模拟
-- 心跳用 `Date.now()` 自刷
-- 经全仓库确认，onboarding / connect / verify / heartbeat / reward 相关**没有任何真实接口调用**
-
-## 需求说明
-
-| 模块 | 变更点 |
+| 文档 | 关系 |
 | - | - |
-| 首次进入弹窗 | 新用户首次进 Dashboard 自动弹出引导弹窗，内嵌完整向导；**关闭保留进度**，仅额外记录"已展示过"，关闭后停留当前页不阻断浏览 |
-| 左侧 Onboarding 页 | 新增 `/dashboard/onboarding` 常驻页，入口置于**侧边栏底部**，手风琴式清单，可随时回来继续并**自动定位到上次停留的步骤**；引导完成后菜单项自动销毁 |
-| 双轨引导流程 | 第一步分流：developer（已有工程，2 步）/ newbie（从模板开始，3 步） |
-| Prompt 生成 | 按轨道与选中模板拼接自然语言 Prompt，自动带入当前 project 名称与 id，随 Header 切换项目实时更新 |
-| Header 连接状态按钮 | 右上角常驻按钮：未连接为黄色呼吸灯 + `CONNECT`，已连接为绿色实心 + `CONNECTED`；状态**绑定当前选中项目** |
-| CONNECT 弹窗 | 点击 Header 按钮展开，含项目状态条（含心跳读数）+ Prompt 代码框 + 复制按钮 + 文档入口 |
-| 连接校验 | 用户主动点击校验，后端判定并返回是否连接成功、是否首次连接 |
-| $5 欢迎额度 | **每组织一次**：该组织生命周期内首次成功连接时发放至该组织钱包。团队后续成员仅连通不发奖；跨账号刷奖由 CLI 上报的**设备指纹**拦截 |
-| 多组织继承 | Modal 每账号只自动弹一次，切换/新建组织不再弹；侧边栏 Onboarding 入口按账号级 `has_ever_connected` 跨组织持续展示，首次连接成功后在所有组织同时销毁 |
-| 心跳保活 | 已连接项目每 5s 拉取一次心跳时间，UI 显示 `ACTIVE · HEARTBEAT {n}s ago` |
-| 成功动效 | 弹窗内走飞轨收起，Onboarding 页内走原位胜利横幅 + 自动跳转 |
-| 说明文档页 | 新增 `/dashboard/onboarding/docs` 静态页，承载连接说明与排查指引 |
+| [技术笔记 - Onboarding 实现与交接](../03_Solutions/Vectoree%20-%20Tech%20Note%20-%20Onboarding.md) | **配套文档**。实现约束、踩坑记录、对接替换点清单、交付约束偏差 |
+| [方案文档 - Onboarding Dashboard 页面结构设计](../03_Solutions/Solution_Onboarding_Dashboard_Page.md) | 前置方案 |
+| [Onboarding Template 功能产品方案](../03_Solutions/Onboarding_Template_Solution.md) | 模板能力方案 |
+| [2026-08-27 Onboarding 体验优化对齐会议](../05_Meetings/2026_08/20260827_Onboarding_Optimization_Meeting.md) | 需求来源 |
+| [2026-09-04 周会](../05_Meetings/2026_09/20260904_Weekly_Meeting.md) | 需求来源 |
+| 现网 `InstallBonusService` | 发奖判定的生产权威，§5.2 与其对齐 |
 
-## 流程及逻辑
+---
 
-### 主流程
+## 1 背景与目标
+
+### 1.1 要解决的问题
+
+Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后才成立。当前新用户注册后进入 Dashboard，面对的是一个空壳：没有明确的下一步，没有连接状态反馈，没有激励。本需求解决的是**激活（Activation）**。
+
+三条产品判断是后续所有设计的依据：
+
+1. **不教用户敲命令，让编程代理替用户干活。** 所有连接动作封装成一段可复制的自然语言 Prompt，用户粘贴到 Cursor / Claude Code / Codex，由代理完成 `login → link → ai status`。用户全程不需要理解 CLI。
+2. **双轨分流。** 已有工程的开发者和完全没有工程的新手路径不同，第一步就让用户自选，避免一条流程同时服务两类人。
+3. **连接状态是项目的属性，不是账号的属性。** 一个账号可以有多个组织、多个项目，用户切到没连过的项目时必须显示未连接。
+
+### 1.2 本期范围
+
+**做：** 首次进入弹窗、左侧常驻引导页、Header 连接状态按钮、CONNECT 弹窗、说明文档页、双轨引导流程、连接校验与 $5 发奖、项目命名约束。
+
+**不做（明确排除）：**
+
+| 项 | 说明 |
+| - | - |
+| 心跳保活 | 连接一次握手即永久成立，见 §5.1 |
+| 模板列表运营化配置 | 本期硬编码，后续单独提需求 |
+| 额度补发的运营后台入口 | 本期不做 |
+| 前端到账二次核对 | 以服务端发放记录为准 |
+| URL 深链定位项目 | 本期不做。dashboard 路由不含 project id，分享 URL 不会带上当前项目 |
+| 云托管宿主桥接改造 | `hostMode === 'cloud-hosting'` 下监听 `SHOW_ONBOARDING_OVERLAY` / `SHOW_CONNECT_OVERLAY` 的现有逻辑维持不变 |
+
+### 1.3 成功度量
+
+注册 → 首次连接成功的转化率与中位时长；校验失败后 24h 内重试率；$5 欢迎额度领取率。埋点口径见 §7。
+
+---
+
+## 2 用户与触达规则
+
+> **这是全文关于「谁能看到什么」的唯一定义。** §3 §4 只引用本节，不重复判定条件。
+
+主动引导是迎新 Owner 的激活路径，**不是全员功能**。三个入口的触达范围各不相同：
+
+| 入口 | 触达范围 | 性质 |
+| - | - | - |
+| 首次进入弹窗（§4.1） | 仅命中下表五条件的 Owner | 一次性主动引导 |
+| 侧边栏 Onboarding 入口（§4.2） | 默认组织 + 默认项目 + Owner + 该项目未物理连通 | 非侵入式提示，可随时回来 |
+| Header `CONNECT` 按钮（§4.3） | **全员常驻**，无条件 | 成员侧唯一的连接入口 |
+
+### 2.1 主动弹窗权限
+
+五条件**同时满足**才展示：
+
+| # | 条件 | 判定 |
+| - | - | - |
+| 1 | 当前组织是账号的**默认组织** | 系统初始化创建的那个组织，不是后续自建 / 被邀请加入的 |
+| 2 | 当前项目是该组织的**默认项目** | 固化名为 `default` 的系统项目，见 §5.4 |
+| 3 | 操作者在当前组织的角色为 **Owner** | `user.role === 'owner'` |
+| 4 | 当前默认项目处于**未连接**状态 | `isProjectConnected === false`，见 §5.1 |
+| 5 | 引导未完成且从未展示过弹窗 | `onboarding_status !== 'completed'` 且 `modal_revealed === false` |
+
+### 2.2 侧边栏入口显隐
+
+显示条件：`处于项目空间（非组织空间） && 默认组织 && 默认项目 && role === 'owner' && 该默认项目尚未物理连通成功`。
+
+位于**侧边栏底部区域首位**（与 Settings 等底部项同组、排在它们之前），图标 `Rocket`。放底部而非顶部的理由：引导是「需要时回来找」的入口，不该每次访问都挡在 Dashboard 前面被划过。
+
+销毁前，命中用户可随时点此入口回到引导页，**并自动定位到上次停留的步骤**（§4.2）。
+
+> **显隐绑定的是触达资格 + 物理连通，不是账号级 `has_ever_connected`。** 这条口径的三个直接后果在 §2.3 展开。
+
+### 2.3 各类用户的确定行为
+
+| 用户 | Modal | 侧边栏入口 | 落地重定向 | 礼花 / 额度提示 | 连接方式 |
+| - | - | - | - | - | - |
+| **Owner · 默认组织 + 默认项目 + 未连接** | 弹一次 | 显示 | 走 R1（§3.3） | 按 §5.2 矩阵 | 弹窗内 / 引导页 / Header |
+| **Owner · 非默认组织或非默认项目** | 不弹 | 隐藏 | 不走 | **无庆典 UI**，但发奖仍由服务端按 §5.2 四条件判定 | Header `CONNECT` |
+| **Member · 任意组织** | **严格禁止** | **严格禁止** | 不走 | **严格禁止** | Header `CONNECT` 或 Docs |
+
+成员侧不存在「你没有资格」这类文案——他们根本走不到 §5.2 那张矩阵。
+
+**边界：**
+
+| 场景 | 处理 |
+| - | - |
+| 处于组织空间（非项目空间） | 侧边栏不显示 Onboarding 入口 |
+| Owner 未完成连接时新建或切换到其他组织 | 禁止弹 Modal、禁止展示 Tab——非默认组织不在触达范围。Header 按该组织当前项目连接态渲染 |
+| Owner 切到未连接的非默认组织 / 项目 | Header 按钮恢复黄色呼吸灯 `CONNECT`（§4.3），侧边栏入口**不得出现**。两者判定源不同：按钮读项目级 `isProjectConnected`，入口读触达资格 |
+| 站外先连上再回站 | 接口返回 `has_ever_connected: true` + `completed_offsite: true`，前端直接呈现完成态，不再引导。该 Owner 已连接，本就落在触达范围外 |
+| Member 登录或被邀请加入后进入 Dashboard | 零 Modal、零 Tab、零礼花、零额度提示。连通后 Header 转 `CONNECTED`，无迎新反馈 |
+
+---
+
+## 3 主流程
+
+### 3.1 端到端流程
 
 ```
 用户注册 → 进入 /dashboard
     ↓
-判断 onboarding_status
-    ├─ completed → 停留 /dashboard，Header 按钮按项目连接态渲染
-    └─ 未完成 → 侧边栏常驻 Onboarding 入口 + Header 黄色呼吸灯提示
-                 ├─ modal_revealed = false（从未展示过）
-                 │     → 默认落在 Onboarding 页并弹出首次引导弹窗
-                 └─ modal_revealed = true
-                       → 停留当前页，不跳转、不弹窗，用户可自由浏览
-                 ↓
-            （以下为用户在弹窗内或引导页内推进时的流程）
-                 ↓
-            步骤 0：选择轨道
-                 ├─ developer → 步骤 1 复制 Prompt → 步骤 2 校验
-                 └─ newbie    → 步骤 1 选代理 → 步骤 2 选模板复制 Prompt → 步骤 3 校验
-                 ↓
-            校验（POST verify）
-                 ├─ 失败 → 排查建议 + 重试（保留轨道与步骤）
-                 └─ 成功 → 判断是否首次连接
-                              ├─ 是 → 发放 $5 + 礼花 + $5 文案
-                              └─ 否 → 礼花 + 普通成功文案
-                 ↓
-            收尾（两种结局，见「功能点说明」）
-                 ↓
-            onboarding_status = completed
-                 ↓
-            侧边栏 Onboarding 菜单项销毁，跳转 /dashboard
+判断触达资格（§2.1）
+    ├─ 不在触达范围
+    │     → 停留当前页，不弹 Modal、不展示 Tab
+    │     → Header 按项目连接态渲染；挂载走 CONNECT / Docs
+    └─ 在触达范围
+          ├─ modal_revealed = false → 默认落在引导页并弹出首次弹窗（R1）
+          └─ modal_revealed = true  → 停留当前页，侧边栏保留入口
+          ↓
+     步骤 0：选择轨道（§3.3）
+          ├─ developer → 复制 Prompt → 校验
+          └─ newbie    → 选代理 → 选模板复制 Prompt → 校验
+          ↓
+     校验（接口 C → 现网 InstallBonusService）
+          ├─ FAILED        → 见 §5.2，不销毁 Tab、不写 modal_revealed
+          └─ 物理连通       → 按 §5.2 矩阵渲染四种 SUCCESS_* 之一
+          ↓
+     收尾（两种容器结局，§4.7）
+          ↓
+     onboarding_status = completed → 侧边栏入口销毁 → 跳转 /dashboard
 ```
 
-### 状态机
+### 3.2 状态机
 
 **主状态：**
 
 ```
 not_started ──选择 track──▶ in_progress ──校验成功且完成收尾──▶ completed
-
-关闭 Modal 不改变主状态，仅写 modal_revealed: true；
-track / step / selected_agent / selected_starter 原样保留。
 ```
 
-**校验子状态（纯前端 UI 态）：**
+关闭 Modal 不改变主状态，仅写 `modal_revealed: true`；`track` / `step` / `selected_agent` / `selected_starter` 原样保留。
+
+**校验子状态**（纯前端瞬时态，不入库，见 §6.1）：
 
 ```
 idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ success
@@ -157,164 +198,7 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 | `developer` | 选择开始方式 | 复制 Prompt 到代理 | 校验连接并领 $5 | — | `1/2`、`2/2` |
 | `newbie` | 选择开始方式 | 打开编程代理 | 选模板并复制 Prompt | 校验连接并领 $5 | `1/3`、`2/3`、`3/3` |
 
-### 路由与入口规则
-
-| 路径 | 页面 | 条件 |
-| - | - | - |
-| `/dashboard/onboarding` | Onboarding 引导页 | 需登录，无 feature flag |
-| `/dashboard/onboarding/docs` | 说明文档页 | 需登录，无 feature flag |
-| `/dashboard/install` | D_TEST 安装页 | 仅 `DASHBOARD_V4_EXPERIMENT = D_TEST` 命中，否则重定向 `/dashboard` |
-
-**落地与导航规则**（`AppLayout.tsx` 的 `OnboardingLandingRedirect`）：
-
-| 规则 | 条件 | 行为 |
-| - | - | - |
-| R1 | 引导未完成 且 `modal_revealed === false`（即从未展示过引导）且 路径为 `/dashboard` | **默认选中侧边栏 Onboarding 菜单项并展示引导页**。这是一次性的默认落点，不是锁定 |
-| R2 | 引导已完成 且 路径为 `/dashboard/onboarding` | `replace` 跳 `/dashboard` |
-
-> **R1 是本版的重点调整：取消强制重定向。** 旧版对所有未完成用户在每次访问 `/dashboard` 时都执行 `replace` 跳转，等于把用户锁死在引导页。新规则只在「从未展示过引导」时把默认落点放到 Onboarding 页，一旦用户关闭 Modal 或主动切走，**不再有任何重定向**。
-
-**不阻断浏览原则**（强约束，验收重点）：
-
-- 用户关闭 Modal 后**停留在当前页面**，不跳转、不刷新、不回弹
-- 用户可自由切换到 Dashboard、模型广场、Tool Hub 等**任意 Tab**，引导未完成不构成任何功能阻断
-- 用户再次访问 `/dashboard` **不会**被拉回引导页
-- 引导的存续感由「侧边栏常驻的 Onboarding 入口」+「Header 黄色呼吸灯 CONNECT 按钮」两个非侵入式提示承载，不靠路由强制
-
-**侧边栏入口**：显示条件为 `处于项目空间（非组织空间） && account.has_ever_connected === false`，位于**侧边栏底部区域首位**（左下角，与 Settings 等底部项同组，排在它们之前），图标 `Rocket`。放底部而非顶部的理由：引导是「需要时回来找」的入口，不该每次访问都挡在 Dashboard 前面被划过。
-
-> **显隐绑定的是全局连接态 `has_ever_connected`（即变更指令中的 `is_connected`），不是引导进度、更不是组织维度。** 两条直接后果：
->
-> 1. **跨组织继承**：只要账号全平台从未连过任何项目，无论用户切到默认组织还是 Org B / Org C，该入口都**持续展示**。
-> 2. **一次性全局销毁**：账号在**任意组织的任意项目**完成全平台首次连接后，`has_ever_connected` 转 `true`，该入口在**所有组织内同时**从 DOM 移除，不再出现。销毁是渲染条件的自然结果，无需额外清理逻辑。
->
-> 销毁**不是立即发生**的：页面内连接成功后，胜利 Card 先原位停留 `ONBOARDING_TAB_DESTROY_DELAY`（3 秒），再平滑路由至 `/dashboard` 并销毁 Tab，给用户一个视觉确认的缓冲（见附录 C3）。
->
-> 销毁前，用户可随时点此入口回到引导页，**并自动定位到上次停留的步骤**（见「异常与边界」第 4 条）。
-
-> **⚠️ 状态联动的实现约束（易踩坑）：** 侧边栏入口必须读**实时**全局连接态。弹窗打开期间，页面底层读的是一份被冻结的背景快照（用于避免弹窗内的进度泄漏到底层清单）；如果侧边栏误接这份快照，就会出现**探针校验已成功、礼花已触发，但左侧 Tab 要等用户手动关闭 Modal 才消失**的残余现象。正确行为是：校验成功的瞬间全局连接态即置 `true`，侧边栏入口同帧销毁，与 Modal 开关状态无关。
-
-### 项目命名约束
-
-CLI 挂载时按项目名解析目标项目，同名项目会造成歧义，因此命名需要约束。
-
-| 场景 | 规则 |
-| - | - |
-| 系统初始化创建的默认项目 | 固化命名为 `default` |
-| 用户手动新建项目 | `Project Name` **必填**，不允许空白或纯空格 |
-| 用户手动新建项目 | **禁用 `default` 作为项目名**（大小写不敏感），前端即时校验拦截并提示 |
-| 同组织内重名 | 一并拦截，理由同上：CLI 按名解析时无法区分 |
-
-> 前端校验只是体验优化，**后端必须独立校验**——CLI 与 API 可以绕过界面直接创建项目。
-
-**云托管宿主桥接**：`hostMode === 'cloud-hosting'` 时监听来自 `window.parent` / `window.opener` 的 `SHOW_ONBOARDING_OVERLAY` 与 `SHOW_CONNECT_OVERLAY` 消息，D_TEST 变体跳 `/dashboard/install`，否则打开 CONNECT 弹窗。本次不改动。
-
-### 异常与边界
-
-| # | 场景 | 处理 |
-| - | - | - |
-| 1 | 用户切到未连接项目 | Header 退回黄色 `CONNECT`，弹窗不显示心跳条。**这是预期行为，不是 bug** |
-| 2 | 账号下一个项目都没有 | `projectId` 为 `null`，Prompt 退化为只有项目名不带括号 id；Header 连接态按未连接渲染（黄色呼吸灯），**不回退读账号级 `has_ever_connected`** |
-| 3 | 站外先连上再回站 | 接口返回 `has_ever_connected: true` + `completed_offsite: true`，前端直接呈现完成态，不再引导 |
-| 4 | 中途关闭首次弹窗（未完成） | **保留全部进度**：仅写 `modal_revealed: true` 并收起弹窗，`track` / `step` / `selected_agent` / `selected_starter` 原样保留。用户切回 Onboarding Tab 或重新打开弹窗时，**自动恢复并定位到对应步骤**，不回到第一步 |
-| 5 | 已完成后再触发首次弹窗 | 不改变进度，只写 `modal_revealed: true` |
-| 6 | 校验失败 | 展示排查建议清单 + Retry + Discord 求助链接，**不清空已选轨道和步骤** |
-| 7 | 已完成用户手敲 `/dashboard/onboarding` | 重定向回 `/dashboard` |
-| 8 | 处于组织空间 | 侧边栏不显示 Onboarding 入口 |
-| 9 | CLI 心跳中断超过阈值 | `connected` 转 `false`，Header 退回黄色。**阈值待后端确认，建议 60s** |
-| 10 | 同一账号多设备并发引导 | 以服务端状态为准，后到的写入覆盖先到的 |
-| 11 | 进度保存接口失败 | **不阻断用户操作**，前端保留本地状态继续走流程并静默重试。进度丢失的代价远小于把用户卡住 |
-| 12 | newbie 轨用户未选代理直接点下一步 | 允许通过，不阻断。**本步骤不做本地 Agent 物理检测**，详见「功能点说明 · Newbie 轨 Step 1」 |
-| 13 | 用户关闭 Modal 后切走，再从侧边栏切回 Onboarding Tab | 引导页按保留的 `track` / `step` 展开对应步骤，已选的代理 / 模板保持选中态 |
-| 14 | 未完成连接时新建或切换到其他组织（Org B / Org C） | **禁止再次自动弹出 Modal**。`modal_revealed` 是账号级且在弹窗展示时即写入，每账号只自动弹一次。侧边栏 Onboarding 入口继续展示 |
-| 15 | 在 Org B 的项目上完成账号首次连接 | 若同时也是 Org B 的生命周期首连，$5 **入账 Org B 自己的钱包**；所有组织的侧边栏 Onboarding 入口同时销毁 |
-| 16 | 已连过的账号在 Org B 连接新项目 | Org B 若从未连接过，仍算**该组织首次**，`is_org_first_connection: true`，正常发奖至 Org B 钱包——除非设备指纹命中拦截。Header 该项目转绿 |
-| 17 | 重新挂载一个已连过的老项目 | 同第 16 条，按重复连接处理 |
-| 18 | 用户重新选择轨道 / 校验失败 / 删除项目 | **均不得把 `has_ever_connected` 改回 `false`**，否则可反复领取 $5 |
-| 20 | 团队第二位成员在本地挂载同组织的项目 | `is_org_first_connection: false`。仅连通，**不播礼花、不发奖、不展示额度文案**，只显示 `🟢 项目已成功连接` |
-| 21 | 同一台设备换个账号/组织再连一次 | 设备指纹命中，`reward_eligible: false`。表现同第 20 条 |
-| 22 | CLI 取不到硬件特征（旧版本 / 容器 / 虚拟机） | 指纹为空。**不因此拦截**，正常按组织首连判定并记录，避免误伤。见附录 C2 |
-| 23 | 校验成功但用户未关闭 Modal | 全局连接态**立即**置为 `true`，侧边栏 Onboarding 入口**同步销毁**，不得等到弹窗关闭才消失 |
-| 24 | 用户新建项目时输入 `default` | 前端即时校验拦截，禁止提交并提示「该名称为系统保留」 |
-| 25 | 已走完引导的账号切到未连接的组织 / 项目 | Header 按钮**恢复黄色呼吸灯 `CONNECT`**，但侧边栏 Onboarding 入口**不得回来**。两者判定源不同：按钮读项目级 `isProjectConnected`，入口读账号级 `has_ever_connected`。混用会导致「已引导完的老用户被重新当成新手」 |
-| 19 | 校验进行中用户刷新页面 / 关闭浏览器 | **`verify_state` 绝不可持久化**。它是在途探测的瞬时态，重载后没有任何探测在跑；若把 `checking` 恢复出来，界面会渲染转圈而不是「校验」按钮，而自动校验只从 `idle` 触发，该步骤将**永久死锁**。前端在读取本地缓存时已强制把 `checking` 归一为 `idle`，后端同样不得存储此字段 |
-
----
-
-## Demo 地址
-
-- **分支**：`vectoree@pm-demo-v1`
-- **启动**：`/Users/yuke/Desktop/启动Demo.command`，访问 `http://localhost:7131`
-- **路径**：
-  - 首次弹窗：清空 `localStorage` 后进入 `/dashboard`
-  - 引导页：`/dashboard/onboarding`
-  - CONNECT 弹窗：右上角 Header 按钮
-  - 说明页：`/dashboard/onboarding/docs`
-- **状态切换**：左下角 Demo 面板提供 9 个场景按钮 + 2 个强制开关，可直接跳到任意状态
-- **源码位置**：`packages/dashboard/src/features/dashboard/components/onboarding/` 与 `.../components/connect/`
-
----
-
-## 功能点说明
-
-> UI 长相以 demo 为准，研发 1:1 实现。下表只讲规则、边界、异常与验收。
-
-### 页面一：首次进入弹窗
-
-**弹出条件**：`引导未完成 && modal_revealed === false`。宽 600px，遮罩黑色 65% + 背景模糊。
-
-| 区域 | 说明（规则·边界·异常） | 验收标准 |
-| - | - | - |
-| 标题 | 随进度变化：`none/0` → Welcome to Vectoree；`developer/1` → Connect your project；`newbie/1` → Check your coding agent；`newbie/2` → Pick a starter；其余 → Verify connection | 每步标题与上表一致 |
-| 主体 | 内嵌完整向导，与引导页共用同一套步骤组件 | 双轨流程均可在弹窗内走完 |
-| 弹出频次 | **每账号仅自动弹一次**。保证机制是 `modal_revealed` 属于**账号维度**而非组织维度——只要写过一次，之后新建或切换到任何组织都不会再弹 | 首次弹出并关闭后，切换到 Org B 不再自动弹窗 |
-| 关闭行为 | 点 ✕ / 点遮罩 / 按 Esc 均只收起弹窗，**不改动任何进度**：`track` / `step` / `selected_agent` / `selected_starter` 全部保留。关闭后**停留在当前页面**，不跳转、不回弹 | 切回 Onboarding Tab 或重开弹窗时定位到关闭前的步骤，已选项仍为选中态 |
-| 成功结局 | 走 **CTA 结局**：礼花（`CONFETTI_CELEBRATION_DURATION` = 8 秒）+ 大卡片 + 主按钮 `🚀 Ship my agent →`，**不自动关闭、不自动跳转**，等用户点击才触发飞轨收起 | 礼花播放期间弹窗保持打开；未点击不跳转 |
-| 收起动效 | 见「关键设计 · 交互逻辑」场景 A | 卡片准确吸附到 Header 按钮，按钮触发脉冲并切绿 |
-
-### 页面二：左侧 Onboarding 引导页
-
-| 区域 | 说明（规则·边界·异常） | 验收标准 |
-| - | - | - |
-| 页头 | 大标题 `Get started` + 贴纸 `🎁 $5.00 Welcome Credit` + 一行副标题。**连接状态不在此处展示**，统一由 Header 按钮承载 | 标题区无连接态文案 |
-| 清单容器 | 手风琴式，同一时刻只展开当前步骤 | 切换步骤时其余折叠 |
-| 步骤项三态 | `done`：黑底 acid 勾，可点击回退；`current`：acid 底黑方块，展开；`upcoming`：白底空心圆，禁用、50% 透明、折叠 | 三态视觉与 demo 一致 |
-| 导航约束 | 只能回看已完成步骤，**不能跳到未完成步骤**（前端显式拦截向前跳） | 点击 upcoming 项无响应 |
-| 成功结局 | 走 **banner 结局**：原位胜利 Card 展示 **3 秒**（`ONBOARDING_TAB_DESTROY_DELAY`）后平滑路由至 `/dashboard`，同时销毁侧边栏 Tab | 3 秒后自动离开；全程只发生**一次**路由变更 |
-| Tab 销毁 | 跳转完成后侧边栏 Onboarding 菜单项消失 | 完成后侧边栏无该项，手敲 URL 被重定向 |
-
-### 页面三：Header 连接状态按钮
-
-| 状态 | 判定 | 圆点 | 文案 | 文字色 |
-| - | - | - | - | - |
-| 未连接 | 当前选中项目不在已连接列表中 | 黄色 `#FFB300` + 呼吸扩散动画 | `CONNECT` | `ink-30` |
-| 已连接 | 当前选中项目在已连接列表中 | 绿色 `#00C853` 实心，**无动画** | `CONNECTED` | 白色 |
-
-| 规则 | 说明 | 验收标准 |
-| - | - | - |
-| 项目绑定 | 状态跟随 Header 当前选中 Project，切组织 / 切项目后若新项目未连接则立刻退回黄色 | 切到未连接项目，按钮 1 帧内变黄 |
-| 点击行为 | 两种状态都打开同一个 CONNECT 弹窗 | 已连接时弹窗多出心跳状态条 |
-| 完成引导后仍可回黄 | `onboarding_status: completed` 且账号 `has_ever_connected: true`，只要当前项目自身未连接，按钮依旧是黄色呼吸灯 `CONNECT`。**账号级标记不参与本按钮判定** | demo 面板「已完成后再切组织/项目」场景下按钮为黄色且呼吸 |
-| 无项目兜底 | 尚未解析出项目时按未连接渲染（黄色）。账号一个项目都没有时确实没有任何连接，显示 `CONNECT` 是正确语义 | 项目列表为空时按钮为黄色，不显示 `CONNECTED` |
-
-### 页面四：CONNECT 弹窗
-
-宽 640px，自上而下四区块：
-
-| 区域 | 说明（规则·边界·异常） | 验收标准 |
-| - | - | - |
-| ① Header | 主标题 `CONNECT YOUR CODING AGENT`；副标题 `Paste into Claude Code, Cursor, Codex, or any coding agent.`；右上角极简 ✕ | 文案与截图一致 |
-| ② 项目状态条 | 独立黑边卡片。左：灰色大写 `PROJECT` + 项目名 + 灰色短 id（前 8 位）；右：**仅已连接时**渲染绿色实心方块 + `ACTIVE` + `·` + `HEARTBEAT {n}s ago`，未连接时右侧为空 | 未连接不出现心跳条；已连接读数每秒递增 |
-| ③ Prompt 代码框 | 黑边内嵌框，等宽字体。**必须随 Header 选中项目实时更新**：项目名与 id 变化时 `Dashboard project:` 行同步变化 | 切换项目后代码框内容立即变更 |
-| ④ 底部操作行 | 左下：轻量图标链接 `📖 View Docs ↗`，点击关闭弹窗并跳 `/dashboard/onboarding/docs`；右下：主按钮 `📋 COPY PROMPT`（`#CCFF00` 底 + 2px 黑边 + 4px 硬阴影），复制 ③ 全部内容，成功后文案短暂变 `Copied!` | 复制内容与代码框完全一致；文档链接可达 |
-
-> 该弹窗复用于项目设置页的 Connect 页签（受 `canShowConnect` / `canUseCloudHost` 两个 feature flag 控制）。
-
-### 页面五：说明文档页
-
-路径 `/dashboard/onboarding/docs`，纯静态，三个章节：`Have a project` / `Start from a template` / `Troubleshoot`。**无后端依赖。**
-
-### 双轨步骤明细
+### 3.3 双轨步骤明细
 
 **Developer 轨（已有工程，2 步）：**
 
@@ -322,7 +206,7 @@ CLI 挂载时按项目名解析目标项目，同名项目会造成歧义，因�
 | - | - | - | - |
 | 0 | 双卡选择 | 点「已有工程」 | `track='developer'`、`step=1`、`onboarding_status='in_progress'` |
 | 1 | Prompt 框 + Copy | 复制 → 粘贴到代理 → 点「已执行，下一步 →」 | `step=2`、`verify_state='idle'` |
-| 2 | Verify Connection | 点击校验 | 见「校验与领奖」 |
+| 2 | Verify Connection | 点击校验 | 见 §5.2 |
 
 **Newbie 轨（从模板开始，3 步）：**
 
@@ -330,17 +214,16 @@ CLI 挂载时按项目名解析目标项目，同名项目会造成歧义，因�
 | - | - | - | - |
 | 0 | 双卡选择 | 点「从模板开始」 | `track='newbie'`、`step=1` |
 | 1 | 5 个代理选项 | 点某代理（新窗口打开其下载页）→ 点「已就绪，下一步 →」 | `selected_agent=<id>`、`step=2` |
+| 2 | 4 个模板卡 | 点某模板（**点击即自动复制该模板 Prompt**）→ 点「已执行，下一步 →」 | `selected_starter=<key>`、`step=3` |
+| 3 | Verify Connection | 点击校验 | 见 §5.2 |
 
-> **Step 1 定位说明（重要，避免研发误实现）**
+> **Newbie Step 1 定位说明（重要，避免研发误实现）**
 >
-> 本步骤是**纯前端的确认动作与下载入口引导**，目的只有两个：帮没装代理的用户找到下载地址，以及让用户自己确认"我已经准备好了"。
+> 本步骤是**纯前端的确认动作与下载入口引导**，目的只有两个：帮没装代理的用户找到下载地址，以及让用户自己确认「我已经准备好了」。
 >
 > - **不做任何本地 Agent 物理检测**：不探测本机进程、不读文件系统、不验证安装路径、不调用任何接口
 > - `selected_agent` 仅作埋点与后续文案个性化之用，**不参与任何校验或分支逻辑**
-> - 用户点击「已就绪，下一步 →」即可**无障碍推进至 Step 2**，未选代理也允许通过（用户可能早就装好了）
-> - 该步骤**不存在失败态**
-| 2 | 4 个模板卡 | 点某模板（**点击即自动复制该模板 Prompt 到剪贴板**）→ 点「已执行，下一步 →」 | `selected_starter=<key>`、`step=3` |
-| 3 | Verify Connection | 点击校验 | 见「校验与领奖」 |
+> - 未选代理也允许点「已就绪，下一步 →」推进（用户可能早就装好了），**该步骤不存在失败态**
 
 **编程代理选项**（前端常量，不需要接口）：
 
@@ -352,7 +235,7 @@ CLI 挂载时按项目名解析目标项目，同名项目会造成歧义，因�
 | `windsurf` | Windsurf | https://codeium.com/windsurf |
 | `cline` | Cline | https://cline.bot |
 
-**模板选项**（前端常量，不需要接口；后续若需运营配置再单独提需求）：
+**模板选项**（前端常量，不需要接口）：
 
 | key | 名称 | 定位 | 仓库 |
 | - | - | - | - |
@@ -361,7 +244,119 @@ CLI 挂载时按项目名解析目标项目，同名项目会造成歧义，因�
 | `deerflow` | DeerFlow | 创建一个能帮我调研、编程和干长任务的 Agent | https://github.com/bytedance/deer-flow |
 | `librechat` | LibreChat | 创建一个我自己的私有 AI 聊天助手 | https://github.com/danny-avila/LibreChat |
 
-### Prompt 模板规格
+### 3.4 路由与落地规则
+
+| 路径 | 页面 | 条件 |
+| - | - | - |
+| `/dashboard/onboarding` | 引导页（§4.2） | 需登录，无 feature flag |
+| `/dashboard/onboarding/docs` | 说明文档页（§4.5） | 需登录，无 feature flag |
+| `/dashboard/install` | D_TEST 安装页 | 仅 `DASHBOARD_V4_EXPERIMENT = D_TEST` 命中，否则重定向 `/dashboard` |
+
+**落地重定向：**
+
+| 规则 | 条件 | 行为 |
+| - | - | - |
+| R1 | 在触达范围内（§2.1）且 `modal_revealed === false` 且路径为 `/dashboard` | 默认选中侧边栏 Onboarding 项并展示引导页。**成员与非触达用户一律不走 R1** |
+| R2 | 引导已完成且路径为 `/dashboard/onboarding` | `replace` 跳 `/dashboard` |
+
+> **R1 是落地默认，不是锁定。** 一旦用户关闭 Modal 或主动切走，不再有任何重定向。
+
+**不阻断浏览原则**（强约束，验收重点）：
+
+- 关闭 Modal 后**停留在当前页面**，不跳转、不刷新、不回弹
+- 可自由切换到任意 Tab，引导未完成不构成任何功能阻断
+- 再次访问 `/dashboard` **不会**被拉回引导页
+- 引导的存续感由「侧边栏入口（仅触达范围内的 Owner）」+「Header 黄色呼吸灯（全员）」两个非侵入式提示承载，不靠路由强制
+
+---
+
+## 4 功能规格
+
+### 4.1 首次进入弹窗
+
+**弹出条件**：§2.1 五条件同时满足。宽 600px，遮罩黑色 65% + 背景模糊。
+
+| 区域 | 规则 | 验收 |
+| - | - | - |
+| 标题 | 随进度变化：`none/0` → Welcome to Vectoree；`developer/1` → Connect your project；`newbie/1` → Check your coding agent；`newbie/2` → Pick a starter；其余 → Verify connection | B1 |
+| 主体 | 内嵌完整向导，与引导页共用同一套步骤组件 | B2 |
+| 弹出频次 | 仅触达范围内的 Owner 自动弹一次。`modal_revealed` 只在 Modal 被用户关闭（✕ / 遮罩 / Esc）或 `SUCCESS_*` 收尾时写入；**展示瞬间不写，`FAILED` 探针也不得写** | B3 |
+| 关闭行为 | 三种关闭方式均只收起弹窗，**不改动任何进度** | B4 |
+| 成功结局 | 走 **CTA 结局**，时长见 §4.7 | B10 |
+
+**边界：**
+
+| 场景 | 处理 |
+| - | - |
+| 中途关闭（未完成） | **保留全部进度**：仅写 `modal_revealed: true`，`track` / `step` / `selected_agent` / `selected_starter` 原样保留。切回引导页或重开弹窗时自动恢复并定位到对应步骤，不回到第一步 |
+| 已完成后再触发 | 不改变进度，只写 `modal_revealed: true` |
+| 关闭后切走再从侧边栏切回 | 引导页按保留的 `track` / `step` 展开对应步骤，已选代理 / 模板保持选中态 |
+
+### 4.2 左侧 Onboarding 引导页
+
+路径 `/dashboard/onboarding`。入口显隐见 §2.2。
+
+| 区域 | 规则 | 验收 |
+| - | - | - |
+| 页头 | 大标题 `Get started` + 贴纸 `🎁 $5.00 Welcome Credit` + 一行副标题。**连接状态不在此处展示**，统一由 Header 按钮承载 | B5 |
+| 清单容器 | 手风琴式，同一时刻只展开当前步骤 | B6 |
+| 步骤项三态 | `done`：黑底 acid 勾，可点击回退；`current`：acid 底黑方块，展开；`upcoming`：白底空心圆，禁用、50% 透明、折叠 | B6 |
+| 导航约束 | 只能回看已完成步骤，**不能跳到未完成步骤**（前端显式拦截向前跳） | B7 |
+| 成功结局 | 走 **Banner 结局**，时长见 §4.7 | B11 |
+| Tab 销毁 | 跳转完成后侧边栏菜单项消失 | B8 |
+
+**边界：探针返回任一 `SUCCESS_*` 但用户未关闭 Modal。** 物理连通态**立即**置位，侧边栏入口按 3s 延迟销毁，**与 Modal 开关状态无关**。`FAILED` 时入口必须继续在。
+
+### 4.3 Header 连接状态按钮
+
+右上角常驻，**全员可见**。
+
+| 状态 | 判定 | 圆点 | 文案 | 文字色 |
+| - | - | - | - | - |
+| 未连接 | `isProjectConnected === false` | 黄色 `#FFB300` + 呼吸扩散动画 | `CONNECT` | `ink-30` |
+| 已连接 | `isProjectConnected === true` | 绿色 `#00C853` 实心，**无动画** | `CONNECTED` | 白色 |
+
+判定口径见 §5.1，此处不重复。
+
+| 规则 | 说明 | 验收 |
+| - | - | - |
+| 项目绑定 | 状态跟随 Header 当前选中 Project，切组织 / 切项目后若新项目未连接则立刻退回黄色 | B12 |
+| 点击行为 | 两种状态都打开同一个 CONNECT 弹窗（§4.4） | B13 |
+| 无项目兜底 | 尚未解析出项目时按未连接渲染。账号一个项目都没有时确实没有任何连接，显示 `CONNECT` 是正确语义 | B14 |
+
+### 4.4 CONNECT 弹窗
+
+宽 640px，自上而下四区块。该弹窗复用于项目设置页的 Connect 页签（受 `canShowConnect` / `canUseCloudHost` 两个 feature flag 控制）。
+
+| 区域 | 规则 | 验收 |
+| - | - | - |
+| ① Header | 主标题 `CONNECT YOUR CODING AGENT`；副标题 `Paste into Claude Code, Cursor, Codex, or any coding agent.`；右上角极简 ✕ | B15 |
+| ② 工程状态条 | 见下方展开 | B16 B17 |
+| ③ Prompt 代码框 | 黑边内嵌框，等宽字体。格式见 §4.6。**必须随 Header 选中项目实时更新** | B18 |
+| ④ 底部操作行 | 左下轻量图标链接 `📖 View Docs ↗`，点击关闭弹窗并跳 `/dashboard/onboarding/docs`；右下主按钮 `📋 COPY PROMPT`，复制 ③ 全部内容，成功后文案短暂变 `Copied!` | B19 |
+
+**② 工程状态条展开：**
+
+独立黑边卡片，左右两侧规则不同。
+
+- **左侧**：文件夹图标 + **本地工程目录名**，取 `local_folder_path` 的最后一段（`/Users/dev/workspace/my-agent-app` → `my-agent-app`）。超长截断并以 `title` 提供全名。**未拿到本地路径时回退展示云端项目名。**
+- **右侧**：**仅已连接时**渲染绿色实心方块 + `CONNECTED`；未连接时为空。
+- **不含任何心跳 / 时间读数**（§5.1）。
+- **不重复展示云端项目名与 id**——③ 已经完整给出，同屏重复两遍没有价值，而且状态条一条里混着「本地目录」和「云端 id」两种身份反而更难读。
+- 左右两侧都为空时整条卡片一并不渲染，不留空条。
+
+**边界：**
+
+| 场景 | 处理 |
+| - | - |
+| 当前项目未连接 | 右侧不显示 `CONNECTED` 标记，左侧回退为云端项目名。**这是预期行为，不是 bug** |
+| 切组织 / 切项目后项目列表尚未返回 | **不得出现通用占位名**（如 `My Vectoree Project`）——平台上没有同名项目，CLI 按名解析必然落空。状态条与 Prompt 共用同一解析器，两处要么同时是真实项目，要么同时是兜底，不允许一处真一处假。详见 §4.6 |
+
+### 4.5 说明文档页
+
+路径 `/dashboard/onboarding/docs`，纯静态，三个章节：`Have a project` / `Start from a template` / `Troubleshoot`。**无后端依赖。**
+
+### 4.6 Prompt 模板规格
 
 **已有工程（developer 轨 + CONNECT 弹窗共用）：**
 
@@ -383,50 +378,188 @@ Dashboard project: {projectName} ({projectId})
 Follow the skill: login, link this directory, then run ai status.
 ```
 
-**变量取值规则：**
+**变量取值：**
 
-| 变量 | 取值 | 兜底 |
-| - | - | - |
-| `projectName` | 当前选中项目 name，否则项目列表第一项 name | i18n `dashboard.defaultProjectName` = `My Vectoree Project` |
-| `projectId` | 当前选中项目 id，否则项目列表第一项 id | `null` |
+| 变量 | 取值 |
+| - | - |
+| `projectName` | 当前选中项目 name，否则项目列表第一项 name |
+| `projectId` | 当前选中项目 id，否则项目列表第一项 id |
 
 `projectId` 为 `null` 时，`Dashboard project:` 行退化为只有项目名、不带括号 id。
 
-> **后端注意**：Prompt 里的 `{projectId}` 是 CLI 侧建立绑定关系的凭据来源。CLI 执行 `link` 时会带上这个 id，服务端据此把本地目录与 Project 关联。该链路由 CLI 团队负责，本文只约定 Dashboard 侧必须把真实 `projectId` 拼进 Prompt。
+> **不得使用通用占位名。** `My Vectoree Project`、`Default project` 这类前端自造的名字在平台上并不存在同名项目，CLI 按名解析时必然落空，会把代理引向一个不存在的目标。状态条（§4.4）与 Prompt 两处同此约束。
+>
+> **两处必须共用同一个项目解析器。** 各自解析一次就会出现「状态条显示 A、指令连到 B」。
+>
+> **项目身份的来源不是 URL。** dashboard 路由不含 project id，项目选择由 `OrganizationContext` 持有。分享 URL 不会带上当前项目，对方打开看到的是他自己上次选中的那个。链路细节见技术笔记 §3.4。
 
-### 校验与领奖
+> **后端注意**：Prompt 里的 `{projectId}` 是 CLI 侧建立绑定关系的凭据来源。CLI 执行 `link` 时带上这个 id，服务端据此把本地目录与 Project 关联，并回传 `local_folder_path`（§6.2 接口 C / E）。该链路由 CLI 团队负责，本文只约定 Dashboard 侧必须把真实 `projectId` 拼进 Prompt。
 
-| `verify_state` | UI |
+### 4.7 动效与时长参数
+
+**两种容器结局**（与探针码正交）：
+
+| 结局 | 使用场景 | 时长与销毁规则 |
+| - | - | - |
+| CTA | 首次进入**弹窗**（§4.1） | **观赏 8s** 展示成功文案 / 礼花；点 CTA 或满 8s 后进入 **3s 销毁延迟**（等 Socket 闭环或过渡），再飞轨离开。仅 `SUCCESS_BONUS_GRANTED` 喷彩花 |
+| Banner | 左侧**引导页**（§4.2） | 原位 Card 停留 **3s** 后平滑路由至 `/dashboard` 并销毁 Tab。仅 `SUCCESS_*`；`FAILED` 不销毁 |
+
+**两个时长解耦，不要求一致。** 8s 只负责「让用户看完」；3s 只负责「点完 / 看完之后不要瞬间卸掉」。
+
+**场景 A：弹窗飞轨收起。** 触发：探针 `SUCCESS_*` 后用户点主 CTA，或满 8s 观赏结束。两者都先走完 **3s 销毁延迟**，再进入下表（表内 0ms = 延迟结束的那一瞬）。
+
+| 阶段 | 时刻 | 行为 |
+| - | - | - |
+| 销毁延迟 | CTA 点击或满 8s 之后的 0 → 3000ms | 成功态继续留在屏幕上。Socket 若还在飞，用这段时间等 `connection:verify_result` 闭环（技术笔记 §3.6）。**禁止**在 3s 内卸弹窗 |
+| 写入完成态并跳转 | **延迟结束的 0ms（最先发生）** | 写 `onboarding_status: completed`，由落地重定向 `replace` 跳 `/dashboard`，侧边栏选中项切到 Dashboard。弹窗与引导页随即卸载 |
+| 幕布淡出 | 0 → 300ms | 遮罩 opacity → 0、模糊归零，露出**已经是 Dashboard 的**页面 |
+| 卡片飞轨 | 0 → 700ms | 抛物线飞向 Header 右上角 CONNECT 按钮，`scale: 1 → 0.55 → 0.1`，opacity 末段归零 |
+| 按钮接应 | 700ms | 卡片落点。Header 按钮触发脉冲（450ms），圆点切绿，文案切 `CONNECTED` |
+
+**场景 B：引导页原位收尾（无飞轨）。** 礼花 8000ms（4 波 × 108 粒，仅 `SUCCESS_BONUS_GRANTED`），胜利 Card 停留 3000ms 后路由至 `/dashboard` 并销毁 Tab。
+
+**产品可感知的时长参数：**
+
+| 参数 | 值 |
 | - | - |
-| `idle` | 主按钮 `Verify Connection`（自动探测模式下跳过此态直接发起） |
-| `checking` | Loader 旋转 + 文案「正在检测心跳…」 |
-| `success` | 成功反馈，样式取决于结局类型与是否首次连接 |
-| `failed` | 排查建议列表 + `Retry` 按钮 + Discord 求助入口 |
+| 弹窗成功态观赏时长 / 礼花总时长 | 8000ms |
+| 弹窗 CTA 后 / 观赏结束后的销毁延迟 | 3000ms |
+| 引导页胜利 Card 停留 / Tab 销毁延迟 | 3000ms |
+| 飞轨时长 | 700ms |
+| 幕布淡出 | 300ms |
+| 按钮接应脉冲 | 450ms |
+| 复制反馈停留 | 2000ms |
 
-**两种成功结局：**
+> 这两个场景有八条实现约束（DOM 克隆脱离组件树、Tailwind v4 的 `translate` 陷阱、飞行看门狗、路由单驱动方等），每一条都对应一次实际踩坑，全部记在技术笔记 §3.1。**研发实现飞轨前请务必先读那一节。**
 
-| 结局 | 使用场景 | 表现 |
-| - | - | - |
-| CTA | 首次进入**弹窗** | 礼花 + 大卡片（首次连接显示 Gift 图标与 $5 文案，非首次显示 🟢）+ 主按钮 `🚀 Ship my agent →`，不自动关闭 |
-| Banner | 左侧 **Onboarding 页** | 原位胜利 Card，展示 3 秒后自动路由至 `/dashboard` 并销毁 Tab |
-
-**首次 / 非首次的表现差异（防刷体验，重点）：**
-
-| 维度 | 发奖（`reward.granted: true`） | 不发奖（团队后续成员 / 设备指纹拦截） |
-| - | - | - |
-| 礼花动画 | ✅ 播放 Canvas Confetti | ❌ **不播放** |
-| 额度提示 | ✅ 展示 $5 到账文案 | ❌ **不展示、不发放** |
-| 横幅文案 | `🎉 项目连接成功！$5.00 欢迎额度已发放至你的组织钱包。` | `🟢 项目已成功连接。` |
-| 底色 | `#CCFF00`（荧光黄） | `card`（常规卡片底） |
-| 图标（CTA 结局） | `Gift` 礼物图标 | `🟢` |
-
-> 重复连接的反馈必须是**轻量绿色成功态**，不能带 🎉 或任何"又拿到奖励"的暗示，否则会诱导用户反复尝试刷额度。
+**边界：用户在弹窗里走完整条流程（身后引导页从未推进）。** 点 CTA 或满 8s 后先留 3s，再关闭 Modal；飞轨散开时背后已是 Dashboard，全程不得再出现引导页或侧边栏入口。
 
 ---
 
-## 关键设计
+## 5 业务规则
 
-### 一、数据结构
+### 5.1 连接判定
+
+> **这是全文关于「什么算已连接」的唯一定义。**
+
+| 规则 | 内容 |
+| - | - |
+| 作用域 | **项目级**。当前选中项目 id 是否在 `connected_project_ids` 中 |
+| 不得回退到账号级 | **严禁**用 `has_ever_connected` 兜底。已走完引导的账号切到未连接的项目，必须显示未连接 |
+| 永久性 | 一次握手成功即恒为已连接，**不因 CLI 退出 / 关机 / 断网回退**。连接是「这个项目被 link 过」的事实，不是「此刻有进程活着」 |
+| 不做心跳保活 | 不轮询、不倒计时、不展示任何秒数读数。全链路无轮询 |
+
+消费方：Header 按钮黄 / 绿（§4.3）、CONNECT 弹窗是否显示 `CONNECTED` 标记、状态条左侧取目录名还是回退项目名（§4.4）。
+
+**边界：**
+
+| 场景 | 处理 |
+| - | - |
+| 账号下一个项目都没有 | `projectId` 为 `null`，按未连接渲染；Prompt 退化为只有项目名不带括号 id（§4.6） |
+| 用户重新选择轨道 / 校验失败 / 删除项目 | **均不得**把 `has_ever_connected` 改回 `false`，亦不得绕过 `InstallBonusService` 再发一次 $5 |
+
+### 5.2 $5 欢迎额度与探针生命周期矩阵
+
+> **这是全文关于「发不发奖、喷不喷花、说哪句文案」的唯一定义。** 判定方是现网 `InstallBonusService`，前端传的任何东西都不可信。
+
+**发奖粒度：账号首次连通一次。** 以 `has_ever_connected` 为闸门——该账号历史上第一次物理连通成功，才进入发奖判定；之后在任何组织 / 项目再连，只记账连接态，不再发奖。额度**统一入账该账号的默认组织钱包**，与本次连接发生在哪个组织无关。
+
+第一次连通仍须过四条件，缺一不可（组织状态看**默认组织**）：
+
+| # | 条件 | 判定 | 不满足时的探针码 |
+| - | - | - | - |
+| 1 | 邮箱状态 | `email_verified === true` 且**非 Disposable 一次性邮箱** | `SUCCESS_EMAIL_UNVERIFIED` |
+| 2 | 用户角色 | `user.role === 'owner'` | 成员不进入迎新 UI；接口仍返回连通，但无庆典 |
+| 3 | 默认组织状态 | **默认组织** `is_funded === false` | `SUCCESS_NO_BONUS_ORG_FUNDED` |
+| 4 | 风控规则 | 通过 `device_hash`、账号维度及 IP 日限额校验（§5.3） | `SUCCESS_NO_BONUS_DEVICE_LIMIT` |
+
+| 项 | 规则 |
+| - | - |
+| 金额 | $5.00 USD 等值 token 额度 |
+| 入账去向 | **账号默认组织的钱包**（`reward.credited_org_id` = 默认组织 id） |
+| 触发时机 | 接口 C 返回 `probe_status: "SUCCESS_BONUS_GRANTED"` 的那一刻 |
+| 幂等 / 防刷 | **必须**。服务端以账号为键落发放记录，并发重复调用只发一次 |
+| 前端禁止自行放行 | 不得在本地用「组织首次」或自行翻转 `has_ever_connected` 发奖 |
+
+**生命周期矩阵：**
+
+物理连通与发奖资格相互独立。探针连通成功只表示握手完成；前端**禁止**自行合并为「发奖 / 不发奖」两态。
+
+| 场景代码 | 物理连接 | 发奖 | 面向用户的文案 | 礼花 | Tab / Modal 销毁 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `FAILED` | ❌ 离线 | N/A | `⚠️ No active connection detected` + Troubleshooting 排查项 + `Retry` + Discord 求助入口 | 否 | **不销毁 Tab，不写 `modal_revealed`** |
+| `SUCCESS_BONUS_GRANTED` | 🟢 连通 | 💥 已发奖 | `$5.00 welcome bonus credited` | **是** | Tab 3s 销毁；Modal 观赏 8s，点 CTA 或满 8s 后再留 3s 才销毁 |
+| `SUCCESS_EMAIL_UNVERIFIED` | 🟢 连通 | ✉️ 邮箱未验 | 请验证邮箱以解锁 $5.00 额度 + `[ 重发验证邮件 ]` | 否 | 同上 |
+| `SUCCESS_NO_BONUS_DEVICE_LIMIT` | 🟢 连通 | 🟢 设备已领 | **连接成功！设备已绑定。**（不解释原因） | 否 | 同上 |
+| `SUCCESS_NO_BONUS_ORG_FUNDED` | 🟢 连通 | 🟢 组织已充 | **连接成功！设备已绑定。**（与上一行同一句，不解释原因） | 否 | 同上 |
+
+**双语锁定文案**（研发不得改写成打击性表述）：
+
+| 场景代码 | EN | ZH |
+| - | - | - |
+| `FAILED` | `⚠️ No active connection detected` + Troubleshooting | 未检测到有效连接 + 排查项 |
+| `SUCCESS_BONUS_GRANTED` | `$5.00 welcome bonus credited` | `$5.00 欢迎额度已发放` |
+| `SUCCESS_EMAIL_UNVERIFIED` | Verify your email to unlock the $5.00 credit + `[ Resend verification email ]` | 请验证邮箱以解锁 $5.00 额度 + `[ 重发验证邮件 ]` |
+| `SUCCESS_NO_BONUS_DEVICE_LIMIT` | Connected! Device is bound. | 连接成功！设备已绑定。 |
+| `SUCCESS_NO_BONUS_ORG_FUNDED` | Connected! Device is bound. | 连接成功！设备已绑定。 |
+
+**边界：**
+
+| 场景 | 处理 |
+| - | - |
+| Owner 在非默认组织的项目上完成连接 | 不弹迎新 Modal。若该账号从未连通且四条件全过，额度仍入**默认组织钱包**，无庆典 UI；该账号已连通过则只记连接态 |
+| 已连过的账号在其他组织连接新项目 | Header 该项目转绿。**不再发奖**（账号闸门已关上） |
+| 重新挂载一个已连过的老项目 | 同上，只记连接态 |
+| Owner 已连通但邮箱未验或为 Disposable | `SUCCESS_EMAIL_UNVERIFIED`，不播礼花、不发奖（可行动文案，见上表） |
+| 默认组织 `is_funded === true` | `SUCCESS_NO_BONUS_ORG_FUNDED`，不播礼花、不发奖；**用户只看到「连接成功！设备已绑定。」** |
+| 校验失败 | `FAILED`。**不清空已选轨道和步骤**，不销毁 Tab，不写 `modal_revealed` |
+
+### 5.3 设备 / 账号 / IP 风控（Anti-Sybil）
+
+| 项 | 规则 |
+| - | - |
+| 上报方 | **CLI**。执行 `link` 时自动在 Request Header / Payload 带上本地设备的硬件特征 |
+| 上报内容 | 硬件特征的 **Hash**，不是原始 MAC。原始硬件标识属于个人信息，不得明文落库 |
+| 拦截逻辑 | 该 Hash 已在平台任意账号 / 组织下触发过 $5 发放，或账号维度 / IP 日限额命中 → `SUCCESS_NO_BONUS_DEVICE_LIMIT` |
+| 拦截后表现 | **物理连通成功，不发奖、不喷花**，文案走正向（§5.2） |
+| 缺失兜底 | CLI 版本过旧、容器 / 虚拟机等取不到硬件特征时 Hash 为空：**不拦截、记一条日志**，其余三条件仍由服务端判定。不得因为指纹缺失把用户挡在连通之外 |
+
+**边界：**
+
+| 场景 | 处理 |
+| - | - |
+| 同一台设备换个账号 / 组织再连一次 | `device_hash` 命中，`SUCCESS_NO_BONUS_DEVICE_LIMIT`，物理连通成功但不播礼花 |
+| CLI 取不到硬件特征 | 指纹为空，**不因此拦截**，其余三条件仍由服务端判定并记录 |
+| 账号维度或 IP 日限额命中 | 与设备指纹命中**共用同一探针码**，走同一套正向文案，**不另开打击性状态码** |
+
+### 5.4 项目命名约束
+
+CLI 挂载时按项目名解析目标项目，同名项目会造成歧义。
+
+| 场景 | 规则 |
+| - | - |
+| 系统初始化创建的默认项目 | 固化命名为 `default` |
+| 用户手动新建项目 | `Project Name` **必填**，不允许空白或纯空格 |
+| 用户手动新建项目 | **禁用 `default` 作为项目名**（大小写不敏感），前端即时校验拦截并提示「该名称为系统保留」 |
+| 同组织内重名 | 一并拦截，理由同上：CLI 按名解析时无法区分 |
+| 用户删除已连接项目 | 后端**级联**从 `connected_project_ids` 去掉该 id。不得留下指向已删项目的连接记录 |
+| 组织被删除后重建 | **不再发奖**。发奖闸门是账号级 `has_ever_connected`，组织重建不把它打回 `false` |
+
+> 前端校验只是体验优化，**后端必须独立校验**——CLI 与 API 可以绕过界面直接创建项目。
+
+### 5.5 文案撰写原则
+
+- 全线 UI 文案**必须采用 Positive Framing（正向引导）**
+- 物理连通成功但因风控 / 付费组织未发奖时，**只确认连通，不披露原因**。锁定句：「连接成功！设备已绑定。」（EN：`Connected! Device is bound.`）
+- **严禁**出现「设备数超限 / IP 异常 / 本次不发放奖励」等负面或对抗性词汇；也严禁 `Denied`、`Ineligible`、`Error`、`拒绝`、`不合格`、`失败发奖`
+- 例外：`SUCCESS_EMAIL_UNVERIFIED` 仍给可行动文案（重发验证邮件）。这是用户能处理的账号状态，不是风控规则泄漏
+- 英文主文本 + 中文注解，中英文不串用
+
+---
+
+## 6 数据契约
+
+### 6.1 前端状态模型
 
 这是整个功能的**唯一状态源**，前端所有组件都从这个对象派生渲染。
 
@@ -435,13 +568,15 @@ interface OnboardingSnapshot {
   onboarding_status: 'not_started' | 'in_progress' | 'completed';
   modal_revealed: boolean;          // 首次弹窗是否展示过
   track: 'none' | 'developer' | 'newbie';
-  step: 0 | 1 | 2 | 3;              // 语义随 track 变化
+  step: 0 | 1 | 2 | 3;              // 语义随 track 变化，见 §3.2
   selected_agent: string | null;    // newbie 轨选中的代理 id
   selected_starter: string | null;  // newbie 轨选中的模板 key
   verify_state: 'idle' | 'checking' | 'failed' | 'success';  // 前端瞬时态
-  has_ever_connected: boolean;      // 账号级：全平台是否曾成功连接过任意项目（单向）
+  has_ever_connected: boolean;      // 账号级：是否曾成功连接过任意项目（单向）
   connected_project_ids: string[];  // 已连接的项目 id 列表
   user_rewarded_now: boolean;       // 本次校验是否触发 $5 发放
+  probe_status: 'FAILED' | 'SUCCESS_BONUS_GRANTED' | 'SUCCESS_EMAIL_UNVERIFIED'
+              | 'SUCCESS_NO_BONUS_DEVICE_LIMIT' | 'SUCCESS_NO_BONUS_ORG_FUNDED' | null;
   completed_offsite: boolean;       // 是否在站外完成连接后回站
 }
 ```
@@ -450,49 +585,49 @@ interface OnboardingSnapshot {
 
 | 层级 | 字段 | 语义 | 切换组织时 |
 | - | - | - | - |
-| **账号 Account** | `has_ever_connected` | 全平台是否连过任意项目。**单向，一旦为 true 永不回退** | 不变 |
-| **账号 Account** | `onboarding_status` / `modal_revealed` / `track` / `step` | 引导流程进度 | 不变 |
-| **项目 Project** | `connected_project_ids` | 逐项目的连接关系 | 不变（是列表），但派生的 `isProjectConnected` 随选中项目变化 |
+| **账号** | `has_ever_connected` | 是否连过任意项目。**单向，一旦为 true 永不回退** | 不变 |
+| **账号** | `onboarding_status` / `modal_revealed` / `track` / `step` | 引导流程进度 | 不变 |
+| **组织 / 成员** | `role` / `is_default_org` / `is_funded` | 触达资格与发奖条件。来自现有组织 / 成员接口，**不是 onboarding state** | **随切换变化** |
+| **项目** | `connected_project_ids` / `is_default_project` | 逐项目的连接关系 | 列表不变，派生值随选中项目变化 |
 
-> **`has_ever_connected` 绝不可被重置。** 重新选择轨道、校验失败、切换组织、删除项目都不得把它改回 `false`，否则用户可以反复领取 $5。后端务必把它实现为只能由 `false → true` 的单向标志。
+**字段来源：**
 
 | 字段 | 归属 | 当前来源 | 目标来源 |
 | - | - | - | - |
-| `onboarding_status` | 账号 | localStorage | 服务端 |
-| `modal_revealed` | 账号 | localStorage | 服务端 |
-| `track` / `step` | 账号 | localStorage | 服务端 |
-| `selected_agent` / `selected_starter` | 账号 | localStorage | 服务端 |
+| `onboarding_status` / `modal_revealed` / `track` / `step` | 账号 | localStorage | 服务端（接口 A / B）。**跨设备以服务端为准**，后到的写入覆盖先到的 |
+| `selected_agent` / `selected_starter` | 账号 | localStorage | 服务端（接口 A / B） |
+| `has_ever_connected` | 账号 | localStorage | 服务端，单向标志 |
+| `connected_project_ids` | 账号 | localStorage | 服务端（接口 A / C / E） |
+| `completed_offsite` | 账号 | localStorage | 服务端（接口 A） |
+| `user_rewarded_now` | 会话 | localStorage | 接口 C 的 `reward.granted` |
+| `probe_status` | 会话 | 内存 | 接口 C。**纯前端瞬时态，不入库** |
 | `verify_state` | 会话 | 内存 | **纯前端，不入库** |
-| `has_ever_connected` | 账号 | localStorage | 服务端（单向标志） |
-| `connected_project_ids` | 账号 | localStorage | 服务端 |
-| `user_rewarded_now` | 会话 | localStorage | 校验接口响应 |
-| `completed_offsite` | 账号 | localStorage | 服务端 |
 
-> `verify_state` 请务必理解为**前端瞬时 UI 态**，不要设计成后端字段。它描述的是"当前这一次点击校验按钮的进行程度"，刷新页面后应回到 `idle`。
+> **`verify_state` 绝不可持久化。** 它描述的是「当前这一次点击校验按钮的进行程度」，刷新后没有任何探测在跑。若把 `checking` 恢复出来，界面会渲染转圈而不是「校验」按钮，而自动校验只从 `idle` 触发，该步骤将**永久死锁**。前端读取本地缓存时已强制把 `checking` 归一为 `idle`，后端同样不得存储此字段。
 
-**派生状态**（前端计算，后端不需提供，但需理解语义）：
+**派生状态**（前端计算，后端不需提供但需理解语义）：
 
 | 派生值 | 计算规则 | 消费方 |
 | - | - | - |
-| `isIncomplete` | `onboarding_status !== 'completed'` | 落地默认路由、首次弹窗是否可弹 |
-| `hasEverConnected` | 直接取账号级 `has_ever_connected` | **侧边栏 Onboarding 入口显隐**（跨组织继承） |
-| `isProjectConnected` | 当前选中项目 id 是否在 `connected_project_ids` 中。**严格按项目判定，不得回退到账号级 `has_ever_connected`** | Header 按钮黄/绿、弹窗是否显示心跳条 |
-| `backgroundState` | 弹窗打开期间冻结的快照副本 | 保证弹窗内进度不漏到背后页面。**关闭弹窗时必须解冻并同步到保留下来的最新进度**，否则引导页会显示关闭前的旧步骤 |
+| `isIncomplete` | `onboarding_status !== 'completed'` | 落地重定向（还要叠加触达资格） |
+| `canShowOnboardingModal` | §2.1 五条件 AND | 首次弹窗是否可弹。成员永远为 false |
+| `canShowOnboardingTab` | §2.2 条件 AND | 侧边栏入口显隐。成员 / 非默认组织项目永远为 false |
+| `isProjectConnected` | 见 §5.1 | Header 按钮、CONNECT 弹窗状态条 |
+| `backgroundState` | 弹窗打开期间冻结的快照副本 | 保证弹窗内进度不漏到背后页面。**关闭弹窗时必须解冻并同步到最新进度**，否则引导页会显示关闭前的旧步骤。实现坑见技术笔记 §3.3 |
 
-### 二、接口定义 ★
+### 6.2 接口定义
 
 > 当前**没有任何真实接口**。以下路径为建议命名，后端可按团队规范调整，但**字段名请保持不变**——前端状态模型直接按这套字段消费。
-
-#### 接口总览
 
 | # | 接口 | 方法 | 用途 | 调用时机 |
 | - | - | - | - | - |
 | A | `/v1/onboarding/state` | GET | 拉取账号引导状态 | Dashboard 首次挂载 |
-| B | `/v1/onboarding/state` | PATCH | 增量保存引导进度 | 每次 track/step/选择项变更 |
-| C | `/v1/projects/{projectId}/connection/verify` | POST | 主动校验连接并触发发奖 | 用户点 Verify |
-| D | `/v1/projects/{projectId}/connection` | GET | 查询连接与心跳 | CONNECT 弹窗打开后每 5s |
-| E | `/v1/onboarding/connections` | GET | 批量返回已连接项目 id | 与 A 合并返回亦可 |
+| B | `/v1/onboarding/state` | PATCH | 增量保存引导进度 | 每次 track / step / 选择项变更 |
+| C | `/v1/projects/{projectId}/connection/verify` | POST | 校验连接并调用 `InstallBonusService` 发奖 | 用户点 Verify |
+| E | `/v1/onboarding/connections` | GET | 批量返回已连接项目及其本地目录 | 与 A 合并返回亦可 |
 | F | `/organizations`、`/organizations/{id}/projects` | GET | 组织与项目列表 | **已存在，直接复用** |
+
+> 曾经设计过的 `GET /v1/projects/{projectId}/connection`（5s 轮询心跳）**已整体废弃，不需要实现**。它存在的唯一目的是驱动秒数读数，而该读数已从产品中移除（§5.1）。
 
 #### 接口 A：拉取引导状态
 
@@ -513,11 +648,12 @@ Response 200:
 }
 ```
 
-- 账号维度，不带 project 参数。**所有字段均为账号级，切换组织不重新请求、也不会变化**
-- `has_ever_connected` 是单向标志，只能 `false → true`
-- `verify_state` / `user_rewarded_now` 不在响应中，前者是前端瞬时态，后者由接口 C 返回
+- 账号维度，不带 project 参数。引导进度字段切换组织不重新请求
+- **触达资格不在本接口**：默认组织 / 默认项目 / `role` / `email_verified` / `is_funded` 来自现有组织、成员、账号接口。前端用它们与本接口字段做 AND，决定弹不弹 Modal、显不显示 Tab
+- `has_ever_connected` 是单向标志，只能 `false → true`。**服务端以它为 $5 账号闸门**（§5.2）；前端仍不得自行据此放行
+- `verify_state` 不在响应中；`user_rewarded_now` / `probe_status` 由接口 C 返回
 - 新账号从未写入过时返回全默认值：`onboarding_status='not_started'`、`modal_revealed=false`、`track='none'`、`step=0`，其余为 `null` / `false` / `[]`
-- **`completed_offsite` 判定规则由后端负责**：`has_ever_connected = true` 但从未收到过 Dashboard 侧的 verify 请求，即判定为站外完成
+- **`completed_offsite` 判定由后端负责**：`has_ever_connected = true` 但从未收到过 Dashboard 侧的 verify 请求，即判定为站外完成
 
 #### 接口 B：保存引导进度
 
@@ -529,106 +665,105 @@ Response 200: 更新后的完整状态对象（同接口 A 结构）
 ```
 
 - **增量语义**：只更新请求体中出现的字段，未出现的保持不变
-- **允许进度回退**：用户在手风琴里点回已完成的步骤时会提交更小的 `step`，后端需照单全收，**不要做"进度只能前进"的保护**
-- **关闭 Modal 不重置**：关闭首次弹窗时前端只提交 `{ "modal_revealed": true }` 这一个字段，不带任何进度字段。后端不得因此清空 `track` / `step` / `selected_agent` / `selected_starter`
+- **允许进度回退**：用户在手风琴里点回已完成的步骤时会提交更小的 `step`，后端需照单全收，**不要做「进度只能前进」的保护**
+- **关闭 Modal 不重置**：关闭弹窗时前端只提交 `{ "modal_revealed": true }` 这一个字段。后端不得因此清空 `track` / `step` / `selected_agent` / `selected_starter`
 - 低频写，一次完整引导约 4~6 次，可直接落库
 
 **触发点清单：**
 
 | 前端动作 | 提交字段 |
 | - | - |
-| 首次弹窗被展示 | `modal_revealed: true` |
+| 首次弹窗被用户关闭（✕ / 遮罩 / Esc） | **仅** `modal_revealed: true`。展示瞬间不写；`FAILED` 探针也不得写 |
 | 选择轨道 | `onboarding_status: 'in_progress'`、`track`、`step: 1` |
 | newbie 选中代理 | `selected_agent` |
 | newbie 点下一步 | `step: 2` |
 | newbie 选中模板 | `selected_starter` |
 | 点「已执行，下一步 →」 | `step: 2` 或 `3` |
 | 手风琴回退到已完成步骤 | `step` |
-| 关闭首次弹窗 | **仅** `modal_revealed: true`（无论是否完成，进度字段一律不提交）。这是"每账号只弹一次"的落点 |
-| 引导完成 | `onboarding_status: 'completed'`、`has_ever_connected: true` |
+| `SUCCESS_*` 收尾 | `modal_revealed: true`、`onboarding_status: 'completed'`、`has_ever_connected: true` |
+
+**边界：**
+
+| 场景 | 处理 |
+| - | - |
+| 同一账号多设备并发引导 | 以服务端状态为准，后到的写入覆盖先到的 |
+| 保存失败 | **不阻断用户操作**，前端保留本地状态继续走流程并静默重试。进度丢失的代价远小于把用户卡住 |
 
 #### 接口 C：校验连接（核心）
+
+本接口在确认物理连通后，**必须同步调用现网 `InstallBonusService`**，把四条件校验结果折叠为 `probe_status` 返回前端。前端只消费 `probe_status`，不得自行拼装发奖资格（§5.2）。
 
 ```
 POST /v1/projects/{projectId}/connection/verify
 
-Response 200（已连接 · 该组织首次，且设备有领奖资格）:
+Response 200（SUCCESS_BONUS_GRANTED · 四条件全过，已发奖）:
 {
   "connection_success": true,
-  "is_org_first_connection": true,
-  "reward_eligible": true,
+  "probe_status": "SUCCESS_BONUS_GRANTED",
   "reward": {
     "granted": true,
     "amount_usd": "5.00",
     "currency": "USD",
     "credited_org_id": "a91c...44f0"
   },
-  "last_heartbeat_at": "2026-09-10T08:12:33Z",
+  "local_folder_path": "/Users/dev/workspace/my-agent-app",
   "connected_project_ids": ["3f2b...e91a"]
 }
 
-Response 200（已连接 · 团队第二位成员，组织已领过）:
+Response 200（SUCCESS_EMAIL_UNVERIFIED · 已连通，邮箱未验或 Disposable）:
 {
   "connection_success": true,
-  "is_org_first_connection": false,
-  "reward_eligible": true,
+  "probe_status": "SUCCESS_EMAIL_UNVERIFIED",
   "reward": { "granted": false },
-  "last_heartbeat_at": "2026-09-11T02:41:07Z",
+  "local_folder_path": "/Users/dev/workspace/my-agent-app",
   "connected_project_ids": ["3f2b...e91a"]
 }
 
-Response 200（已连接 · 设备指纹已在别处领过奖，拦截）:
+Response 200（SUCCESS_NO_BONUS_DEVICE_LIMIT · 已连通，设备 / 账号 / IP 风控命中）:
 {
   "connection_success": true,
-  "is_org_first_connection": true,
-  "reward_eligible": false,
+  "probe_status": "SUCCESS_NO_BONUS_DEVICE_LIMIT",
   "reward": { "granted": false },
-  "reason": "device_fingerprint_already_rewarded",
-  "last_heartbeat_at": "2026-09-11T02:41:07Z",
+  "local_folder_path": "/Users/dev/workspace/my-agent-app",
   "connected_project_ids": ["3f2b...e91a"]
 }
 
-Response 200（未检测到连接）:
+Response 200（SUCCESS_NO_BONUS_ORG_FUNDED · 已连通，组织已付费激活）:
+{
+  "connection_success": true,
+  "probe_status": "SUCCESS_NO_BONUS_ORG_FUNDED",
+  "reward": { "granted": false },
+  "local_folder_path": "/Users/dev/workspace/my-agent-app",
+  "connected_project_ids": ["3f2b...e91a"]
+}
+
+Response 200（FAILED · 未检测到连接）:
 {
   "connection_success": false,
-  "is_org_first_connection": false,
-  "reward_eligible": false,
+  "probe_status": "FAILED",
   "reward": { "granted": false },
-  "reason": "no_heartbeat_received"
+  "reason": "no_connection_detected"
 }
 ```
-
-> **"没检测到连接"是业务上的正常结果，不是 HTTP 错误。** 请返回 200 + `connection_success: false`，不要返回 4xx。前端据此渲染失败态与排查建议。只有真正的系统故障（鉴权失败、服务不可用）才返回非 2xx。
 
 | 字段 | 类型 | 说明 |
 | - | - | - |
-| `connection_success` | boolean | 该项目当前是否处于已连接状态（本次校验结果，非账号级） |
-| `is_org_first_connection` | boolean | 是否为**当前组织**生命周期内的首次成功连接。团队第二位成员挂载同组织项目时为 `false` |
-| `reward_eligible` | boolean | 设备指纹是否具备领奖资格。该硬件 Hash 已在别处领过奖时为 `false` |
-| `reward.granted` | boolean | 本次是否实际发放额度，等价于 `is_org_first_connection && reward_eligible`。前端据此决定**礼花放不放、$5 文案显不显示** |
-| `reward.credited_org_id` | string | 额度入账的组织 id，即发生本次连接的组织自己 |
+| `connection_success` | boolean | 物理连通与否，与发奖无关 |
+| `probe_status` | enum | 五态之一，驱动 §5.2 矩阵的全部前端表现 |
+| `reward.granted` | boolean | 本次是否实际发放。仅 `SUCCESS_BONUS_GRANTED` 为 `true` |
+| `reward.credited_org_id` | string | 额度入账的组织 id，**固定为该账号的默认组织**，与本次连接发生在哪个组织无关 |
 | `reward.amount_usd` | string | 发放金额，用字符串避免浮点误差 |
-| `last_heartbeat_at` | ISO8601 | 最近一次心跳时间，用于弹窗心跳读数初值 |
+| `local_folder_path` | string | CLI `link` 时上报的本地工程绝对路径。**弹窗状态条只展示最后一段目录名**，全路径仅作 `title` 悬浮提示（§4.4） |
 | `connected_project_ids` | string[] | 该账号全部已连接项目，前端整体覆盖本地列表 |
-| `reason` | string | 仅失败时返回，用于日志与分析，**不直接展示给用户** |
+| `reason` | string | 仅内部日志与分析，**不直接展示给用户**（用户文案走 §5.2 矩阵） |
 
-> 前端把 `reward.granted` 映射为 `user_rewarded_now`。**`is_org_first_connection` 与 `reward_eligible` 需分别返回、不要合并**：两者都为 `false` 时前端表现完全一致（都只显示 `🟢 项目已成功连接`），但运营侧要能区分「团队第二人正常连接」和「疑似刷奖被设备指纹拦截」。
+> **「没检测到连接」是业务上的正常结果，不是 HTTP 错误。** 请返回 200 + `probe_status: "FAILED"`，不要返回 4xx。只有真正的系统故障（鉴权失败、服务不可用）才返回非 2xx。
+>
+> 成员走 CONNECT 完成挂载时，本接口仍返回物理连通结果，但 Dashboard **不得**据此弹出迎新 Modal 或庆典（§2.3）。
 
-**性能要求**：这是用户点了按钮后正盯着 Loader 等的接口，请控制在 **2s 内响应**。若检测本身耗时不可控，改为「立即返回 checking，前端轮询接口 D」或复用现有 socket.io 通道推送结果——前端已有 `checking` 态，两种方案都能直接接。
+**性能要求**：用户点了按钮后正盯着 Loader，本接口按**同步返回**实现，控制在 **2s 内**。检测本身若必然超过 2s，改为立即返回 `checking`、复用现有 socket.io 推最终结果——前端 `checking` 态两种都能接。**不要引入轮询兜底**。事件名、过滤规则与 UI 分发见技术笔记 §3.6。
 
-#### 接口 D：连接与心跳状态
-
-```
-GET /v1/projects/{projectId}/connection
-
-Response 200:
-{ "connected": true, "last_heartbeat_at": "2026-09-10T08:12:33Z" }
-```
-
-- 前端每 5s 轮询，**仅在 CONNECT 弹窗打开且当前项目已连接时**轮询，弹窗关闭立即停止
-- 前端自己按秒 tick 计算 `HEARTBEAT {n}s ago`，接口只给绝对时间戳
-- 高频只读接口，请走缓存 / 轻量查询，勿打 DB 主库
-- **活性判定阈值需后端定义**：多久没收到 CLI 上报算断开，建议 60s，超时后 `connected` 转 `false`
+**发奖入账**：额度由现网 `InstallBonusService` 写入**该账号默认组织钱包**。前端凭证就是响应里的 `reward` 对象（`granted` / `amount_usd` / `currency` / `credited_org_id`），本期不另开对账接口。Disposable 邮箱名单、IP 日限额阈值一律沿用该服务现网配置，前端不自行判断。
 
 #### 接口 E：已连接项目列表
 
@@ -636,211 +771,131 @@ Response 200:
 GET /v1/onboarding/connections
 
 Response 200:
-{ "connected_project_ids": ["3f2b...e91a", "77c1...0b42"] }
+{
+  "connections": [
+    { "project_id": "3f2b...e91a", "local_folder_path": "/Users/dev/workspace/my-agent-app" },
+    { "project_id": "77c1...0b42", "local_folder_path": null }
+  ]
+}
 ```
 
-用于判断 Header 按钮在任意项目下的状态。若接口 A 已带 `connected_project_ids`，本接口可省略。
+用于判断 Header 按钮在任意项目下的状态，以及 CONNECT 弹窗状态条展示哪个目录名。若接口 A 已带同等信息，本接口可省略。
+
+- **一次性读取，不轮询**：连接是既成事实，打开弹窗时读一次即可
+- `local_folder_path` 允许为 `null`（老连接没留存路径、或站外连接未上报），前端按「回退展示云端项目名」处理，**不得因此把项目判为未连接**
+- **新连接必须落库**：CLI `link` 时上报绝对路径，服务端写入并随 C / E 返回。本期若 CLI 还没有该字段，由 CLI 补上报，Dashboard 不另开通道
 
 #### 错误处理约定
 
 | 场景 | HTTP | 前端表现 |
 | - | - | - |
-| 未检测到连接 | 200 + `connection_success: false` | 失败态 + 排查建议 + Retry |
+| 未检测到连接 | 200 + `probe_status: "FAILED"` | 走 §5.2 的 `FAILED` 行 |
 | 未登录 / token 失效 | 401 | 走全局登录兜底 |
 | 项目不存在或无权限 | 403 / 404 | 提示「项目不可用」，引导切换项目 |
 | 服务异常 | 5xx | 沿用《登录错误兜底规范》：不透传原始错误，统一「服务暂时异常，请稍后重试」 |
 
-### 三、$5 奖励规则
-
-| 项 | 规则 |
-| - | - |
-| 金额 | $5.00 USD 等值 token 额度 |
-| 频次 | **每组织一次**（按组织生命周期计，不是按账号、也不是按人） |
-| 发放条件 | **同时**满足两个条件：① `is_org_first_connection === true`，即该组织生命周期内第一次成功连接；② `reward_eligible === true`，即 CLI 上报的设备指纹从未在平台任何账号/组织下领过奖 |
-| 入账去向 | **该组织自己的钱包** |
-| 团队成员二次连接 | 同组织的后续成员在本地挂载该项目时，返回 `is_org_first_connection: false`。只完成连通，**不发奖励** |
-| 设备指纹拦截 | 见下方「设备级防刷」。命中时 `reward_eligible: false`，同样只连通不发奖 |
-| 判定方 | **服务端权威**，前端传的任何东西都不可信 |
-| 触发时机 | 接口 C 返回 `reward.granted: true` 的那一刻 |
-| 幂等 / 防刷 | **必须**。以「组织」为唯一键落一条发放记录，并发重复调用只发一次 |
-| 到账校验 | 本期不做前端二次核对 |
-
-> **⚠️ 本条是奖励规则的第三版，前两版均已作废，请以本条为准：**
->
-> | 版本 | 口径 | 状态 |
-> | - | - | - |
-> | v1.0 | 仅**默认组织的默认项目**连接成功才发 | ❌ 作废 |
-> | v1.2 / v1.3 | **每账号一次**，在哪连都发，统一入账默认组织钱包 | ❌ 作废 |
-> | **v1.4（现行）** | **每组织一次**，发放至该组织自己的钱包；跨账号刷奖由**设备指纹**拦截 | ✅ 生效 |
->
-> 口径从「账号级」改为「组织级」是为了适配团队场景：组织钱包只应进账一次，不论是哪位成员完成的连接。原本由「账号级唯一」承担的防刷职责，**转由设备指纹承担**——这一点是本次变更成立的前提，后端必须两者同时实现，只做其一会留下刷奖漏洞。
-
-#### 设备级防刷（Anti-Sybil Device Fingerprint）
-
-| 项 | 规则 |
-| - | - |
-| 上报方 | **CLI**。执行 `link` 指令时自动在 Request Header / Payload 中带上本地设备的 MAC 地址或硬件特征 Hash |
-| 上报内容 | 硬件特征的 **Hash**，不是原始 MAC。原始硬件标识属于个人信息，不得明文落库 |
-| 拦截逻辑 | 若该 Hash 已在平台**任意其他账号或组织**下触发过 $5 发放，本次强制 `reward_eligible: false` |
-| 拦截后表现 | **仅完成连通，不发奖励**。前端按「非首次」渲染：不播礼花、不展示额度文案，只显示 `🟢 项目已成功连接` |
-| 缺失兜底 | CLI 版本过旧、容器/虚拟机等取不到硬件特征时，Hash 为空。**建议按「不拦截但记录」处理**，避免误伤正常用户——此项需后端确认，见附录 C2 |
-
-### 四、交互逻辑（动效规格）
-
-**场景 A：弹窗飞轨收起（Fly-to-Corner）**
-
-触发：用户在首次进入弹窗里校验成功后，主动点击 `🚀 Ship my agent →`。
-
-| 阶段 | 时长 | 行为 |
-| - | - | - |
-| 遮罩淡出 | 300ms | opacity → 0，同步解除背景模糊，露出背后 Dashboard |
-| 卡片飞轨 | 700ms | 抛物线飞向 Header 右上角 CONNECT 按钮，`scale: 1 → 0.55 → 0.1`，opacity 末段归零 |
-| 按钮接应 | 450ms | Header 按钮触发 `scale: [1, 1.15, 1]` 脉冲，圆点切绿，文案切 `CONNECTED` |
-| 路由 | — | 飞轨结束后写入 completed 并 `replace` 跳 `/dashboard` |
-
-> 实现要点：抛物线靠 `x` 与 `y` 的关键帧进度不同步造出（`y` 在中间帧已走完 80%，`x` 才走 30%）。三个属性必须写在**同一个 `animate()` 调用**里——`x`/`y`/`scale` 都编译成同一个 `transform` 属性，拆成多次调用会互相打架导致动画中途卡死。
-
-**场景 B：Onboarding 页原位收尾（无飞轨）**
-
-| 阶段 | 时长 | 行为 |
-| - | - | - |
-| 礼花（`CONFETTI_CELEBRATION_DURATION`） | 8000ms | 4 波 × 108 粒，每波间隔 1700ms。仅首次连接播放 |
-| 胜利横幅 / Tab 销毁延迟（`ONBOARDING_TAB_DESTROY_DELAY`） | 3000ms | 原位展示胜利 Card，随后路由至 `/dashboard` 并销毁侧边栏 Tab |
-| 自动跳转 | — | 8s 后 `replace` 跳 `/dashboard` |
-| Tab 销毁 | — | `onboarding_status` 转 completed 后侧边栏自动移除该项 |
-
-> **两个时长是独立参数，不要求一致。** Modal 结局无自动跳转，礼花可以完整播完 8 秒；页面结局 3 秒后路由离开，礼花随页面卸载一并结束，这是有意为之的取舍——胜利 Card 是交接而非庆典，让用户盯着一个即将消失的入口更糟。
-
-**时长常量总表：**
-
-| 常量 | 值 | 位置 |
-| - | - | - |
-| 心跳轮询间隔 | 5000ms | `ConnectHeartbeatBadge.tsx:11` |
-| 心跳读数 tick | 1000ms | `ConnectHeartbeatBadge.tsx:25` |
-| 校验 mock 延迟 | 1500ms | `OnboardingDemoState.tsx:309`（上线后由真实接口耗时替代） |
-| 礼花总时长 `CONFETTI_CELEBRATION_DURATION` | 8000ms | `FireworksEffect.tsx` |
-| Tab 销毁延迟 `ONBOARDING_TAB_DESTROY_DELAY` | 3000ms | `OnboardingSteps.tsx` |
-| 飞轨时长 | 700ms | `OnboardingFirstRunModal.tsx:18` |
-| 遮罩淡出 | 300ms | `OnboardingFirstRunModal.tsx` |
-| 接应脉冲 | 450ms | `AppHeader.tsx` |
-| 复制反馈停留 | 2000ms | `OnboardingSteps.tsx:24` |
-
-### 五、埋点
-
-现有 `SocketContext.tsx:233-241` 已在 MCP 连接成功时上报 PostHog `ONBOARDING_COMPLETED`。建议本期补充：
-
-| 事件 | 触发点 |
-| - | - |
-| `onboarding_modal_shown` | 首次弹窗展示 |
-| `onboarding_track_selected` | 选择轨道，带 `track` |
-| `onboarding_prompt_copied` | 复制 Prompt，带 `track` / `starter` |
-| `onboarding_verify_attempted` | 点击校验 |
-| `onboarding_verify_result` | 校验返回，带 `connection_success` / `is_org_first_connection` / `reward_eligible` |
-| `onboarding_abandoned` | 关闭首次弹窗且未完成，带 `step` |
-
----
-
-## 附录 A：字段映射总表（前端 ← 接口）
+### 6.3 字段映射总表（前端 ← 接口）
 
 | 前端字段 | 来源接口 | 接口字段 | 消费位置 |
 | - | - | - | - |
-| `onboarding_status` | A / B | `onboarding_status` | 侧边栏显隐、落地重定向 |
-| `modal_revealed` | A / B | `modal_revealed` | 首次弹窗是否自动弹 |
+| `onboarding_status` | A / B | 同名 | 侧边栏显隐、落地重定向 |
+| `modal_revealed` | A / B | 同名 | 首次弹窗是否自动弹 |
 | `track` / `step` | A / B | 同名 | 清单展开项、计步器 |
 | `selected_agent` / `selected_starter` | A / B | 同名 | newbie 轨选中态 |
-| `has_ever_connected` | A / C | `has_ever_connected`（A）；`connection_success` 为 true 时置位（C） | 侧边栏入口显隐、$5 发放门槛。**不参与 Header 连接态判定** |
-| `connected_project_ids` | A / C / E | `connected_project_ids` | `isProjectConnected` 判定 |
-| `user_rewarded_now` | C | `reward.granted` | 成功页 $5 文案与礼花开关 |
-| `connected_org_ids` | C | 服务端维护 | 判定该组织是否已发生过首次连接 |
-| `completed_offsite` | A | `completed_offsite` | 站外完成的静默处理 |
-| 心跳读数 | D | `last_heartbeat_at` | CONNECT 弹窗状态条 |
-| `projectName` / `projectId` | F | `name` / `id` | Prompt 模板变量、弹窗状态条 |
+| `has_ever_connected` | A / C | 同名（A）；物理连通成功时置位（C） | 账号级连通记忆，兼作 $5 闸门（§5.2）。**不参与连接态判定** |
+| `connected_project_ids` | A / C / E | 同名 | `isProjectConnected` 判定（§5.1） |
+| `local_folder_path` | C / E | 同名 | CONNECT 弹窗状态条左侧目录名（§4.4） |
+| `user_rewarded_now` | C | `reward.granted` | 礼花开关 |
+| `probe_status` | C | 同名 | §5.2 矩阵：文案、CTA、Tab / Modal 销毁 |
+| `completed_offsite` | A | 同名 | 站外完成的静默处理 |
+| `projectName` / `projectId` | F | `name` / `id` | Prompt 模板变量（§4.6）；本地目录缺失时状态条的回退展示 |
 | `verify_state` | — | — | **纯前端瞬时态，无接口** |
-
-## 附录 B：研发替换点清单
-
-> 路径均为 `vectoree` 仓库 `packages/dashboard/src/` 下的相对路径。按此清单逐条替换即可完成对接，**不需要打开页面**。
-
-**需要改的：**
-
-- [ ] `.../onboarding/OnboardingDemoState.tsx:176-188` — 删除 `readStored()` / `persist()`（localStorage 读写），替换为接口 A（初始化拉取）+ 接口 B（`patch()` 内提交）
-- [ ] `.../onboarding/OnboardingDemoState.tsx` — `verifyConnection()` 内的 `setTimeout(1500)` 替换为接口 C 的真实请求；响应 `reward.granted` 映射到 `user_rewarded_now`，`is_org_first_connection` / `reward_eligible` 原样透传
-- [ ] `.../onboarding/OnboardingDemoState.tsx` — 删除 `STORAGE_KEY` 常量（当前为 `vectoree_onboarding_demo_v3`）
-- [ ] `.../onboarding/OnboardingDemoState.tsx` — 删除 `force_verify_fail` / `force_device_rewarded` 两个 demo 字段及其全部引用（后者是设备指纹拦截的本地模拟，真实判定在服务端）
-- [ ] `.../onboarding/OnboardingDemoState.tsx:62-174` — 删除 `DEMO_SCENARIOS` 常量
-- [ ] `.../connect/ConnectHeartbeatBadge.tsx:23-30` — 轮询体内的 `Date.now()` 替换为接口 D，用响应的 `last_heartbeat_at`（epoch ms）更新 `lastHeartbeatAt`；文件头 `TODO(backend)` 注释已标注同一件事
-- [ ] `layout/AppLayout.tsx` — 移除 `<OnboardingDemoPanel />` 及其 import
-- [ ] 删除 `.../onboarding/OnboardingDemoPanel.tsx`
-- [ ] 顺手清理（当前已无人引用）：`.../onboarding/ConnectProjectStep.tsx`、`.../onboarding/ExploreStep.tsx`、`.../connect/CLISection.tsx`
-
-**不需要改的**（它们只消费 `useOnboardingDemo()` 这一个 Hook，接口换完自动生效）：
-
-`OnboardingPage.tsx`、`OnboardingChecklist.tsx`、`OnboardingWizard.tsx`、`OnboardingSteps.tsx`、`OnboardingFirstRunModal.tsx`、`ConnectDialog.tsx`、`ConnectCodingAgentCard.tsx`、`ConnectStatusDot.tsx`、`AgentSelector.tsx`、`AppHeader.tsx`、`AppSidebar.tsx`、`FireworksEffect.tsx`、`ConnectFlyContext.tsx`
-
-## 附录 C：已知偏差与待确认
-
-### C1. Demo 对交付约束的偏差（需拍板）
-
-`design/DEMO_DELIVERY_CONSTRAINTS.md` 第 10 章验收清单要求"未引入新依赖"，第 3.2 节禁止修改 `packages/*/package.json`。本次 demo 为实现飞轨动效，**引入了 `framer-motion@^13.2.0` 到 `packages/dashboard`**，并因此变更了 `package.json` 与 `pnpm-lock.yaml`。同时为支持弹窗遮罩自定义，修改了 `packages/ui/src/components/Dialog.tsx`（新增 `showCloseButton` / `overlayClassName` 两个可选 prop，向后兼容）。
-
-三处均超出白名单，**需 PM 与前端负责人确认是否接受**。若不接受，飞轨动效需改用 CSS `@keyframes` 重写。
-
-### C2. 待确认问题
-
-| # | 问题 | 建议 | 需谁拍板 |
-| - | - | - | - |
-| 1 | 心跳多久没上报算断开？ | 60s | 后端 |
-| 2 | `verify` 同步返回还是异步推送？ | 若检测 > 2s 则改异步，复用现有 socket.io | 后端 |
-| 3 | $5 额度走哪个计费系统？返回什么凭证？ | — | 后端 / 计费 |
-| 4 | 引导进度是否需要跨设备同步？ | 需要，故设计为服务端存储 | PM |
-| 5 | 用户删除已连接项目，`connected_project_ids` 如何清理？ | 后端在项目删除时级联清理 | 后端 |
-| 6 | 模板列表是否需要可运营配置？ | 本期硬编码，后续单独提需求 | PM |
-| 7 | 是否需要补发额度的运营后台入口？ | 本期不做 | PM |
-| ~~8~~ | ~~成功态停留时长：2~3 秒 还是 8 秒？~~ | **已拍板，见 C3：拆为双参数（8000 / 3000）** | ✅ 已关闭 |
-| ~~9~~ | ~~用户删除「默认组织」后，$5 应入账到哪个组织钱包？~~ | **已失效**：v1.4 起奖励入账「发生连接的那个组织」，不再依赖默认组织 | ✅ 已关闭 |
-| 10 | CLI 取不到硬件特征（旧版本 / 容器 / 虚拟机）时如何处理？ | 建议「不拦截但记录」，避免误伤正常用户 | 后端 |
-| 11 | 设备指纹 Hash 的保留期限与合规口径？原始 MAC 不得明文落库 | 需法务或安全确认 | 后端 / 安全 |
-| 12 | 组织被删除后重建，是否算新组织从而可再领一次 $5？ | 建议以组织 id 为准（重建即新 id，可再领），刷奖风险由设备指纹兜底 | 后端 / PM |
-
-### C3. 成功态停留时长（已拍板封版 · 2026-09-11）
-
-原冲突：新指令要求「2~3 秒后销毁侧边栏 Tab」，而此前已定「成功动效展示 8 秒」。
-
-**裁决：拆成两个独立参数，不再共用一个时长。**
-
-| 常量 | 取值 | 作用域 | 行为 |
-| - | - | - | - |
-| `CONFETTI_CELEBRATION_DURATION` | `8000ms` | 首次进入 **Modal** | 连接成功后**不自动跳转**。礼花播放 8 秒，弹窗保持打开，等用户主动点击 `🚀 Ship my agent →` 才触发飞轨收起 |
-| `ONBOARDING_TAB_DESTROY_DELAY` | `3000ms` | 左侧 **Onboarding Tab 页** | 原位展示胜利 Card 3 秒，随后平滑路由至 `/dashboard` 并销毁 Tab |
-
-**同时修复的路由竞态：** 原 `finish()` 先调 `completeOnboarding()` 再调 `navigate('/dashboard')`，而 `completeOnboarding` 把 `onboarding_status` 置为 `completed` 的瞬间，`AppLayout` 中的落地重定向（`!isIncomplete && path === '/dashboard/onboarding'` → `<Navigate>`）**已经会把用户带离引导页**。一次跳转被两套路由机制同时驱动，导致引导页可能在自己的停留时长走完之前就被提前带走。
-
-修复方式：页面侧 `finish()` **只负责标记完成，不再自己导航**，路由交由落地重定向单点处理；同时给停留定时器加了单次闩锁，避免 React StrictMode 重挂载触发两次完成、进而引发两次路由变更。
 
 ---
 
-## 验收标准
+## 7 埋点
 
-| # | 验收项 | 检查方式 |
+现有 `SocketContext` 已在 MCP 连接成功时上报 PostHog `ONBOARDING_COMPLETED`。本期补充：
+
+| 事件 | 触发点 | 附带属性 |
 | - | - | - |
-| 1 | 新账号首次登录自动弹出引导弹窗；关闭后不再自动弹，但侧边栏保留入口 | 清 localStorage 后进 `/dashboard` |
-| 2 | developer 轨 2 步、newbie 轨 3 步均可走通，计步器显示正确 | 交互检查 |
-| 3 | Prompt 中项目名与 id 与 Header 选中项目一致，切换项目实时更新 | 切项目后比对代码框 |
-| 4 | 校验失败返回 200 且前端渲染失败态与 Retry，不出现裸错误 | 接口 mock 返回 `connection_success: false` |
-| 5 | 首次校验成功发放 $5，重复校验不重复发放 | 连续调用两次 verify，查发放记录 |
-| 6 | 在 Org B 的项目完成该组织生命周期首次连接，$5 入账 **Org B 自己的**钱包 | 切到自建组织走完流程，查两个组织的钱包余额 |
-| 16 | 团队第二位成员连接不播礼花、不显示额度文案，只显示 `🟢 项目已成功连接` | 接口 C mock 返回 `is_org_first_connection: false` 后走校验（与第 19 条同一套前端分支，demo 面板不单列场景） |
-| 19 | 设备指纹已领过奖时，仅连通不发奖，表现同第 16 条 | 勾选 demo 面板「Device already claimed · 设备已领过奖励」后走校验 |
-| 20 | 校验成功瞬间侧边栏 Onboarding Tab 即销毁，**无需关闭 Modal** | 弹窗内完成校验，弹窗仍开着时观察左侧 Tab |
-| 21 | 新建项目名为空或为 `default` 时无法提交并给出提示 | 组织切换器里输入 `default` |
-| 17 | 未完成连接时切换/新建组织，不再自动弹出 Modal | 弹过一次后切组织观察 |
-| 18 | 首次连接成功后，切到其他组织，侧边栏 Onboarding 入口也已消失 | 连接成功后切 Org B 看侧边栏 |
-| 7 | 引导完成后侧边栏入口消失，手敲 URL 重定向回 `/dashboard` | 视觉 + URL 检查 |
-| 8 | 切换到未连接的项目**或组织**，Header 退回黄色呼吸灯 `CONNECT`；已走完引导、账号连过项目也不例外 | 切项目/切组织观察按钮；demo 面板点「Completed · switch org · 已完成后再切组织/项目」 |
-| 9 | CONNECT 弹窗心跳读数每秒递增，5s 轮询后归零重算 | 打开弹窗观察 10s |
-| 10 | 刷新页面后引导进度从服务端恢复（不再依赖 localStorage） | 清 localStorage 后刷新，进度仍在 |
-| 11 | 走到第 2 步后关闭 Modal，切回 Onboarding Tab 仍停在第 2 步，已选代理/模板保持选中 | 交互检查 |
-| 14 | 关闭 Modal 后停留在当前页，可自由切到任意 Tab；再次访问 `/dashboard` 不被拉回引导页 | 交互检查 |
-| 15 | Newbie 轨 Step 1 不选任何代理也能点「已就绪，下一步 →」进入 Step 2 | 交互检查 |
-| 12 | Demo 面板与 `force_*` 开关已全部移除 | 代码审查 |
-| 13 | Modal 结局不自动跳转，礼花播满 8 秒且需用户点击才收起；页面结局 3 秒后自动离开，且**全程只发生一次路由变更** | 录屏比对 + 监听 history 调用次数 |
+| `onboarding_modal_shown` | 首次弹窗展示 | — |
+| `onboarding_track_selected` | 选择轨道 | `track` |
+| `onboarding_prompt_copied` | 复制 Prompt | `track` / `starter` |
+| `onboarding_verify_attempted` | 点击校验 | — |
+| `onboarding_verify_result` | 校验返回 | `connection_success` / `probe_status` / `reward.granted` |
+| `onboarding_abandoned` | 关闭首次弹窗且未完成 | `step` |
+
+> **数据埋点命名约束**：
+> 所有 PostHog 埋点事件（如 `onboarding_modal_shown`）及属性字段必须统一采用 **snake_case（小写下划线）**，必须在研发提测阶段与 Data Team 完成元数据（Metadata）校验与录入。
+
+---
+
+## 8 验收标准
+
+编号规则：**A = 触达（§2）、B = 功能规格（§4）、C = 业务规则（§5）、D = 数据契约（§6）**。「对应章节」列提供反向索引。
+
+### A · 触达范围
+
+| # | 验收项 | 对应章节 | 检查方式 |
+| - | - | - | - |
+| A1 | **仅**默认组织 + 默认项目 + Owner + 未连接时自动弹出引导弹窗 | §2.1 | Owner 清状态后进 `/dashboard`；切到非默认项目不得弹 |
+| A2 | Member 账号进入 Dashboard：**零** Modal、**零** Tab、**零**礼花 / 额度提示；Header `CONNECT` 可用 | §2.3 | 用 Member 角色登录观察 |
+| A3 | Owner 切到非默认组织 / 非默认项目：不弹 Modal、不展示 Tab，Header 按项目连接态显示 | §2.3 | 切组织 / 切项目观察 |
+| A4 | 未完成连接时切换 / 新建组织，不再自动弹出 Modal | §2.3 | Owner 弹过一次或切走后观察 |
+| A5 | 默认项目 `SUCCESS_*` 后，切到其他组织侧边栏也无 Onboarding 入口 | §2.2 | 连接成功后切 Org B 看侧边栏 |
+| A6 | 引导完成后侧边栏入口消失，手敲 URL 重定向回 `/dashboard` | §3.4 R2 | 视觉 + URL 检查 |
+
+### B · 功能规格
+
+| # | 验收项 | 对应章节 | 检查方式 |
+| - | - | - | - |
+| B1 | 弹窗标题随进度变化，五种取值与规格一致 | §4.1 | 逐步骤比对 |
+| B2 | developer 轨 2 步、newbie 轨 3 步均可在弹窗内走通，计步器正确 | §4.1 §3.3 | 交互检查 |
+| B3 | Owner 首次弹出并关闭后，切到 Org B 不再弹；`FAILED` 不写 `modal_revealed` | §4.1 | mock `FAILED` 后刷新，弹窗应仍可弹 |
+| B4 | 走到第 2 步后关闭 Modal，切回引导页仍停在第 2 步，已选代理 / 模板保持选中 | §4.1 | 交互检查 |
+| B5 | 引导页标题区无任何连接态文案 | §4.2 | 视觉检查 |
+| B6 | 手风琴同一时刻只展开当前步骤；三态视觉与 demo 一致 | §4.2 | 切换步骤观察 |
+| B7 | 点击 upcoming 项无响应，无法跳到未完成步骤 | §4.2 | 交互检查 |
+| B8 | `SUCCESS_*` 后 Tab 停留 3s 销毁；`FAILED` 时 Tab 继续在 | §4.2 §4.7 | 分别 mock 成功 / 失败观察左侧 Tab |
+| B9 | 关闭 Modal 后停留当前页，可自由切到任意 Tab；再次访问 `/dashboard` 不被拉回 | §3.4 | 交互检查 |
+| B10 | Modal 在 `SUCCESS_*` 后观赏 8s；点 CTA 或满 8s 后再留 3s 才关闭 | §4.7 | 录屏比对 |
+| B11 | 引导页结局 3s 后自动离开 | §4.7 | 录屏 + 监听 history 调用次数 |
+| B12 | 切到未连接项目，Header 按钮 1 帧内变黄 | §4.3 | 切项目观察 |
+| B13 | 两种连接态点击都打开同一个 CONNECT 弹窗；已连接时状态条右侧多出 `CONNECTED` | §4.3 §4.4 | 交互检查 |
+| B14 | 项目列表为空时 Header 为黄色，不显示 `CONNECTED` | §4.3 | 清空项目列表观察 |
+| B15 | CONNECT 弹窗标题与副标题文案与规格一致 | §4.4 | 文案断言 |
+| B16 | 弹窗内无任何心跳 / 秒数文案，打开 30s 无新增网络请求 | §4.4 §5.1 | 断言不含 `HEARTBEAT` / `ACTIVE`；Network 面板观察 30s |
+| B17 | 已连接时状态条左侧为本地目录名、右侧为 `CONNECTED`；未连接时左侧回退为云端项目名、右侧为空 | §4.4 | 切连接态对比 |
+| B18 | Prompt 为完整五行且项目名与 id 与 Header 选中项目一致，切项目实时更新；任意场景下不出现通用占位名 | §4.6 | 切项目后比对代码框，读全文断言 |
+| B19 | 复制内容与代码框完全一致；文档链接可达 | §4.4 | 粘贴比对 |
+| B20 | Newbie 轨 Step 1 不选任何代理也能推进到 Step 2 | §3.3 | 交互检查 |
+| B21 | 弹窗结局顺序：点 CTA 或满 8s 后先留 3s，再跳 `/dashboard` 且侧边栏选中 Dashboard、弹窗已卸载；卡片继续飞满 700ms 不被中断；落点时 Header 才转 `CONNECTED` | §4.7 | 采样 path / 侧边栏选中项 / 克隆卡片 `scale` / header 文案 |
+| B22 | 飞行路径起点与弹窗中心重合、终点落在 Header 按钮中心，结束后无残留节点 | §4.7 | 逐帧采样克隆卡片中心坐标 |
+| B23 | 弹窗退出全程只有一层礼花，页面侧不得补播第二次；未发奖态礼花层数为 0 | §4.7 §5.2 | 采样礼花层数量，全程 ≤ 1 |
+| B24 | 路由变化不得重挂载布局：跨页面导航前后 `header` / `aside` 为同一 DOM 节点 | 技术笔记 §3.2 | 导航前后比较节点引用 |
+
+### C · 业务规则
+
+| # | 验收项 | 对应章节 | 检查方式 |
+| - | - | - | - |
+| C1 | 切换到未连接的项目**或组织**，Header 退回黄色呼吸灯；已走完引导也不例外 | §5.1 | 切项目 / 切组织观察按钮 |
+| C2 | CLI 进程退出 / 断网后连接态不变，仍显示已连接 | §5.1 | 关闭 CLI 后刷新页面观察 |
+| C3 | 账号首次连通且四条件全过才发放 $5 并喷彩花；额度入默认组织钱包；同一账号再连不重复发放 | §5.2 | mock `SUCCESS_BONUS_GRANTED` 后换组织再 verify，查发放记录仍为 1 条 |
+| C4 | `FAILED` 返回 200 且前端渲染排查项 + Retry；**不销毁 Tab、不写 `modal_revealed`** | §5.2 | mock `probe_status: "FAILED"` |
+| C5 | 邮箱未验证或 Disposable：连通成功，文案为「请验证邮箱以解锁 $5.00 额度」且出现 `[ 重发验证邮件 ]`，不喷花 | §5.2 | mock `SUCCESS_EMAIL_UNVERIFIED` |
+| C6 | 默认组织 `is_funded === true`：连通成功不发奖，文案仅为「连接成功！设备已绑定。」，不喷花、不提付费 / 额度 | §5.2 | mock `SUCCESS_NO_BONUS_ORG_FUNDED` |
+| C7 | 设备 / 账号 / IP 风控命中：连通成功，文案仅为「连接成功！设备已绑定。」，不喷花、不提风控原因 | §5.2 §5.3 | mock `SUCCESS_NO_BONUS_DEVICE_LIMIT` |
+| C8 | Member 通过 CONNECT 挂载成功：Header 转 `CONNECTED`，无任何迎新 UI | §2.3 §5.2 | Member 走 CONNECT 流程 |
+| C9 | 未发奖文案不得出现 `Denied` / `Ineligible` / `Error` / 「拒绝」「不合格」 | §5.5 | 对三态成功文案做字符串断言 |
+| C10 | 新建项目名为空或为 `default` 时无法提交并给出提示 | §5.4 | 组织切换器里输入 `default` |
+
+### D · 数据契约
+
+| # | 验收项 | 对应章节 | 检查方式 |
+| - | - | - | - |
+| D1 | 刷新页面后引导进度从服务端恢复，不再依赖 localStorage | §6.1 §6.2 A | 清 localStorage 后刷新，进度仍在 |
+| D2 | 校验进行中刷新页面，界面回到「校验」按钮而非转圈 | §6.1 | `checking` 态下刷新 |
+| D3 | 手风琴回退提交更小的 `step`，后端照单全收 | §6.2 B | 回退后刷新，`step` 应为回退值 |
+| D4 | 关闭 Modal 只提交 `modal_revealed`，进度字段不被清空 | §6.2 B | 抓包检查请求体 |
+| D5 | Demo 面板与 `force_*` 开关已全部移除 | 技术笔记 §2 | 代码审查（上线时） |
