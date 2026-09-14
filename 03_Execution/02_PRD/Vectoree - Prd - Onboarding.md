@@ -1,10 +1,10 @@
 # Vectoree - 需求文档 - Onboarding 连接全链路
 
-> **怎么读这份文档。** 按 §1 → §8 顺序推进：先弄清谁能看到（§2），再看怎么流转（§3），然后是每个界面的规则（§4）与跨界面的业务规则（§5），最后是数据契约（§6）与验收（§8）。本文是交付稿，正文只含已定口径，研发按此实现。
+> **怎么读这份文档。** 按 §1 → §8 顺序推进：先弄清谁能看到（§2），再看怎么流转（§3），然后是每个界面的规则（§4）与跨界面的业务规则（§5），最后是数据契约（§6）与验收（§8）。本文是交付稿，正文只含已定口径，**规则以本文为准**。
 >
 > **每条规则只在一个地方定义**，其他位置只引用章节号、不复述。看到引用就去那一节，那里是唯一的事实来源。
 >
-> **UI 长相不在本文。** 界面已由 demo 承载并验收完毕，研发 1:1 实现即可；本文只讲规则、边界、异常与接口契约。实现细节、踩坑记录与对接替换点在配套的 [技术笔记](../03_Solutions/Vectoree%20-%20Tech%20Note%20-%20Onboarding.md)。
+> **Demo 怎么用。** `pm-demo-v2` 用来看首次弹窗、Onboarding Tab、Header CONNECT 按钮 / 弹窗、飞轨和双轨步骤。**不要整仓 1:1 抄 demo。** 不要抄：左下角 Demo 面板、mock 登录、Dashboard / 安装页 / 模板详情上的现网 `ConnectCodingAgentCard`、项目设置 Connect 页签（那是 Connection String）。校验五态、发奖文案、礼花开关以本文 §5.2 为准——demo 把三种「连通但不发奖」收成了一种静默成功，且成功就会喷花。实现细节、踩坑与对接清单见 [技术笔记](../03_Solutions/Vectoree%20-%20Tech%20Note%20-%20Onboarding.md)。`pm-demo-v1` 仅作对照，不再作为交付源。
 
 ---
 
@@ -17,6 +17,10 @@
 | 日期 | 变更摘要 |
 | - | - |
 | 2026-09-14 | 去掉文档头部 meta；清空定稿前变更记录 |
+| 2026-09-14 | 对照 `pm-demo-v2` 同步：交付以最新 main 上的连接引导为准；与现网 `/dashboard/install` 并存；云托管 overlay 桥接不再作为现状 |
+| 2026-09-14 | **禁止登录后落入安装页。** 现网 `shouldLandOnInstall` → `/dashboard/install` 与 R1 冲突，必须删除（§3.4） |
+| 2026-09-14 | Header CONNECT 是本期改动的现网模块：用 §4.3–§4.4 替换按钮态、点击与弹窗内容；不是和安装页抢入口 |
+| 2026-09-14 | 交付前复核：明确不以 demo 整仓 1:1 为准；R1 落到 `/dashboard/onboarding`；CONNECT 弹窗不改设置页；`has_ever_connected` 只由接口 C 置位 |
 
 ### 0.2 发布计划
 
@@ -49,7 +53,15 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 
 ### 1.2 本期范围
 
-**做：** 首次进入弹窗、左侧常驻引导页、Header 连接状态按钮、CONNECT 弹窗、说明文档页、双轨引导流程、连接校验与 $5 发奖、项目命名约束。
+**做：** 首次进入弹窗、左侧常驻引导页、Header CONNECT（改现网按钮与弹窗内容）、说明文档页、双轨引导流程、连接校验与 $5 发奖、项目命名约束。安装页 `/dashboard/install` 仍可从侧边栏进入，**不承担登录落地，也不再承接 Header CONNECT 点击**。
+
+本期改动面：
+
+| 类型 | 模块 |
+| - | - |
+| 新做，相对独立 | 首次进入弹窗（§4.1）、Onboarding Tab / 引导页（§4.2） |
+| 改现有模块 | Header CONNECT 按钮与 CONNECT 弹窗（§4.3 §4.4） |
+| 必须删的现网逻辑 | 登录后 `shouldLandOnInstall` → `/dashboard/install`（§3.4） |
 
 **不做（明确排除）：**
 
@@ -60,7 +72,8 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 | 额度补发的运营后台入口 | 本期不做 |
 | 前端到账二次核对 | 以服务端发放记录为准 |
 | URL 深链定位项目 | 本期不做。dashboard 路由不含 project id，分享 URL 不会带上当前项目 |
-| 云托管宿主桥接改造 | `hostMode === 'cloud-hosting'` 下监听 `SHOW_ONBOARDING_OVERLAY` / `SHOW_CONNECT_OVERLAY` 的现有逻辑维持不变 |
+| 现网安装引导改版 | 安装页 `/dashboard/install`、欢迎额度领取、`DTestConnectTip` 页面本身可保留。**登录后强制落入安装页必须删除**，见 §3.4 |
+| 云托管宿主 overlay 桥接 | 最新 main / `pm-demo-v2` 布局里已无 `SHOW_ONBOARDING_OVERLAY` / `SHOW_CONNECT_OVERLAY` 监听。本期不恢复 v1 那套 postMessage |
 
 ### 1.3 成功度量
 
@@ -97,6 +110,8 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 显示条件：`处于项目空间（非组织空间） && 默认组织 && 默认项目 && role === 'owner' && 该默认项目尚未物理连通成功`。
 
 位于**侧边栏底部区域首位**（与 Settings 等底部项同组、排在它们之前），图标 `Rocket`。放底部而非顶部的理由：引导是「需要时回来找」的入口，不该每次访问都挡在 Dashboard 前面被划过。
+
+欢迎额度未领完时，同一底部组里还会出现现网 **Install** 入口。两条入口可以同时在，**互不替代**：Onboarding 仍排该组首位。
 
 销毁前，命中用户可随时点此入口回到引导页，**并自动定位到上次停留的步骤**（§4.2）。
 
@@ -229,16 +244,29 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 | - | - | - |
 | `/dashboard/onboarding` | 引导页（§4.2） | 需登录，无 feature flag |
 | `/dashboard/onboarding/docs` | 说明文档页（§4.5） | 需登录，无 feature flag |
-| `/dashboard/install` | D_TEST 安装页 | 仅 `DASHBOARD_V4_EXPERIMENT = D_TEST` 命中，否则重定向 `/dashboard` |
+| `/dashboard/install` | 现网安装 / 欢迎额度页 | 路由常驻。侧边栏入口由 `needsInstallOnboarding` 控制（owner + 未领完欢迎额度），**不再**绑定 `DASHBOARD_V4_EXPERIMENT = D_TEST` |
 
 **落地重定向：**
 
 | 规则 | 条件 | 行为 |
 | - | - | - |
-| R1 | 在触达范围内（§2.1）且 `modal_revealed === false` 且路径为 `/dashboard` | 默认选中侧边栏 Onboarding 项并展示引导页。**成员与非触达用户一律不走 R1** |
+| R1 | 在触达范围内（§2.1）且 `modal_revealed === false` 且路径为 `/dashboard` | `replace` 到 `/dashboard/onboarding`，选中侧边栏 Onboarding 项，并弹出首次弹窗。**成员与非触达用户一律不走 R1**，停在 `/dashboard` |
 | R2 | 引导已完成且路径为 `/dashboard/onboarding` | `replace` 跳 `/dashboard` |
 
 > **R1 是落地默认，不是锁定。** 一旦用户关闭 Modal 或主动切走，不再有任何重定向。
+
+**禁止登录后落入安装页（与本期冲突，必须改现网）。**
+
+现网 `LoginPage` 在登录成功后若 `shouldLandOnInstall(installBonus)` 为真，会 `navigate('/dashboard/install')`。这条路径会把命中 §2.1 的 Owner 拦在安装页，R1 永远不会触发，连接引导弹不出来。
+
+研发对接时必须：
+
+1. **删除**登录成功后的 `shouldLandOnInstall` → `/dashboard/install` 重定向（`LoginPage.tsx`）。
+2. 登录后的默认落地一律是 `/dashboard`。命中 §2.1 的用户由 R1 带到引导页并弹出首次弹窗；未命中的用户停在 Dashboard。
+3. **任何角色、任何欢迎额度状态，登录 / 注册成功后都不得被重定向到 `/dashboard/install`。** 没有「先装再连」的顺序。
+4. `/dashboard/install` 可以继续从侧边栏手动进入，只是不再充当登录后的默认页。
+
+不要把 demo 里 mock 登录跳过安装页理解成「只有 demo 才这样」——那是产品口径，上线也必须如此。
 
 **不阻断浏览原则**（强约束，验收重点）：
 
@@ -300,12 +328,22 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 | 规则 | 说明 | 验收 |
 | - | - | - |
 | 项目绑定 | 状态跟随 Header 当前选中 Project，切组织 / 切项目后若新项目未连接则立刻退回黄色 | B12 |
-| 点击行为 | 两种状态都打开同一个 CONNECT 弹窗（§4.4） | B13 |
+| 点击行为 | 未连接 / 已连接都打开同一个 CONNECT 弹窗（§4.4）。不跳路由、不进安装页 | B13 |
 | 无项目兜底 | 尚未解析出项目时按未连接渲染。账号一个项目都没有时确实没有任何连接，显示 `CONNECT` 是正确语义 | B14 |
+
+> **这是对现网 Header CONNECT 的替换，不是另做一套入口。** 按钮还在右上角原来的位置，改的是状态表现、点击结果和弹窗内容。
+
+现网实现里，`AppHeader.handleConnectClick` 在 `DASHBOARD_V4_EXPERIMENT = D_TEST` 时会 `navigate('/dashboard/install')`，安装页上按钮还会 `disabled`。对接时按本期规格覆盖掉：
+
+1. 点击一律 `openConnectDialog()`，打开 §4.4 弹窗。
+2. 去掉 `isDTest` 跳转和 `isConnectDisabled`。
+3. 黄 / 绿态只由当前项目的 `isProjectConnected` 驱动（§5.1）。
 
 ### 4.4 CONNECT 弹窗
 
-宽 640px，自上而下四区块。该弹窗复用于项目设置页的 Connect 页签（受 `canShowConnect` / `canUseCloudHost` 两个 feature flag 控制）。
+宽 640px，自上而下四区块。该弹窗就是 Header CONNECT 点开后的内容。**用本节替换现网 Header CONNECT 弹窗**（含现网弹窗里的 skill 安装文案、Discord CTA、Connect later）。
+
+不要和下面这些现网表面搞混：Dashboard 页、安装页、模板详情里的 `ConnectCodingAgentCard` 本期不改；项目设置页 Connect 页签是 Connection String（`canShowConnect` = `isVectoreeCloudProject()`），**不是**本弹窗，不要替换成 §4.4。
 
 | 区域 | 规则 | 验收 |
 | - | - | - |
@@ -318,8 +356,8 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 
 独立黑边卡片，左右两侧规则不同。
 
-- **左侧**：文件夹图标 + **本地工程目录名**，取 `local_folder_path` 的最后一段（`/Users/dev/workspace/my-agent-app` → `my-agent-app`）。超长截断并以 `title` 提供全名。**未拿到本地路径时回退展示云端项目名。**
-- **右侧**：**仅已连接时**渲染绿色实心方块 + `CONNECTED`；未连接时为空。
+- **左侧**：文件夹图标 + **本地工程目录名**，取 `local_folder_path` 的最后一段（`/Users/dev/workspace/my-agent-app` → `my-agent-app`）。超长截断；`title` 用**完整绝对路径**（没有路径时用当前展示的项目名）。**未拿到本地路径时回退展示云端项目名。**
+- **右侧**：**仅已连接时**渲染绿色实心圆点 + `CONNECTED`；未连接时为空。圆点规格与 Header 已连接态相同（§4.3）。
 - **不含任何心跳 / 时间读数**（§5.1）。
 - **不重复展示云端项目名与 id**——③ 已经完整给出，同屏重复两遍没有价值，而且状态条一条里混着「本地目录」和「云端 id」两种身份反而更难读。
 - 左右两侧都为空时整条卡片一并不渲染，不留空条。
@@ -659,7 +697,7 @@ Response 200: 更新后的完整状态对象（同接口 A 结构）
 | newbie 选中模板 | `selected_starter` |
 | 点「已执行，下一步 →」 | `step: 2` 或 `3` |
 | 手风琴回退到已完成步骤 | `step` |
-| `SUCCESS_*` 收尾 | `modal_revealed: true`、`onboarding_status: 'completed'`、`has_ever_connected: true` |
+| `SUCCESS_*` 收尾 | `modal_revealed: true`、`onboarding_status: 'completed'`。**不要**在此提交 `has_ever_connected`——该字段由接口 C 在物理连通成功时置位，前端不得自行翻转 |
 
 **边界：**
 
@@ -740,7 +778,7 @@ Response 200（FAILED · 未检测到连接）:
 >
 > 成员走 CONNECT 完成挂载时，本接口仍返回物理连通结果，但 Dashboard **不得**据此弹出迎新 Modal 或庆典（§2.3）。
 
-**性能要求**：用户点了按钮后正盯着 Loader，本接口按**同步返回**实现，控制在 **2s 内**。检测本身若必然超过 2s，改为立即返回 `checking`、复用现有 socket.io 推最终结果——前端 `checking` 态两种都能接。**不要引入轮询兜底**。事件名、过滤规则与 UI 分发见技术笔记 §3.6。
+**性能要求**：用户点了按钮后正盯着 Loader，本接口按**同步返回**实现，控制在 **2s 内**。检测本身若必然超过 2s，HTTP 立即返回 `{ "pending": true }`（**不要**把 `pending` 写成 `probe_status`），前端保持 `verify_state='checking'`，最终结果走现有 socket.io，payload **必须带与下方五态相同的 `probe_status`**。前端 `checking` 态两种都能接。**不要引入轮询兜底**。事件名、过滤规则与 UI 分发见技术笔记 §3.6。
 
 **发奖入账**：额度由现网 `InstallBonusService` 写入**该账号默认组织钱包**。前端凭证就是响应里的 `reward` 对象（`granted` / `amount_usd` / `currency` / `credited_org_id`），本期不另开对账接口。Disposable 邮箱名单、IP 日限额阈值一律沿用该服务现网配置，前端不自行判断。
 
@@ -824,6 +862,7 @@ Response 200:
 | A4 | 未完成连接时切换 / 新建组织，不再自动弹出 Modal | §2.3 | Owner 弹过一次或切走后观察 |
 | A5 | 默认项目 `SUCCESS_*` 后，切到其他组织侧边栏也无 Onboarding 入口 | §2.2 | 连接成功后切 Org B 看侧边栏 |
 | A6 | 引导完成后侧边栏入口消失，手敲 URL 重定向回 `/dashboard` | §3.4 R2 | 视觉 + URL 检查 |
+| A7 | 登录 / 注册成功后落地为 `/dashboard`（命中 §2.1 则走 R1），**不得**出现 `/dashboard/install`。额度未领完也不例外 | §3.4 | 用未领欢迎额度的 Owner 登录，断言首屏 URL |
 
 ### B · 功能规格
 
@@ -841,7 +880,7 @@ Response 200:
 | B10 | Modal 在 `SUCCESS_*` 后观赏 8s；点 CTA 或满 8s 后再留 3s 才关闭 | §4.7 | 录屏比对 |
 | B11 | 引导页结局 3s 后自动离开 | §4.7 | 录屏 + 监听 history 调用次数 |
 | B12 | 切到未连接项目，Header 按钮 1 帧内变黄 | §4.3 | 切项目观察 |
-| B13 | 两种连接态点击都打开同一个 CONNECT 弹窗；已连接时状态条右侧多出 `CONNECTED` | §4.3 §4.4 | 交互检查 |
+| B13 | 未连接 / 已连接点击都打开同一个 CONNECT 弹窗（§4.4），不跳 `/dashboard/install`；已连接时状态条右侧多出 `CONNECTED` | §4.3 §4.4 | 含 D_TEST / 安装页路径各点一次 |
 | B14 | 项目列表为空时 Header 为黄色，不显示 `CONNECTED` | §4.3 | 清空项目列表观察 |
 | B15 | CONNECT 弹窗标题与副标题文案与规格一致 | §4.4 | 文案断言 |
 | B16 | 弹窗内无任何心跳 / 秒数文案，打开 30s 无新增网络请求 | §4.4 §5.1 | 断言不含 `HEARTBEAT` / `ACTIVE`；Network 面板观察 30s |

@@ -3,6 +3,8 @@
 > **本文与 [需求文档](../02_PRD/Vectoree%20-%20Prd%20-%20Onboarding.md) 配套。** 分工：PRD 只讲「做什么、做成什么样算完」，是产品与后端的共同依据；本文讲「怎么做到的、哪里踩过坑、接后端时该动哪个文件」，读者是前端。
 >
 > 之所以拆开：PRD 里混进 DOM 克隆、Tailwind 编译行为、组件树重挂载这类内容，会让后端和产品在找规则时反复跳过大段与自己无关的段落；而这些踩坑记录本身有保留价值，删掉下一个人还会再踩一遍。
+>
+> **基线是 `pm-demo-v2`。** 登录落地、Header CONNECT 点击、CONNECT 弹窗内容已按 PRD 改完。下面这些不要当生产规格：Demo 面板、mock 登录、`DEMO_PROJECT` 名叫 `my-app`（生产默认项目名是 `default`）、Dashboard / 安装页上的现网卡片、校验 UI 把三种不发奖收成 `SUCCESS_NO_BONUS` 且成功就喷花。五态、邮箱未验重发按钮、仅 `SUCCESS_BONUS_GRANTED` 礼花，一律按 PRD §5.2。
 
 ---
 
@@ -13,14 +15,18 @@
 | 项 | 值 |
 | - | - |
 | 仓库 | `/Users/yuke/Documents/vectoree` |
-| 分支 | `pm-demo-v1` |
-| 启动 | `/Users/yuke/Desktop/启动Demo.command` |
-| 地址 | `http://localhost:7131` |
+| 交付分支 | `pm-demo-v2`（基于最新 `main` 接上连接引导） |
+| 对照分支 | `pm-demo-v1` 保留，**不要再拿它对接生产** |
+| 启动 | 在 `pm-demo-v2` 上跑仓库根目录 `pnpm dev`。地址 `http://localhost:7131` |
 | 源码 | `packages/dashboard/src/features/dashboard/components/onboarding/` 与 `.../components/connect/` |
+
+**不要双击** `/Users/yuke/Desktop/启动Demo.command`：脚本仍会把工作区切回 `pm-demo-v1`。
 
 演示路径：首次弹窗需清空 `localStorage` 后进入 `/dashboard`；引导页 `/dashboard/onboarding`；CONNECT 弹窗点右上角 Header 按钮；说明页 `/dashboard/onboarding/docs`。
 
-左下角 Demo 面板需覆盖触达角色（Owner 默认组织 / Owner 其他组织 / Member）与探针五态（`FAILED` / `SUCCESS_BONUS_GRANTED` / `SUCCESS_EMAIL_UNVERIFIED` / `SUCCESS_NO_BONUS_DEVICE_LIMIT` / `SUCCESS_NO_BONUS_ORG_FUNDED`）。
+Console 登录走 mock，**任意邮箱即可**进 Dashboard（`login.service.ts` 的 `loginWithEmail` 不打后端）。登录后落 `/dashboard`，由 R1 弹出首次引导。**上线后也必须如此**：不得恢复 `shouldLandOnInstall` → `/dashboard/install`（PRD §3.4）。
+
+左下角 Demo 面板用来切触达角色（Owner 默认组织 / Owner 其他组织 / Member）和三种连通结果（失败 / 发奖 / 静默成功）。**静默成功在 demo 里是一态**，对应 PRD 的邮箱未验 / 设备已领 / 组织已充；上线不要抄这个合并，按 PRD 五态分别渲染。
 
 ### 1.2 Mock 面
 
@@ -31,8 +37,26 @@ UI / 交互 / 动效 / 空态 / 加载态 / 失败态 / 成功态全部实现并
 | 状态持久化 | `localStorage`，key `vectoree_onboarding_demo_v9` |
 | 校验 | `mockVerifyProbe` 内 `setTimeout(1500)` 模拟请求耗时 |
 | 项目身份与本地目录 | `DEMO_PROJECT` 常量：`my-app` / `9f4c2a1b-7e63-4d58-b0a2-1c8f5e9d3a47` / `/Users/dev/workspace/my-agent-app` |
+| Console 登录 | `login.service.ts`：`loginWithEmail` / `registerWithEmail` 直接 `activateDemoSession` |
+| 组织 / 项目列表 | `OrganizationContext.tsx` 在 `isDemoConsoleSession()` 时返回 `demoOrganization()` + `demoProject()`，不打 `organizationService` |
 
-`DEMO_PROJECT.localFolderPath` 故意与 `name` 不同。CONNECT 弹窗状态条展示的是本地目录名、Prompt 里是云端项目名，两者在真实使用中本就会分叉；如果 demo 里让它们相同，这个功能的意义在演示时看不出来。
+`DEMO_PROJECT.localFolderPath` 故意与 `name` 不同，用来演示「本地目录名 ≠ 云端项目名」。引导向导与 CONNECT 弹窗都按这个分叉来写：Prompt 里是云端项目，状态条左侧是本地目录名。demo 的 `title` 目前只挂了目录名；上线按 PRD：`title` 用完整 `local_folder_path`。
+
+Mock 快照里的 `connected_org_ids` / `bonus_status` 是 demo 字段。上线不要建组织级发奖列表；`$5` 是账号闸门（PRD §5.2）。前端消费字段名是 `probe_status`，不是 `bonus_status`。
+
+> **对接注意（CONNECT 是改现网模块，不是另做入口）：** Header 按钮与弹窗内容以 PRD §4.3–§4.4 为准，整段替换现网点击与弹窗。`pm-demo-v2` 已按规格改完：登录后一律 `/dashboard`；CONNECT 点击一律打开弹窗；弹窗含本地目录名、§4.6 Prompt、View Docs / Copy，无 Discord / Connect later。全局 `ConnectCodingAgentCard` 仍给 Dashboard / Install / 模板详情用，不要把生产卡片再套回 CONNECT 弹窗。引导向导内 Prompt 与 CONNECT 弹窗 Prompt 同为 §4.6。
+
+### 1.3 与现网安装引导并存
+
+`pm-demo-v2` 没有拿连接引导替换生产安装引导。同时存在：
+
+| 现网（main 已有） | 本期加上 |
+| - | - |
+| `/dashboard/install`、`DTestConnectTip`、侧边栏 Install、欢迎额度 | `/dashboard/onboarding`、首次弹窗、Header CONNECT / 飞轨、Demo 面板 |
+
+登录后**禁止**再走 `shouldLandOnInstall` → `/dashboard/install`。Demo 的 `LoginPage.tsx` 已按 PRD §3.4 停用这条现网逻辑；对接真实登录时不要从 main 把它接回来。安装页仍可从侧边栏进入，但不是登录首页。
+
+`AppLayout` 不再包含 v1 的 `ConnectOverlayBridge`（`SHOW_ONBOARDING_OVERLAY` / `SHOW_CONNECT_OVERLAY`）。本期不恢复。
 
 ---
 
@@ -56,18 +80,25 @@ UI / 交互 / 动效 / 空态 / 加载态 / 失败态 / 成功态全部实现并
 - [ ] `OnboardingMockApi.tsx` — 删除 `force_verify_fail` / `force_device_rewarded` 两个 demo 字段及其全部引用（后者是设备指纹拦截的本地模拟，真实判定在服务端）
 - [ ] `OnboardingMockApi.tsx` — 删除 `DEMO_SCENARIOS` 常量
 - [ ] `OnboardingMockApi.tsx` — 删除 `DEMO_PROJECT` 常量；`useDemoProject` 改为真实选中项目 + 接口 E 的 `local_folder_path`
-- [ ] `layout/AppLayout.tsx` — 移除 `<OnboardingDemoPanel />` 及其 import
+- [ ] `layout/AppLayout.tsx` — 移除 `<OnboardingDemoPanel />` 及其 import；**保留** `OnboardingLandingRedirect`（PRD §3.4 R1：`/dashboard` → `/dashboard/onboarding`；R2：引导完成后从 onboarding 回 dashboard）
 - [ ] 删除 `.../onboarding/OnboardingDemoPanel.tsx`
+- [ ] `features/login/services/login.service.ts` — 恢复真实 `loginWithEmail` / `registerWithEmail`；删除 `activateDemoSession` / `DEMO_CONSOLE_*` / `isDemoConsoleSession` 及相关分支
+- [x] `features/login/pages/LoginPage.tsx` — **v2 已改完**：去掉 `shouldLandOnInstall` / `useInstallBonus`，登录后默认一律 `/dashboard`（显式 `storedRedirect` / `postAuthRedirect` 仍可走）。若从 `main` 另开分支而不是以 v2 为基线，这三项仍要做。接后端时勿把旧跳转接回来
+- [x] `layout/AppHeader.tsx` — **v2 已改完**：删除 `isDTest` → `/dashboard/install` 与 `isConnectDisabled`，点击一律 `openConnectDialog()`
+- [x] `.../connect/ConnectDialog.tsx` — **v2 已改完**：按 PRD §4.4 自绘弹窗（本地目录名、§4.6 Prompt、View Docs / Copy，无 Discord / Connect later）。不要再套现网 `ConnectCodingAgentCard`。项目设置 Connect 页签不是这个弹窗，不要改 Connection String
+- [ ] `lib/contexts/OrganizationContext.tsx` — 去掉 `isDemoConsoleSession()` 分支、`demoOrganization()` / `demoProject()` 与对 `DEMO_PROJECT` 的 import
 - [x] `.../connect/ConnectHeartbeatBadge.tsx` — **已整文件删除**（心跳读数下线，无替换项）
 - [x] `ConnectProjectStep.tsx` / `VerifyStep.tsx` / `ExploreStep.tsx` — **已整文件删除**（零引用的旧向导步骤）
 
 **受交付约束阻塞（等豁免）：**
 
-- [ ] 删除 `.../connect/CLISection.tsx` — 当前无人使用，但删除需同步改 `connect/index.ts` 的 re-export，而 `.ts` 在 `DEMO_DELIVERY_CONSTRAINTS.md` §3.2 禁区内。与第 5 章的三处违规打包拍板
+- [ ] 删除 `.../connect/CLISection.tsx` — 当前无人使用，但删除需同步改 `connect/index.ts` 的 re-export，而 `.ts` 在 `DEMO_DELIVERY_CONSTRAINTS.md` §3.2 禁区内。与第 5 章的已知越界打包拍板
 
 **不需要改的**（它们只消费 `useOnboardingDemo()` 这一个 Hook，接口换完自动生效）：
 
-`OnboardingPage.tsx`、`OnboardingChecklist.tsx`、`OnboardingWizard.tsx`、`OnboardingSteps.tsx`、`VerifyRewardStep.tsx`、`OnboardingPromptBlocks.tsx`、`OnboardingFirstRunModal.tsx`、`OnboardingBonus.tsx`、`ConnectDialog.tsx`、`ConnectCodingAgentCard.tsx`、`ConnectStatusDot.tsx`、`AgentSelector.tsx`、`AppHeader.tsx`、`AppSidebar.tsx`、`FireworksEffect.tsx`、`ConnectFlyContext.tsx`
+`OnboardingPage.tsx`、`OnboardingChecklist.tsx`、`OnboardingWizard.tsx`、`OnboardingSteps.tsx`、`VerifyRewardStep.tsx`、`OnboardingPromptBlocks.tsx`、`OnboardingFirstRunModal.tsx`、`OnboardingBonus.tsx`、`ConnectStatusDot.tsx`、`AgentSelector.tsx`、`AppSidebar.tsx`、`FireworksEffect.tsx`、`ConnectFlyContext.tsx`
+
+`AppHeader.tsx` / `ConnectDialog.tsx` 是现网 CONNECT 模块的改动面；demo 已按 §4.3–§4.4 改完，对接时保留这套点击与弹窗，不要当「只换数据、UI 不动」。
 
 ---
 
@@ -130,31 +161,29 @@ localStorage vectoree_selected_project_id ─┼─▶ selectedProject ──▶
 
 > 产品原文写「补到 §3.2」。§3.2 已被 PRD 验收 B24 占用（AppErrorBoundary 重挂载），本节独立编号，避免冲掉那条引用。
 
-接口 C 按同步返回实现，控制在 **2s 内**。检测本身若必然超过 2s，HTTP 立即回 `checking`，最终结果走现有 socket.io。**不要引入轮询兜底。**
+接口 C 按同步返回实现，控制在 **2s 内**。检测本身若必然超过 2s，HTTP 立即回 `{ pending: true }`，最终结果走现有 socket.io。**不要引入轮询兜底。**
 
-事件名、过滤与分发必须按下面这份契约实现。`isSilent === true` 对应风控 / 付费组织未发奖：只切成功态，文案走 PRD §5.2 的锁定句，不披露原因。
+事件必须带 `projectId` 与 PRD §5.2 的 **`probe_status` 五态**。不要做成 `SUCCESS` / `FAILED` + `isSilent`：那种形状表达不了 `SUCCESS_EMAIL_UNVERIFIED`（要出重发验证邮件，不是静默句）。
 
 ```typescript
 socket.on("connection:verify_result", (data: {
   projectId: string;
-  status: 'SUCCESS' | 'FAILED';
-  isSilent?: boolean;
+  probe_status: 'FAILED' | 'SUCCESS_BONUS_GRANTED' | 'SUCCESS_EMAIL_UNVERIFIED'
+    | 'SUCCESS_NO_BONUS_DEVICE_LIMIT' | 'SUCCESS_NO_BONUS_ORG_FUNDED';
+  connection_success: boolean;
+  reward?: { granted: boolean; amount_usd?: string; credited_org_id?: string };
+  local_folder_path?: string | null;
+  connected_project_ids?: string[];
 }) => {
   if (data.projectId !== currentProjectId) return;
-
-  if (data.status === 'SUCCESS') {
-    // 成功态 UI + 开启 8s 观赏倒计时；isSilent 只改文案，不改连通
-    dispatchState({ type: 'VERIFY_SUCCESS', isSilent: data.isSilent });
-  } else {
-    dispatchState({ type: 'VERIFY_FAILED' });
-  }
+  // 按 PRD §5.2 矩阵分发 UI，不要在前端把四态 SUCCESS_* 再合并
 });
 ```
 
 约束：
 
 - 必须按 `projectId` 过滤，忽略其他项目的迟到事件
-- `SUCCESS` 进入成功态并启动 8s 观赏；点 CTA 或满 8s 后再走 3s 销毁延迟（PRD §4.7）
+- `SUCCESS_*` 进入成功态；仅 `SUCCESS_BONUS_GRANTED` 喷花。点 CTA 或满 8s 后再走 3s 销毁延迟（PRD §4.7）
 - `FAILED` 留在校验步，不写 `modal_revealed`、不销毁 Tab
 - 前端不得把 socket 超时自行重试成轮询
 
@@ -172,7 +201,7 @@ socket.on("connection:verify_result", (data: {
 | 幕布淡出 `VEIL_FADE_MS` | 300ms | `OnboardingFirstRunModal.tsx` |
 | 飞行看门狗 `FLIGHT_WATCHDOG_MS` | `FLY_MS + 400` = 1100ms | `OnboardingFirstRunModal.tsx`，仅兜底 |
 | 接应脉冲 | 450ms | `AppHeader.tsx` |
-| 复制反馈停留 | 2000ms | `OnboardingPromptBlocks.tsx` |
+| 复制反馈停留 | 2000ms | `OnboardingPromptBlocks.tsx` / `OnboardingSteps.tsx` / `ConnectDialog.tsx` |
 
 礼花参数：4 波 × 108 粒，每波间隔 1700ms，仅 `SUCCESS_BONUS_GRANTED` 播放。
 
@@ -180,13 +209,15 @@ socket.on("connection:verify_result", (data: {
 
 ## 5 对交付约束的已知越界（实现按 demo 现状交付）
 
-`vectoree` 仓库 `design/DEMO_DELIVERY_CONSTRAINTS.md` 第 10 章要求「未引入新依赖」，第 3.2 节禁止改 `packages/*/package.json` 与纯 `.ts`。本期页面按 demo 已落地的方案交付，研发不要自行改回 CSS 飞轨或拆掉 Dialog 扩展：
+`vectoree` 仓库 `design/DEMO_DELIVERY_CONSTRAINTS.md` 第 10 章要求「未引入新依赖」，第 3.2 节禁止改 `packages/*/package.json` 与纯 `.ts`。本期页面按 `pm-demo-v2` 已落地的方案交付，研发不要自行改回 CSS 飞轨或拆掉 Dialog 扩展：
 
 | # | 越界项 | 原因 | 交付时怎么处理 |
 | - | - | - | - |
 | 1 | 引入 `framer-motion@^13.2.0`，变更 `package.json` 与 `pnpm-lock.yaml` | 飞轨动效 | **保留**，与 demo 一致 |
 | 2 | 修改 `packages/ui/src/components/Dialog.tsx`，新增可选 prop `showCloseButton` / `overlayClassName` | 弹窗遮罩自定义 | **保留**，向后兼容 |
 | 3 | `connect/CLISection.tsx` 无人引用，删它要改 `connect/index.ts` | 死代码 | **本期不删**，避免动纯 `.ts` |
+| 4 | 修改 `features/login/services/login.service.ts` | mock 登录，无本地后端也能进 Dashboard | 上线时按 §2 清单恢复真实登录 |
+| 5 | 修改 `lib/contexts/OrganizationContext.tsx` | mock 会话下返回 demo 组织 / 项目 | 上线时按 §2 清单去掉 demo 分支 |
 
 ### 5.1 技术债务与遗留文件清理
 
