@@ -1,15 +1,3 @@
----
-title: "Vectoree - 技术笔记 - Onboarding 实现与交接"
-description: "Onboarding 连接全链路的实现细节、踩坑记录与对接替换点。PRD 的配套文档：PRD 讲做什么、做成什么算完，本文讲怎么做到的、哪里有坑、接后端时动哪里"
-author: "PM"
-created: "2026-09-12"
-updated: "2026-09-12"
-status: "ACTIVE"
-version: "1.2"
-tags: ["tech_note", "onboarding", "connect", "handoff", "demo"]
-owners: ["PM"]
----
-
 # Vectoree - 技术笔记 - Onboarding 实现与交接
 
 > **本文与 [需求文档](../02_PRD/Vectoree%20-%20Prd%20-%20Onboarding.md) 配套。** 分工：PRD 只讲「做什么、做成什么样算完」，是产品与后端的共同依据；本文讲「怎么做到的、哪里踩过坑、接后端时该动哪个文件」，读者是前端。
