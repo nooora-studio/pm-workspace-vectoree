@@ -26,7 +26,7 @@
 
 Console 登录走 mock，**任意邮箱即可**进 Dashboard（`login.service.ts` 的 `loginWithEmail` 不打后端）。登录后落 `/dashboard`，由 R1 弹出首次引导。**上线后也必须如此**：不得恢复 `shouldLandOnInstall` → `/dashboard/install`（PRD §3.4）。
 
-左下角 Demo 面板用来切触达角色（Owner 默认组织 / Owner 其他组织 / Member）和三种连通结果（失败 / 发奖 / 静默成功）。**静默成功在 demo 里是一态**，对应 PRD 的邮箱未验 / 设备已领 / 组织已充；上线不要抄这个合并，按 PRD 五态分别渲染。
+左下角 Demo 面板用来切触达角色（新注册用户 · 默认组织 / 同一账号 · 其他组织 / 被邀请用户）和三种连通结果（失败 / 发奖 / 静默成功）。Demo 的 `owner_default` 对应「新注册用户、默认组织 `role === 'owner'`」；`owner_other` 是同一账号切到非默认组织；`member` 是被邀请用户。不要把它理解成组织角色枚举里的 `member`。**静默成功在 demo 里是一态**，对应 PRD 的邮箱未验 / 设备已领 / 组织已充；上线不要抄这个合并，按 PRD 五态分别渲染。
 
 ### 1.2 Mock 面
 

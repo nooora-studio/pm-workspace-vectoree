@@ -20,7 +20,7 @@
 | 2026-09-14 | 对照 `pm-demo-v2` 同步：交付以最新 main 上的连接引导为准；与现网 `/dashboard/install` 并存；云托管 overlay 桥接不再作为现状 |
 | 2026-09-14 | **禁止登录后落入安装页。** 现网 `shouldLandOnInstall` → `/dashboard/install` 与 R1 冲突，必须删除（§3.4） |
 | 2026-09-14 | Header CONNECT 是本期改动的现网模块：用 §4.3–§4.4 替换按钮态、点击与弹窗内容；不是和安装页抢入口 |
-| 2026-09-14 | 交付前复核：明确不以 demo 整仓 1:1 为准；R1 落到 `/dashboard/onboarding`；CONNECT 弹窗不改设置页；`has_ever_connected` 只由接口 C 置位 |
+| 2026-09-14 | 触达角色：新注册用户 = 默认组织 `owner`；被邀请用户不弹。去掉会和 `member` 角色撞车的「Member」统称 |
 
 ### 0.2 发布计划
 
@@ -85,13 +85,22 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 
 > **这是全文关于「谁能看到什么」的唯一定义。** §3 §4 只引用本节，不重复判定条件。
 
-主动引导是迎新 Owner 的激活路径，**不是全员功能**。三个入口的触达范围各不相同：
+主动引导只服务 **新注册用户第一次进 Dashboard**：系统已经给她建好默认组织和默认项目，她就是这个组织的 `owner`。**被邀请加入的人一律不弹。** 三个入口的触达范围各不相同：
 
 | 入口 | 触达范围 | 性质 |
 | - | - | - |
-| 首次进入弹窗（§4.1） | 仅命中下表五条件的 Owner | 一次性主动引导 |
-| 侧边栏 Onboarding 入口（§4.2） | 默认组织 + 默认项目 + Owner + 该项目未物理连通 | 非侵入式提示，可随时回来 |
-| Header `CONNECT` 按钮（§4.3） | **全员常驻**，无条件 | 成员侧唯一的连接入口 |
+| 首次进入弹窗（§4.1） | 仅命中 §2.1 五条件的新注册用户（默认组织 `owner`） | 一次性主动引导 |
+| 侧边栏 Onboarding 入口（§4.2） | 默认组织 + 默认项目 + `owner` + 该项目未物理连通 | 非侵入式提示，可随时回来 |
+| Header `CONNECT` 按钮（§4.3） | **全员常驻**，无条件 | 被邀请用户以及已切走默认组织的人，都走这里连接 |
+
+> **`owner` 是组织成员角色，不是登录账号角色。** 前端读当前组织的 `selectedOrganization.role`（表 `organization_memberships.role`）。登录成功后账号对象上的 `user.role` 只表示「这是不是登录用户 / 平台超管」，取值是 `anon` / `authenticated` / `platform_admin` / `platform_ops`，**没有** `owner`。写 `user.role === 'owner'` 永远为 false。
+>
+> | 字段值 | 产品含义 | 谁会是 | 本期引导 / $5 |
+> | - | - | - | - |
+> | `owner` | 这个组织的创建者 / 主人 | **新注册用户。** 注册时系统创建默认组织、默认项目，并把创建者写成 `owner`。邀请时不能选这个值 | **命中**（还要满足默认组织 + 默认项目等其余条件） |
+> | `admin` / `developer` / `member` / `viewer` | 被请进来的人 | 邀请加入时赋予。`admin` 能管日常事务，但不是创建者 | **不命中。** 被邀请的不弹引导、不走庆典，只用 Header CONNECT |
+>
+> 现网 `InstallBonusService` 发欢迎额度也是 `membership.role === 'owner'`，与引导对齐。不要改成 `role === 'admin'`。
 
 ### 2.1 主动弹窗权限
 
@@ -99,15 +108,17 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 
 | # | 条件 | 判定 |
 | - | - | - |
-| 1 | 当前组织是账号的**默认组织** | 系统初始化创建的那个组织，不是后续自建 / 被邀请加入的 |
+| 1 | 当前组织是账号的**默认组织** | 注册时系统初始化创建的那个组织，不是后续自建 / 被邀请加入的 |
 | 2 | 当前项目是该组织的**默认项目** | 固化名为 `default` 的系统项目，见 §5.4 |
-| 3 | 操作者在当前组织的角色为 **Owner** | `user.role === 'owner'` |
+| 3 | 当前用户是这个组织的创建者 | `selectedOrganization.role === 'owner'` |
 | 4 | 当前默认项目处于**未连接**状态 | `isProjectConnected === false`，见 §5.1 |
 | 5 | 引导未完成且从未展示过弹窗 | `onboarding_status !== 'completed'` 且 `modal_revealed === false` |
 
+新注册用户第一次进 Dashboard 时，1–3 自然成立：默认组织、默认项目、她就是 `owner`。之后被邀请进别人组织、或自己再建模组织，都不满足这三条，不再弹。
+
 ### 2.2 侧边栏入口显隐
 
-显示条件：`处于项目空间（非组织空间） && 默认组织 && 默认项目 && role === 'owner' && 该默认项目尚未物理连通成功`。
+显示条件：`处于项目空间（非组织空间） && 默认组织 && 默认项目 && selectedOrganization.role === 'owner' && 该默认项目尚未物理连通成功`。
 
 位于**侧边栏底部区域首位**（与 Settings 等底部项同组、排在它们之前），图标 `Rocket`。放底部而非顶部的理由：引导是「需要时回来找」的入口，不该每次访问都挡在 Dashboard 前面被划过。
 
@@ -121,21 +132,21 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 
 | 用户 | Modal | 侧边栏入口 | 落地重定向 | 礼花 / 额度提示 | 连接方式 |
 | - | - | - | - | - | - |
-| **Owner · 默认组织 + 默认项目 + 未连接** | 弹一次 | 显示 | 走 R1（§3.3） | 按 §5.2 矩阵 | 弹窗内 / 引导页 / Header |
-| **Owner · 非默认组织或非默认项目** | 不弹 | 隐藏 | 不走 | **无庆典 UI**，但发奖仍由服务端按 §5.2 四条件判定 | Header `CONNECT` |
-| **Member · 任意组织** | **严格禁止** | **严格禁止** | 不走 | **严格禁止** | Header `CONNECT` 或 Docs |
+| **新注册用户 · 还在默认组织 + 默认项目 + 未连接**（`role === 'owner'`） | 弹一次 | 显示 | 走 R1（§3.4） | 按 §5.2 矩阵 | 弹窗内 / 引导页 / Header |
+| **同一账号切到非默认组织或非默认项目**（即使仍是那个组织的 `owner`） | 不弹 | 隐藏 | 不走 | **无庆典 UI**，但发奖仍由服务端按 §5.2 四条件判定 | Header `CONNECT` |
+| **被邀请加入的人**（`admin` / `developer` / `member` / `viewer`） | **严格禁止** | **严格禁止** | 不走 | **严格禁止** | Header `CONNECT` 或 Docs |
 
-成员侧不存在「你没有资格」这类文案——他们根本走不到 §5.2 那张矩阵。
+被邀请用户看不到「你没有资格」这类文案——他们根本走不到 §5.2 那张矩阵。
 
 **边界：**
 
 | 场景 | 处理 |
 | - | - |
 | 处于组织空间（非项目空间） | 侧边栏不显示 Onboarding 入口 |
-| Owner 未完成连接时新建或切换到其他组织 | 禁止弹 Modal、禁止展示 Tab——非默认组织不在触达范围。Header 按该组织当前项目连接态渲染 |
-| Owner 切到未连接的非默认组织 / 项目 | Header 按钮恢复黄色呼吸灯 `CONNECT`（§4.3），侧边栏入口**不得出现**。两者判定源不同：按钮读项目级 `isProjectConnected`，入口读触达资格 |
-| 站外先连上再回站 | 接口返回 `has_ever_connected: true` + `completed_offsite: true`，前端直接呈现完成态，不再引导。该 Owner 已连接，本就落在触达范围外 |
-| Member 登录或被邀请加入后进入 Dashboard | 零 Modal、零 Tab、零礼花、零额度提示。连通后 Header 转 `CONNECTED`，无迎新反馈 |
+| 新注册用户未完成连接时新建或切换到其他组织 | 禁止弹 Modal、禁止展示 Tab——非默认组织不在触达范围。Header 按该组织当前项目连接态渲染 |
+| 新注册用户切到未连接的非默认组织 / 项目 | Header 按钮恢复黄色呼吸灯 `CONNECT`（§4.3），侧边栏入口**不得出现**。两者判定源不同：按钮读项目级 `isProjectConnected`，入口读触达资格 |
+| 站外先连上再回站 | 接口返回 `has_ever_connected: true` + `completed_offsite: true`，前端直接呈现完成态，不再引导。该用户已连接，本就落在触达范围外 |
+| 被邀请用户登录后进入 Dashboard | 零 Modal、零 Tab、零礼花、零额度提示。连通后 Header 转 `CONNECTED`，无迎新反馈 |
 
 ---
 
@@ -250,14 +261,14 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 
 | 规则 | 条件 | 行为 |
 | - | - | - |
-| R1 | 在触达范围内（§2.1）且 `modal_revealed === false` 且路径为 `/dashboard` | `replace` 到 `/dashboard/onboarding`，选中侧边栏 Onboarding 项，并弹出首次弹窗。**成员与非触达用户一律不走 R1**，停在 `/dashboard` |
+| R1 | 在触达范围内（§2.1）且 `modal_revealed === false` 且路径为 `/dashboard` | `replace` 到 `/dashboard/onboarding`，选中侧边栏 Onboarding 项，并弹出首次弹窗。**被邀请用户与非触达用户一律不走 R1**，停在 `/dashboard` |
 | R2 | 引导已完成且路径为 `/dashboard/onboarding` | `replace` 跳 `/dashboard` |
 
 > **R1 是落地默认，不是锁定。** 一旦用户关闭 Modal 或主动切走，不再有任何重定向。
 
 **禁止登录后落入安装页（与本期冲突，必须改现网）。**
 
-现网 `LoginPage` 在登录成功后若 `shouldLandOnInstall(installBonus)` 为真，会 `navigate('/dashboard/install')`。这条路径会把命中 §2.1 的 Owner 拦在安装页，R1 永远不会触发，连接引导弹不出来。
+现网 `LoginPage` 在登录成功后若 `shouldLandOnInstall(installBonus)` 为真，会 `navigate('/dashboard/install')`。这条路径会把命中 §2.1 的新注册用户拦在安装页，R1 永远不会触发，连接引导弹不出来。
 
 研发对接时必须：
 
@@ -273,7 +284,7 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 - 关闭 Modal 后**停留在当前页面**，不跳转、不刷新、不回弹
 - 可自由切换到任意 Tab，引导未完成不构成任何功能阻断
 - 再次访问 `/dashboard` **不会**被拉回引导页
-- 引导的存续感由「侧边栏入口（仅触达范围内的 Owner）」+「Header 黄色呼吸灯（全员）」两个非侵入式提示承载，不靠路由强制
+- 引导的存续感由「侧边栏入口（仅触达范围内的新注册用户）」+「Header 黄色呼吸灯（全员）」两个非侵入式提示承载，不靠路由强制
 
 ---
 
@@ -287,7 +298,7 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 | - | - | - |
 | 标题 | 随进度变化：`none/0` → Welcome to Vectoree；`developer/1` → Connect your project；`newbie/1` → Check your coding agent；`newbie/2` → Pick a starter；其余 → Verify connection | B1 |
 | 主体 | 内嵌完整向导，与引导页共用同一套步骤组件 | B2 |
-| 弹出频次 | 仅触达范围内的 Owner 自动弹一次。`modal_revealed` 只在 Modal 被用户关闭（✕ / 遮罩 / Esc）或 `SUCCESS_*` 收尾时写入；**展示瞬间不写，`FAILED` 探针也不得写** | B3 |
+| 弹出频次 | 仅触达范围内的新注册用户自动弹一次。`modal_revealed` 只在 Modal 被用户关闭（✕ / 遮罩 / Esc）或 `SUCCESS_*` 收尾时写入；**展示瞬间不写，`FAILED` 探针也不得写** | B3 |
 | 关闭行为 | 三种关闭方式均只收起弹窗，**不改动任何进度** | B4 |
 | 成功结局 | 走 **CTA 结局**，时长见 §4.7 | B10 |
 
@@ -486,7 +497,7 @@ Follow the skill: login, link this directory, then run ai status.
 | # | 条件 | 判定 | 不满足时的探针码 |
 | - | - | - | - |
 | 1 | 邮箱状态 | `email_verified === true` 且**非 Disposable 一次性邮箱** | `SUCCESS_EMAIL_UNVERIFIED` |
-| 2 | 用户角色 | `user.role === 'owner'` | 成员不进入迎新 UI；接口仍返回连通，但无庆典 |
+| 2 | 当前组织成员角色 | 默认组织上 `selectedOrganization.role === 'owner'`（新注册创建者）。被邀请的 `admin` / `member` 等一律不算 | 被邀请用户不进入迎新 UI；接口仍返回连通，但无庆典 |
 | 3 | 默认组织状态 | **默认组织** `is_funded === false` | `SUCCESS_NO_BONUS_ORG_FUNDED` |
 | 4 | 风控规则 | 通过 `device_hash`、账号维度及 IP 日限额校验（§5.3） | `SUCCESS_NO_BONUS_DEVICE_LIMIT` |
 
@@ -524,10 +535,10 @@ Follow the skill: login, link this directory, then run ai status.
 
 | 场景 | 处理 |
 | - | - |
-| Owner 在非默认组织的项目上完成连接 | 不弹迎新 Modal。若该账号从未连通且四条件全过，额度仍入**默认组织钱包**，无庆典 UI；该账号已连通过则只记连接态 |
+| 新注册用户在非默认组织的项目上完成连接 | 不弹迎新 Modal。若该账号从未连通且四条件全过，额度仍入**默认组织钱包**，无庆典 UI；该账号已连通过则只记连接态 |
 | 已连过的账号在其他组织连接新项目 | Header 该项目转绿。**不再发奖**（账号闸门已关上） |
 | 重新挂载一个已连过的老项目 | 同上，只记连接态 |
-| Owner 已连通但邮箱未验或为 Disposable | `SUCCESS_EMAIL_UNVERIFIED`，不播礼花、不发奖（可行动文案，见上表） |
+| 新注册用户已连通但邮箱未验或为 Disposable | `SUCCESS_EMAIL_UNVERIFIED`，不播礼花、不发奖（可行动文案，见上表） |
 | 默认组织 `is_funded === true` | `SUCCESS_NO_BONUS_ORG_FUNDED`，不播礼花、不发奖；**用户只看到「连接成功！设备已绑定。」** |
 | 校验失败 | `FAILED`。**不清空已选轨道和步骤**，不销毁 Tab，不写 `modal_revealed` |
 
@@ -604,7 +615,7 @@ interface OnboardingSnapshot {
 | - | - | - | - |
 | **账号** | `has_ever_connected` | 是否连过任意项目。**单向，一旦为 true 永不回退** | 不变 |
 | **账号** | `onboarding_status` / `modal_revealed` / `track` / `step` | 引导流程进度 | 不变 |
-| **组织 / 成员** | `role` / `is_default_org` / `is_funded` | 触达资格与发奖条件。来自现有组织 / 成员接口，**不是 onboarding state** | **随切换变化** |
+| **组织成员** | `selectedOrganization.role` / `is_default_org` / `is_funded` | 触达资格与发奖条件。来自现有组织 / 成员接口，**不是 onboarding state**，也**不是**登录账号上的 `user.role` | **随切换变化** |
 | **项目** | `connected_project_ids` / `is_default_project` | 逐项目的连接关系 | 列表不变，派生值随选中项目变化 |
 
 **字段来源：**
@@ -627,8 +638,8 @@ interface OnboardingSnapshot {
 | 派生值 | 计算规则 | 消费方 |
 | - | - | - |
 | `isIncomplete` | `onboarding_status !== 'completed'` | 落地重定向（还要叠加触达资格） |
-| `canShowOnboardingModal` | §2.1 五条件 AND | 首次弹窗是否可弹。成员永远为 false |
-| `canShowOnboardingTab` | §2.2 条件 AND | 侧边栏入口显隐。成员 / 非默认组织项目永远为 false |
+| `canShowOnboardingModal` | §2.1 五条件 AND | 首次弹窗是否可弹。被邀请用户永远为 false |
+| `canShowOnboardingTab` | §2.2 条件 AND | 侧边栏入口显隐。被邀请用户 / 非默认组织项目永远为 false |
 | `isProjectConnected` | 见 §5.1 | Header 按钮、CONNECT 弹窗状态条 |
 | `backgroundState` | 弹窗打开期间冻结的快照副本 | 保证弹窗内进度不漏到背后页面。**关闭弹窗时必须解冻并同步到最新进度**，否则引导页会显示关闭前的旧步骤。实现坑见技术笔记 §3.3 |
 
@@ -776,7 +787,7 @@ Response 200（FAILED · 未检测到连接）:
 
 > **「没检测到连接」是业务上的正常结果，不是 HTTP 错误。** 请返回 200 + `probe_status: "FAILED"`，不要返回 4xx。只有真正的系统故障（鉴权失败、服务不可用）才返回非 2xx。
 >
-> 成员走 CONNECT 完成挂载时，本接口仍返回物理连通结果，但 Dashboard **不得**据此弹出迎新 Modal 或庆典（§2.3）。
+> 被邀请用户走 CONNECT 完成挂载时，本接口仍返回物理连通结果，但 Dashboard **不得**据此弹出迎新 Modal 或庆典（§2.3）。
 
 **性能要求**：用户点了按钮后正盯着 Loader，本接口按**同步返回**实现，控制在 **2s 内**。检测本身若必然超过 2s，HTTP 立即返回 `{ "pending": true }`（**不要**把 `pending` 写成 `probe_status`），前端保持 `verify_state='checking'`，最终结果走现有 socket.io，payload **必须带与下方五态相同的 `probe_status`**。前端 `checking` 态两种都能接。**不要引入轮询兜底**。事件名、过滤规则与 UI 分发见技术笔记 §3.6。
 
@@ -856,13 +867,13 @@ Response 200:
 
 | # | 验收项 | 对应章节 | 检查方式 |
 | - | - | - | - |
-| A1 | **仅**默认组织 + 默认项目 + Owner + 未连接时自动弹出引导弹窗 | §2.1 | Owner 清状态后进 `/dashboard`；切到非默认项目不得弹 |
-| A2 | Member 账号进入 Dashboard：**零** Modal、**零** Tab、**零**礼花 / 额度提示；Header `CONNECT` 可用 | §2.3 | 用 Member 角色登录观察 |
-| A3 | Owner 切到非默认组织 / 非默认项目：不弹 Modal、不展示 Tab，Header 按项目连接态显示 | §2.3 | 切组织 / 切项目观察 |
-| A4 | 未完成连接时切换 / 新建组织，不再自动弹出 Modal | §2.3 | Owner 弹过一次或切走后观察 |
+| A1 | **仅**新注册用户在默认组织 + 默认项目 + 未连接时自动弹出引导弹窗 | §2.1 | 新账号清状态后进 `/dashboard`；切到非默认项目不得弹 |
+| A2 | 被邀请用户进入 Dashboard：**零** Modal、**零** Tab、**零**礼花 / 额度提示；Header `CONNECT` 可用 | §2.3 | 用被邀请的 `admin` 或 `member` 登录观察 |
+| A3 | 新注册用户切到非默认组织 / 非默认项目：不弹 Modal、不展示 Tab，Header 按项目连接态显示 | §2.3 | 切组织 / 切项目观察 |
+| A4 | 未完成连接时切换 / 新建组织，不再自动弹出 Modal | §2.3 | 弹过一次或切走后观察 |
 | A5 | 默认项目 `SUCCESS_*` 后，切到其他组织侧边栏也无 Onboarding 入口 | §2.2 | 连接成功后切 Org B 看侧边栏 |
 | A6 | 引导完成后侧边栏入口消失，手敲 URL 重定向回 `/dashboard` | §3.4 R2 | 视觉 + URL 检查 |
-| A7 | 登录 / 注册成功后落地为 `/dashboard`（命中 §2.1 则走 R1），**不得**出现 `/dashboard/install`。额度未领完也不例外 | §3.4 | 用未领欢迎额度的 Owner 登录，断言首屏 URL |
+| A7 | 登录 / 注册成功后落地为 `/dashboard`（命中 §2.1 则走 R1），**不得**出现 `/dashboard/install`。额度未领完也不例外 | §3.4 | 用未领欢迎额度的新注册用户登录，断言首屏 URL |
 
 ### B · 功能规格
 
@@ -870,7 +881,7 @@ Response 200:
 | - | - | - | - |
 | B1 | 弹窗标题随进度变化，五种取值与规格一致 | §4.1 | 逐步骤比对 |
 | B2 | developer 轨 2 步、newbie 轨 3 步均可在弹窗内走通，计步器正确 | §4.1 §3.3 | 交互检查 |
-| B3 | Owner 首次弹出并关闭后，切到 Org B 不再弹；`FAILED` 不写 `modal_revealed` | §4.1 | mock `FAILED` 后刷新，弹窗应仍可弹 |
+| B3 | 新注册用户首次弹出并关闭后，切到 Org B 不再弹；`FAILED` 不写 `modal_revealed` | §4.1 | mock `FAILED` 后刷新，弹窗应仍可弹 |
 | B4 | 走到第 2 步后关闭 Modal，切回引导页仍停在第 2 步，已选代理 / 模板保持选中 | §4.1 | 交互检查 |
 | B5 | 引导页标题区无任何连接态文案 | §4.2 | 视觉检查 |
 | B6 | 手风琴同一时刻只展开当前步骤；三态视觉与 demo 一致 | §4.2 | 切换步骤观察 |
@@ -904,7 +915,7 @@ Response 200:
 | C5 | 邮箱未验证或 Disposable：连通成功，文案为「请验证邮箱以解锁 $5.00 额度」且出现 `[ 重发验证邮件 ]`，不喷花 | §5.2 | mock `SUCCESS_EMAIL_UNVERIFIED` |
 | C6 | 默认组织 `is_funded === true`：连通成功不发奖，文案仅为「连接成功！设备已绑定。」，不喷花、不提付费 / 额度 | §5.2 | mock `SUCCESS_NO_BONUS_ORG_FUNDED` |
 | C7 | 设备 / 账号 / IP 风控命中：连通成功，文案仅为「连接成功！设备已绑定。」，不喷花、不提风控原因 | §5.2 §5.3 | mock `SUCCESS_NO_BONUS_DEVICE_LIMIT` |
-| C8 | Member 通过 CONNECT 挂载成功：Header 转 `CONNECTED`，无任何迎新 UI | §2.3 §5.2 | Member 走 CONNECT 流程 |
+| C8 | 被邀请用户通过 CONNECT 挂载成功：Header 转 `CONNECTED`，无任何迎新 UI | §2.3 §5.2 | 用 `admin` 或 `member` 走 CONNECT 流程 |
 | C9 | 未发奖文案不得出现 `Denied` / `Ineligible` / `Error` / 「拒绝」「不合格」 | §5.5 | 对三态成功文案做字符串断言 |
 | C10 | 新建项目名为空或为 `default` 时无法提交并给出提示 | §5.4 | 组织切换器里输入 `default` |
 
