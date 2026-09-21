@@ -1,0 +1,73 @@
+schema: spec-driven
+
+# context：所有产物都会注入。项目是什么 + 通用中文输出约定。
+# 结构细则不在此重复，SSOT 仍是 00_Meta。
+context: |
+  本仓库是 Vectoree 产品知识库（pm-workspace-vect），不是应用代码仓。
+  产品：Vectoree（https://vectoree.ai/），一站式 Agent 开发与上线 / MaaS 平台。
+  维护者：PM。
+
+  语言（通用输出）：
+  - 所有 OpenSpec 产物（proposal、design、tasks、specs）必须用中文撰写。
+  - 术语、路径、代码、标识符（变量/函数/文件名）保持英文。
+  - 若变更涉及代码（原型、脚本、插件），注释和文档字符串用中文。
+
+  分层（先归类再落盘）：
+  - 事实：01_Product/（我们的产品是什么）、02_Knowledge/（竞品/用户/市场是什么）
+  - 产出：03_Execution/（决定了/交付了什么：调研、PRD、方案、规划、会议、复盘）
+  - 认知：_Personal/（不共享；术语/行业/学习/草稿/周报）
+  - 规则：00_Meta/（结构规范与模板，SSOT）
+
+  单一事实来源：
+  - 结构/命名/生命周期：00_Meta/00_Dir_Structure.md
+  - 标题公式与文档类型词表：00_Meta/naming_convention.md
+  - 落盘纪律：SKILL.md
+  - 模板：00_Meta/Templates/
+
+  OpenSpec 在本仓只规划「知识库怎么改」，不要把产品功能、PRD、竞品档案写进 openspec/specs/。
+  需求池在飞书多维表格，不在本仓落地 03_Execution/01_Backlog/。
+  规划占位目录用到才建，不预建空壳。
+
+rules:
+  proposal:
+    - 使用中文撰写；保持简洁，不超过 500 字
+    - 必须包含 IN SCOPE 和 OUT OF SCOPE（Non-goals）章节
+    - 先判定：可归类 / 需新建目录 / 暂不落盘（默认倾向暂不落盘）
+    - 写明影响层级、目标路径、是否需要新建目录
+    - OUT OF SCOPE 至少覆盖：不改结构规范除非提案就是改规范、不把个人认知写入共享区、不预建空目录
+    - 新建目录方案必须等人确认后再进入 apply
+  design:
+    - 使用中文撰写
+    - 说明改哪些文件、用哪份模板、交付文档用文首信息（不写 YAML 头）
+    - 竞品必须四件套一次建齐，并在 Competitor_Matrix.md 登记一行
+    - 能用现有模板就不发明新格式
+    - 若涉及系统或数据变更：必须包含数据流描述；涉及数据库时写出 migration 计划
+  tasks:
+    - 使用中文撰写
+    - 每个任务控制在 2 小时内可完成，且必须包含验收标准
+    - 任务是文档的创建/修改/移动/索引更新；仅当变更明确包含代码时才写代码任务
+    - 不预建空目录；结构变更必须同步更新 00_Dir_Structure.md As-Is 与 README.md
+    - 共享区落盘前确认内容已验证；未确认标 DRAFT 或放入 _Personal/Drafts/
+  specs:
+    - 使用中文撰写
+    - 需求使用 Gherkin 格式（GIVEN/WHEN/THEN）；边界情况必须单独列出
+    - 规格描述知识库能力（归类、命名、生命周期、模板），不是 Vectoree 产品功能
+    - 不复制 00_Dir_Structure.md；只写本次变更相对现有规范的增量
+
+operations:
+  apply:
+    guidance:
+      - "按 SKILL.md 执行：判定工作模式（问询 / 对话成稿 / 显式落盘）→ 归类 → 建或改 → 收尾"
+      - "未说存档或写入工程时只在对话成稿，不写盘"
+      - "交付文档（会议、PRD、方案、规则定稿、技术笔记）不写 YAML 头；内部档案可保留 YAML"
+      - "共享区只写已确认、可验证、有来源的事实；个人认知只进 _Personal/"
+      - "用户没拍板的规则、数字、期限不许补"
+      - "文档与说明用中文；若涉及代码，注释和文档字符串用中文，标识符保持英文"
+      - "提交信息用中文，优先 conventional commits，说明写中文（例如 docs(kb) 同步结构规范）"
+      - "完成后列出实际改动的文件，以及还待确认的事项"
+  archive:
+    guidance:
+      - "归档总结使用中文撰写"
+      - "如无特殊说明，同步到 openspec/specs/ 后归档，直接执行即可"
+      - "归档的是本次 OpenSpec 变更提案，不要与各区 _ARCHIVED/ 混淆"
+      - "摘要写清新增或更新了哪条规范或哪类文档路径，不要把过程稿提升为共享事实"

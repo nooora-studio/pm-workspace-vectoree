@@ -1,13 +1,13 @@
 ---
 title: "设想一可行性确认：Cursor 安装能否携带 Vectoree 指令并默认后端为 Vectoree"
 description: "针对 2026-08-27 Onboarding 会议「设想一：Cursor 安装即携带 Vectoree 指令，实现零配置连接」的可行性确认，区分「指令注入 / 后端默认 / 安装即全局注入」三层，给出结论与推荐落地形态"
-author: "PM"
+author: "魏琼冰"
 created: "2026-08-31"
 updated: "2026-08-31"
 status: "DRAFT"
 version: "1.0"
 tags: ["onboarding", "cursor", "zero-config", "feasibility", "follow-up"]
-owners: ["PM"]
+owners: ["魏琼冰"]
 ---
 
 # 设想一可行性确认：Cursor 安装携带 Vectoree 指令 + 默认后端为 Vectoree
@@ -117,10 +117,10 @@ alwaysApply: true
 
 ## 6. 对会议待办的更新建议
 
-- 原「技术可行性：Cursor 安装后能否携带提示词 / 项目上下文 | 研发 | 待评估」→ 建议更新为：**已确认机制可行，但载体从「Cursor 安装期」调整为「模板仓库内置规则」；指令注入零配置，真实连接仍需一次 login + 钱包余额。**
+- 原「技术可行性：Cursor 安装后能否携带提示词 / 项目上下文 | 吴则东 | 待评估」→ 建议更新为：**已确认机制可行，但载体从「Cursor 安装期」调整为「模板仓库内置规则」；指令注入零配置，真实连接仍需一次 login + 钱包余额。**
 - 设想一与设想二非互斥，本确认进一步说明：**设想二是设想一的天然载体**，二者合并落地即可实现小白「打开就用 Vectoree 当后端」。
 
-## 7. 待研发确认 / 补充
+## 7. 待吴则东确认 / 补充
 
 - 模板仓库内 `.cursor/rules` + `AGENTS.md` 双写是否必要，还是仅 `.mdc` 即可（建议双写以兼容 Claude Code 用户）。
 - `link` 写入默认 project 的具体落盘路径与字段，需与 CLI 团队对齐。

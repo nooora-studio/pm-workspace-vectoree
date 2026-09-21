@@ -3,9 +3,9 @@ title: "Vectoree 知识库"
 description: "[Vectoree](https://vectoree.ai/) 对标产品知识库，覆盖产品拆解、竞品分析、调研沉淀"
 author: "PM"
 created: "2026-08-13"
-updated: "2026-09-03"
+updated: "2026-09-21"
 status: "ACTIVE"
-version: "1.2"
+version: "1.3"
 tags: ["readme", "knowledge-base", "index", "vectoree", "ai-platform"]
 owners: ["PM"]
 ---
@@ -56,7 +56,7 @@ owners: ["PM"]
 
 ### 00_Meta — 规则与治理层
 知识库的「规则手册」。
-- **核心内容**：目录结构规范、协作流程、文档元数据（Front Matter）标准、[可视化结构图谱](file:///Users/yuke/Documents/pm-workspace-vect/00_Meta/Knowledge_Structure_Map.html)。
+- **核心内容**：目录结构规范、协作流程、文档元数据分档（交付文档不写 YAML 头）、[可视化结构图谱](file:///Users/yuke/Documents/pm-workspace-vect/00_Meta/Knowledge_Structure_Map.html)。
 - **入口**：`00_Meta/`
 
 ### _Personal — 个人认知层（私有边界）
@@ -70,9 +70,9 @@ owners: ["PM"]
 
 为保持知识库的整洁与可检索性，请在新增内容时遵循以下基本准则：
 
-1. **结构化元数据**：所有 Markdown 文档必须包含标准化的 YAML Front Matter（包含 title, status 等）。
+1. **元数据分档**：会议 / PRD / 方案 / 规则定稿 / 技术笔记用文首信息或文档信息表，**不写 YAML 头**（对外展示更干净）。`00_Meta` 规范与竞品档案可保留 YAML。
 2. **过程与结果分离**：个人的调研草稿放 `_Personal`，最终提炼的战略报告与事实才沉淀至 `01_Product` 或 `02_Knowledge`。
-3. **状态流转**：明确使用 `DRAFT` (草稿) -> `REVIEW` (评审中) -> `FINAL` (定稿) -> `ACTIVE` (持续维护) 标注文档当前可信度。
+3. **状态流转**：用 `DRAFT` → `REVIEW` → `FINAL` → `ACTIVE` 标明可信度；交付文档把状态写在正文即可。
 
 ---
 
@@ -82,3 +82,4 @@ owners: ["PM"]
 - 2026-08-16：工程推送至 GitHub（yuki-studio/pm-workspace-vectorre），启用 git 增量更新流程。
 - 2026-08-25：建立 03_Execution 产出层路径（02_PRD / 03_Solutions / 00_Meta/Templates 目录就位，文档由 PM 填写，不预建）；需求池（Backlog）维持飞书多维表格，暂不落地工程。
 - 2026-08-28：新增 `_Personal/Weekly_Reports/` 个人周进度汇报目录（README 使用说明 + 周报模板），支持每周五生成周进度汇报。
+- 2026-09-21：管家 Skill 升至 v1.1（三态落盘）；交付文档不再要求 YAML Front Matter。

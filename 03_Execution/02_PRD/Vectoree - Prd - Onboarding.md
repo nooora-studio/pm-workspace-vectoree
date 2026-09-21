@@ -16,6 +16,7 @@
 
 | 日期 | 变更摘要 |
 | - | - |
+| 2026-09-18 | 首轮验收：侧边栏不再展示 Install（与 Onboarding 抢入口）；校验 `checking` 最长 10s，超时按 `FAILED` + Retry。View Docs / Copy 口径不变，见 §4.4 §4.6 |
 | 2026-09-14 | 去掉文档头部 meta；清空定稿前变更记录 |
 | 2026-09-14 | 对照 `pm-demo-v2` 同步：交付以最新 main 上的连接引导为准；与现网 `/dashboard/install` 并存；云托管 overlay 桥接不再作为现状 |
 | 2026-09-14 | **禁止登录后落入安装页。** 现网 `shouldLandOnInstall` → `/dashboard/install` 与 R1 冲突，必须删除（§3.4） |
@@ -53,7 +54,7 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 
 ### 1.2 本期范围
 
-**做：** 首次进入弹窗、左侧常驻引导页、Header CONNECT（改现网按钮与弹窗内容）、说明文档页、双轨引导流程、连接校验与 $5 发奖、项目命名约束。安装页 `/dashboard/install` 仍可从侧边栏进入，**不承担登录落地，也不再承接 Header CONNECT 点击**。
+**做：** 首次进入弹窗、左侧常驻引导页、Header CONNECT（改现网按钮与弹窗内容）、说明文档页、双轨引导流程、连接校验与 $5 发奖、项目命名约束。安装页 `/dashboard/install` **不承担登录落地、不再承接 Header CONNECT、侧边栏也不再展示入口**（2026-09-18 首轮验收确认，避免与 Onboarding 抢路径）。
 
 本期改动面：
 
@@ -61,7 +62,7 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 | - | - |
 | 新做，相对独立 | 首次进入弹窗（§4.1）、Onboarding Tab / 引导页（§4.2） |
 | 改现有模块 | Header CONNECT 按钮与 CONNECT 弹窗（§4.3 §4.4） |
-| 必须删的现网逻辑 | 登录后 `shouldLandOnInstall` → `/dashboard/install`（§3.4） |
+| 必须删的现网逻辑 | 登录后 `shouldLandOnInstall` → `/dashboard/install`（§3.4）；侧边栏 Install 入口 |
 
 **不做（明确排除）：**
 
@@ -72,7 +73,7 @@ Vectoree 的价值只有在用户**把本地工程接上 Vectoree 后端**之后
 | 额度补发的运营后台入口 | 本期不做 |
 | 前端到账二次核对 | 以服务端发放记录为准 |
 | URL 深链定位项目 | 本期不做。dashboard 路由不含 project id，分享 URL 不会带上当前项目 |
-| 现网安装引导改版 | 安装页 `/dashboard/install`、欢迎额度领取、`DTestConnectTip` 页面本身可保留。**登录后强制落入安装页必须删除**，见 §3.4 |
+| 现网安装引导改版 | 安装页 `/dashboard/install`、欢迎额度领取、`DTestConnectTip` **页面本身可保留、侧边栏入口必须隐藏**。**登录后强制落入安装页必须删除**，见 §3.4 |
 | 云托管宿主 overlay 桥接 | 最新 main / `pm-demo-v2` 布局里已无 `SHOW_ONBOARDING_OVERLAY` / `SHOW_CONNECT_OVERLAY` 监听。本期不恢复 v1 那套 postMessage |
 
 ### 1.3 成功度量
@@ -255,7 +256,7 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 | - | - | - |
 | `/dashboard/onboarding` | 引导页（§4.2） | 需登录，无 feature flag |
 | `/dashboard/onboarding/docs` | 说明文档页（§4.5） | 需登录，无 feature flag |
-| `/dashboard/install` | 现网安装 / 欢迎额度页 | 路由常驻。侧边栏入口由 `needsInstallOnboarding` 控制（owner + 未领完欢迎额度），**不再**绑定 `DASHBOARD_V4_EXPERIMENT = D_TEST` |
+| `/dashboard/install` | 现网安装 / 欢迎额度页 | 路由可保留。**侧边栏不得再展示入口**（2026-09-18 验收：与 Onboarding 抢路径）。欢迎额度改走 Onboarding 发奖（§5.2），不再靠 Install 页领取 |
 
 **落地重定向：**
 
@@ -275,7 +276,7 @@ idle ──点击 Verify / 自动探测──▶ checking ──┬──▶ suc
 1. **删除**登录成功后的 `shouldLandOnInstall` → `/dashboard/install` 重定向（`LoginPage.tsx`）。
 2. 登录后的默认落地一律是 `/dashboard`。命中 §2.1 的用户由 R1 带到引导页并弹出首次弹窗；未命中的用户停在 Dashboard。
 3. **任何角色、任何欢迎额度状态，登录 / 注册成功后都不得被重定向到 `/dashboard/install`。** 没有「先装再连」的顺序。
-4. `/dashboard/install` 可以继续从侧边栏手动进入，只是不再充当登录后的默认页。
+4. **侧边栏不得再展示 Install 入口。** `/dashboard/install` 路由可保留，但用户不能从导航点进去；CONNECT 与登录落地都不走这条页。
 
 不要把 demo 里 mock 登录跳过安装页理解成「只有 demo 才这样」——那是产品口径，上线也必须如此。
 
@@ -457,6 +458,8 @@ Follow the skill: login, link this directory, then run ai status.
 | 幕布淡出 | 300ms |
 | 按钮接应脉冲 | 450ms |
 | 复制反馈停留 | 2000ms |
+| 校验 `checking` 等待上限 | 10000ms |
+| 校验 `checking` 等待上限 | 10000ms |
 
 > 这两个场景有八条实现约束（DOM 克隆脱离组件树、Tailwind v4 的 `translate` 陷阱、飞行看门狗、路由单驱动方等），每一条都对应一次实际踩坑，全部记在技术笔记 §3.1。**研发实现飞轨前请务必先读那一节。**
 
@@ -791,6 +794,8 @@ Response 200（FAILED · 未检测到连接）:
 
 **性能要求**：用户点了按钮后正盯着 Loader，本接口按**同步返回**实现，控制在 **2s 内**。检测本身若必然超过 2s，HTTP 立即返回 `{ "pending": true }`（**不要**把 `pending` 写成 `probe_status`），前端保持 `verify_state='checking'`，最终结果走现有 socket.io，payload **必须带与下方五态相同的 `probe_status`**。前端 `checking` 态两种都能接。**不要引入轮询兜底**。事件名、过滤规则与 UI 分发见技术笔记 §3.6。
 
+**前端等待上限（2026-09-18 验收）**：`checking` **最长 10s**。10s 内未收到同步结果或 socket `connection:verify_result`，按 `FAILED` 渲染排查项 + Retry，**禁止空转约 60s**。10s 是 UI 超时，不是把接口 SLA 放宽到 10s；HTTP 仍按上面 2s / `pending` 处理。
+
 **发奖入账**：额度由现网 `InstallBonusService` 写入**该账号默认组织钱包**。前端凭证就是响应里的 `reward` 对象（`granted` / `amount_usd` / `currency` / `credited_org_id`），本期不另开对账接口。Disposable 邮箱名单、IP 日限额阈值一律沿用该服务现网配置，前端不自行判断。
 
 #### 接口 E：已连接项目列表
@@ -874,6 +879,7 @@ Response 200:
 | A5 | 默认项目 `SUCCESS_*` 后，切到其他组织侧边栏也无 Onboarding 入口 | §2.2 | 连接成功后切 Org B 看侧边栏 |
 | A6 | 引导完成后侧边栏入口消失，手敲 URL 重定向回 `/dashboard` | §3.4 R2 | 视觉 + URL 检查 |
 | A7 | 登录 / 注册成功后落地为 `/dashboard`（命中 §2.1 则走 R1），**不得**出现 `/dashboard/install`。额度未领完也不例外 | §3.4 | 用未领欢迎额度的新注册用户登录，断言首屏 URL |
+| A8 | 侧边栏**无** Install 入口；手敲 `/dashboard/install` 不得成为连接主路径 | §3.4 | 视觉检查侧边栏；CONNECT 点击仍开 §4.4 弹窗 |
 
 ### B · 功能规格
 
@@ -911,7 +917,7 @@ Response 200:
 | C1 | 切换到未连接的项目**或组织**，Header 退回黄色呼吸灯；已走完引导也不例外 | §5.1 | 切项目 / 切组织观察按钮 |
 | C2 | CLI 进程退出 / 断网后连接态不变，仍显示已连接 | §5.1 | 关闭 CLI 后刷新页面观察 |
 | C3 | 账号首次连通且四条件全过才发放 $5 并喷彩花；额度入默认组织钱包；同一账号再连不重复发放 | §5.2 | mock `SUCCESS_BONUS_GRANTED` 后换组织再 verify，查发放记录仍为 1 条 |
-| C4 | `FAILED` 返回 200 且前端渲染排查项 + Retry；**不销毁 Tab、不写 `modal_revealed`** | §5.2 | mock `probe_status: "FAILED"` |
+| C4 | `FAILED` 返回 200 且前端渲染排查项 + Retry；**不销毁 Tab、不写 `modal_revealed`**。`checking` 满 10s 无结果时同样走本态，不得空转约 60s | §5.2 §6.2 | mock `probe_status: "FAILED"`；另测 10s 超时 |
 | C5 | 邮箱未验证或 Disposable：连通成功，文案为「请验证邮箱以解锁 $5.00 额度」且出现 `[ 重发验证邮件 ]`，不喷花 | §5.2 | mock `SUCCESS_EMAIL_UNVERIFIED` |
 | C6 | 默认组织 `is_funded === true`：连通成功不发奖，文案仅为「连接成功！设备已绑定。」，不喷花、不提付费 / 额度 | §5.2 | mock `SUCCESS_NO_BONUS_ORG_FUNDED` |
 | C7 | 设备 / 账号 / IP 风控命中：连通成功，文案仅为「连接成功！设备已绑定。」，不喷花、不提风控原因 | §5.2 §5.3 | mock `SUCCESS_NO_BONUS_DEVICE_LIMIT` |

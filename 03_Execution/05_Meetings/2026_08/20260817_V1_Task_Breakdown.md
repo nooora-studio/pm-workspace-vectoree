@@ -1,7 +1,7 @@
 ---
 title: "V1.0 待办任务结构化拆解清单"
 description: "基于 launch-checklist 与 V1.0 发版规划会议结论，按研发、前端、运维、运营等维度结构化拆解的行动清单，可直接用于导入飞书多维表格。"
-author: "PM"
+author: "魏琼冰"
 created: "2026-08-17"
 updated: "2026-08-17"
 status: "FINAL"
@@ -56,10 +56,10 @@ tags: ["action-items", "v1-launch", "task-breakdown", "meeting-attachment"]
 - [ ] **[开发] Agent Skill 文件推送**：将本仓准备好的 `vectoree-skill.md` 推送到外部 `Vectoree/vectoree-skills` 仓库的 main 分支，供 AI Agent 读取调用。
 
 ## 5. 🏢 运营、法务与外部协同 (Operations & Biz)
-**业务价值**：非代码层面的合规与增长筹备，阻塞最终上线放量，需 PM 重点推进。
-**指派对象**：PM / 运营 / 法务
+**业务价值**：非代码层面的合规与增长筹备，阻塞最终上线放量，需魏琼冰重点推进。
+**指派对象**：魏琼冰 / 石瑜 / 法务
 
 - [ ] **[运营] 模型上架流程测试**：撰写《模型上架运营 Runbook》，由运营人员在测试环境走通 Channels -> Models -> 绑定 -> 定价 -> 试打 -> 上架的全流程验收。
 - [ ] **[运营] 搭建博客站点 (SEO)**：使用 GitHub Pages 建立 `blog.vectoree.ai`，准备 3-5 篇冷启动文章（模型网关介绍、CLI 教程、充值指南等），用于产品上线后的搜索导流。
 - [ ] **[法务] Stripe 生产账号审核**：跟进并完成 Stripe 生产账号的 KYC 审核认证，确保能合法合规地进行 Live 环境的美元收款。
-- [ ] **[PM] 拍板平台计费规则**：确定充值手续费（如 5.5%）或模型价格 markup 比例，通知研发写死到计费逻辑中；明确共享 Postgres 和 R2 存储的免费使用上限，避免被恶意刷爆。
+- [ ] **[魏琼冰] 拍板平台计费规则**：确定充值手续费（如 5.5%）或模型价格 markup 比例，通知吴则东写死到计费逻辑中；明确共享 Postgres 和 R2 存储的免费使用上限，避免被恶意刷爆。

@@ -3,14 +3,14 @@ title: "知识库结构规范"
 description: "知识库分层架构（事实/产出/认知）、目录结构、命名规范、文档生命周期与操作指南——全库唯一结构事实来源"
 author: "PM"
 created: "2026-08-13"
-updated: "2026-08-28"
+updated: "2026-09-21"
 status: "ACTIVE"
-version: "3.2"
+version: "3.4"
 tags: ["meta", "structure", "specification", "governance", "naming"]
 owners: ["PM"]
 ---
 
-# 知识库结构规范 v3.2
+# 知识库结构规范 v3.4
 
 > **本文件是全库唯一的结构事实来源。**
 > 所有目录创建、文件命名、内容归档都必须遵循本规范。
@@ -58,7 +58,7 @@ owners: ["PM"]
 | **单一来源** | 每类信息只有一个权威存放位置 | PRD 模板同时出现在两个目录 |
 | **个人/共享分层** | 个人草稿与团队共享内容物理隔离 | 个人思考碎片混在产品知识区 |
 | **归档只进不出** | `_ARCHIVED/` 内容不再修改，需更新则新建 | 从归档区拉出来改完再放回去 |
-| **Front Matter 必填** | 共享区所有文档必须含结构化元数据 | 裸 Markdown 无元数据 |
+| **元数据分档** | 交付文档用正文信息、不写 YAML 头；内部档案可保留 YAML | 给周会/PRD 加 YAML 头再外发 |
 
 ---
 
@@ -83,13 +83,13 @@ owners: ["PM"]
 
 ### 层级规则
 
-| 层级 | 目录 | 共享 | Front Matter | 说明 |
-|------|------|------|-------------|------|
-| L0 元规则 | `00_Meta/` | ✅ | ✅ 必填 | 规范、模板、索引 |
-| L1 事实-产品 | `01_Product/` | ✅ | ✅ 必填 | 定位/功能/边界/技术/设计 |
-| L1 事实-外部 | `02_Knowledge/` | ✅ | ✅ 必填 | 竞品/用户/市场事实档案 |
-| L2 产出 | `03_Execution/` | ✅ | ✅ 必填 | 调研/需求/方案/规划/会议/复盘 |
-| L3 个人 | `_Personal/` | ❌ | 推荐 | 术语/行业/学习/草稿 |
+| 层级 | 目录 | 共享 | 元数据 | 说明 |
+|------|------|------|--------|------|
+| L0 元规则 | `00_Meta/` | ✅ | YAML 可保留 | 规范、模板、索引 |
+| L1 事实-产品 | `01_Product/` | ✅ | YAML 可保留 | 定位/功能/边界/技术/设计/原型 |
+| L1 事实-外部 | `02_Knowledge/` | ✅ | YAML 可保留 | 竞品/用户/市场事实档案 |
+| L2 产出 | `03_Execution/` | ✅ | 交付文档不写 YAML，文首信息即可 | 调研/需求/方案/规划/会议/复盘 |
+| L3 个人 | `_Personal/` | ❌ | 推荐、非必填 | 术语/行业/学习/草稿/周报 |
 
 ---
 
@@ -100,7 +100,7 @@ owners: ["PM"]
 ```
 pm-workspace-vect/
 ├── README.md                       # 知识库首页入口
-├── SKILL.md                        # 知识库管家 Skill（v1.0）
+├── SKILL.md                        # 知识库管家 Skill（v1.1）
 │
 ├── 00_Meta/                        # L0 元规则层
 │   ├── 00_Dir_Structure.md         # ← 本文件：结构规范
@@ -162,48 +162,39 @@ pm-workspace-vect/
 
 ## 4. 当前实际结构树（As-Is）
 
-> 以下为 v3.0 落地后的实际结构，不含规划占位。
+> 以下为 v3.4 落地后的实际结构，不含规划占位。
 
 ```
 pm-workspace-vect/
 ├── README.md
-├── SKILL.md                        # 知识库管家 Skill v1.0
+├── SKILL.md                        # 知识库管家 Skill v1.1
 │
 ├── 00_Meta/
 │   ├── 00_Dir_Structure.md         # ← 本文件
+│   ├── naming_convention.md        # 文档标题公式与类型词表
 │   ├── Knowledge_Structure_Map.html
-│   └── Templates/                  # 模板库（全库唯一模板来源；已落 Template_PRD / Template_Solution）
+│   └── Templates/                  # 模板库（Template_PRD / Template_Solution 已落）
 │
 ├── 01_Product/                     # 事实层 · 产品事实
 │   ├── 00_Overview/
-│   │   └── 20260813_Vectoree_Product_Deconstruction_Report.md
+│   ├── 05_Prototypes/              # 高保真原型
+│   ├── Badcase/                    # 劣质/异常案例
 │   └── _Assets/
-│       └── Screenshots/            # 22 张截图
+│       └── Screenshots/
 │
 ├── 02_Knowledge/                   # 事实层 · 外部事实
 │   └── 00_Competitive/             # 竞品档案
-│       ├── Competitor_Matrix.md    # 对比矩阵（总）
-│       ├── Insforge/               # 四件套（分）
-│       │   ├── Profile.md  Features.md  Pricing.md  SWOT.md
-│       ├── OpenRouter/
-│       ├── Clerk/
-│       ├── Supabase/
-│       └── Vercel/
+│       ├── Competitor_Matrix.md
+│       ├── Insforge/  OpenRouter/  Clerk/  Supabase/  Vercel/
 │
-├── 03_Execution/                   # L2 产出层 · 决策交付（需求池在飞书多维表格，暂不落地）
-│   ├── 02_PRD/                     # 需求文档（路径就位，文档待 PM 填写）
-│   ├── 03_Solutions/               # 方案文档（方案/提案交付物；已落入：Onboarding Template 产品方案、产品文档结构规划）
-│   ├── 04_Planning/                # 规划文档（已存在）
-│   ├── 05_Meetings/                # 会议纪要（已存在）
-│   └── 06_Figma_Plugin/            # Figma 插件（已存在）
-└── _Personal/                      # 个人认知层（不共享）
-    ├── Product_Discovery_Journal.md
-    ├── Drafts/
-    │   └── Product_Deconstruction_Workspace.md
+├── 03_Execution/                   # L2 产出层（需求池在飞书多维表格，不建 01_Backlog）
+│   ├── 00_Research/                # 调研报告
+│   ├── 02_PRD/                     # PRD、规则定稿
+│   ├── 03_Solutions/               # 方案、技术笔记
+│   ├── 05_Meetings/                # 会议纪要（按 YYYY_MM/）
+│   └── 06_Figma_Plugin/            # Figma 插件工程
+└── _Personal/                      # 个人认知层（不共享、不进 git）
     └── Weekly_Reports/
-        ├── README.md
-        └── Template/
-            └── Template_Weekly_Report.md
 ```
 
 ---
@@ -369,9 +360,13 @@ _ARCHIVED/
 
 ---
 
-## 8. Front Matter 规范
+## 8. 文档元数据规范
 
-### 8.1 必填字段（共享区所有文档）
+交付文档（会议纪要/结论、PRD、规则定稿、方案、技术笔记）**不写 YAML Front Matter**。必要信息写在正文：文首引用块或「文档信息」表（时间、参会或来源、状态）。YAML 头对外同步时会干扰阅读，也不是落盘门槛。
+
+内部档案（`00_Meta/` 规范、`02_Knowledge/00_Competitive/` 竞品四件套与矩阵）**可保留** YAML。旧文档已有 YAML 的不回溯删除。
+
+### 8.1 内部档案 YAML 字段（可选）
 
 ```yaml
 ---
@@ -403,7 +398,13 @@ owners: ["Owner_Name"]
 
 ### 8.3 个人区（_Personal/）
 
-Front Matter 推荐但非必填。个人草稿可以只有 `title` 和 `updated`。
+元数据推荐但非必填。个人草稿可以只有标题和更新日期。
+
+### 8.4 交付文档正文信息
+
+会议：文首引用块只放时间、参会、本周迭代、下一迭代；结构见 `.cursor/rules/meeting-notes.mdc`。
+
+PRD / 规则定稿 / 方案 / 技术笔记：用「文档信息」表写日期、状态、来源与关联文档。
 
 ---
 
@@ -462,7 +463,7 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 从个人区提升到共享区，**必须同时满足**：
 
 1. ✅ 内容已验证（非假设/猜测）
-2. ✅ 结构已规范化（遵循命名 + Front Matter）
+2. ✅ 结构已规范化（遵循命名；交付文档用文首信息，内部档案可用 YAML）
 3. ✅ 他人可独立理解（不含个人 shorthand）
 4. ✅ Owner 确认可共享
 
@@ -470,7 +471,7 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 
 ```
 1. 在共享区目标目录创建文件（遵循命名规范）
-2. 填充 Front Matter（status 设为 DRAFT 或 REVIEW）
+2. 按文档类型写元数据（交付文档用文首信息，内部档案可用 YAML；status 为 DRAFT 或 REVIEW）
 3. 将内容从个人草稿迁移，清理个人 shorthand
 4. 个人区原文件可保留或删除（建议保留并标注"已提升至 [路径]"）
 ```
@@ -492,7 +493,7 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 ### 11.2 归档规则
 
 - **只进不出**：一旦进入 `_ARCHIVED/`，不再修改内容
-- **保留元数据**：Front Matter 的 `status` 改为 `ARCHIVED`，`updated` 更新为归档日期
+- **保留元数据**：若有 YAML，将 `status` 改为 `ARCHIVED` 并更新日期；交付文档改正文状态即可
 - **新建替代**：需要更新归档内容时，在正式目录新建文件，不拉回归档区修改
 - **每个区独立归档**：`01_Product/_ARCHIVED/`、`03_Execution/_ARCHIVED/` 各自独立
 
@@ -522,7 +523,7 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 1. 在 03_Execution/00_Research/ 下创建 YYYYMMDD_[Target]_[Type].md
 2. 使用模板（00_Meta/Templates/Template_Research_Report.md）
 3. 调研得到的事实提炼到 02_Knowledge/ 对应档案（总分一体）
-4. 填充 Front Matter（status: DRAFT）
+4. 正文写文档信息（日期、状态 DRAFT）；不写 YAML 头
 ```
 
 ### 场景 C：新增产品拆解报告（事实）
@@ -531,17 +532,17 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 1. 截图存入 01_Product/_Assets/Screenshots/（遵循截图命名规范）
 2. 个人草稿在 _Personal/Drafts/ 中迭代
 3. 完成后创建 01_Product/00_Overview/YYYYMMDD_[Target]_Product_Deconstruction_Report.md
-4. 填充 Front Matter（status: DRAFT）
+4. 产品拆解属内部事实档案，可保留 YAML（status: DRAFT）
 5. 在 README.md 产品区表格中添加引用
 ```
 
 ### 场景 D：新增 PRD（产出）
 
 ```
-1. 在 03_Execution/02_PRD/ 下创建 NN_[Feature_Name]_PRD.md
+1. 在 03_Execution/02_PRD/ 下创建文件（标题遵循 naming_convention.md）
 2. 使用模板（00_Meta/Templates/Template_PRD.md）
-3. 填充 Front Matter（status: DRAFT）
-4. 需求条目同步到 03_Execution/01_Backlog/
+3. 正文写文档信息（日期、状态）；不写 YAML 头
+4. 需求条目在飞书多维表格维护，不写入本仓 01_Backlog/
 ```
 
 ### 场景 E：新增会议纪要（产出）
@@ -549,7 +550,7 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 ```
 1. 在 03_Execution/05_Meetings/YYYY_MM/ 下创建 YYYYMMDD_[Topic]_Meeting.md
 2. 月份目录不存在则创建
-3. 填充 Front Matter（status: DRAFT）
+3. 文首引用块写时间、参会、迭代；正文遵循 .cursor/rules/meeting-notes.mdc；不写 YAML 头
 ```
 
 ### 场景 F：新增方案 / 规划 / 复盘（产出）
@@ -606,4 +607,6 @@ _Personal/Drafts/[调研草稿].md  →    03_Execution/00_Research/
 | 2026-08-25 | 3.1 | 落地 `03_Execution/01_Backlog`、`02_PRD`、`03_Solutions` 三个产出层子目录（Admin 后台模型录入需求 / 方案落位）；新增 `00_Meta/Templates/` 模板库（Template_PRD / Template_Solution，草稿待确认）；同步 README 架构概览 |
 | 2026-08-25 | 3.1 | 建立 03_Execution 产出层路径：新增 02_PRD / 03_Solutions 目录与 00_Meta/Templates 路径（文档由 PM 填写，不预建骨架）；需求池（Backlog）维持飞书多维表格，暂不落地工程，故不建 01_Backlog；README 架构概览同步 |
 | 2026-08-28 | 3.2 | 新增 `_Personal/Weekly_Reports/` 个人周进度汇报目录：README 使用说明 + Template 周报模板；周报含本周工作重点 / 关键产出 / 关键需求进度 / 待确认事项 / 需同事同步事项 |
+| 2026-09-03 | 3.3 | 新增 `01_Product/Badcase/` 劣质/异常案例（Badcase）管理模块：含 `00_Badcase_Template.md`（标准录入模板）与 `01_Badcase_Index.md`（汇总索引，含 2 条示例）；同步 README 架构概览与 §12 操作指南（场景 I） |
+| 2026-09-21 | 3.4 | 元数据分档：交付文档（会议/PRD/方案/规则定稿/技术笔记）不写 YAML 头；内部档案可保留。As-Is 同步调研/会议/原型/Skill v1.1。需求池维持飞书，不建 01_Backlog。管家 Skill 升至 v1.1（三态落盘）。 |
 | 2026-09-03 | 3.3 | 新增 `01_Product/Badcase/` 劣质/异常案例（Badcase）管理模块：含 `00_Badcase_Template.md`（标准录入模板）与 `01_Badcase_Index.md`（汇总索引，含 2 条示例）；同步 README 架构概览与 §12 操作指南（场景 I） |

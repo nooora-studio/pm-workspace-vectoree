@@ -1,4 +1,4 @@
-# Vectoree - 产品方案 - Onboarding 路径优化
+# Vectoree - 方案文档 - Onboarding 路径优化
 
 ---
 
@@ -37,19 +37,27 @@ Vectoree onboarding 的对外口号是 "Anyone can ship an agent!"。当前首�
 └─ 底部固定：设置 / 组织钱包余额
 ```
 
-| 入口 | 内容 | 生命周期 |
-| --- | --- | --- |
-| Onboarding | 首次连接任务清单 + 操作步骤 | 完成前存在，完成后自动移除 |
-| Dashboard | 现有数据看板 | 永久存在，不受影响 |
-| 设置 / 组织钱包 | 现有内容 | 永久存在，不参与 Onboarding |
+
+| 入口         | 内容              | 生命周期                |
+| ---------- | --------------- | ------------------- |
+| Onboarding | 首次连接任务清单 + 操作步骤 | 完成前存在，完成后自动移除       |
+| Dashboard  | 现有数据看板          | 永久存在，不受影响           |
+| 设置 / 组织钱包  | 现有内容            | 永久存在，不参与 Onboarding |
+
+
+
 
 ### 2.2 全局连接中心
 
 导航栏右上角 `[🔌 连接]` 保持常驻，负责所有后续连接管理。
 
-| 入口 | 定位 |
-| --- | --- |
+
+| 入口      | 定位                             |
+| ------- | ------------------------------ |
 | 右上角连接中心 | 永久常驻；复制当前项目极速指令、重新打开向导、跳转 Docs |
+
+
+
 
 ## 3. 状态机
 
@@ -58,16 +66,22 @@ onboarding_status = not_started | in_progress | completed
 modal_revealed   = true | false
 ```
 
-| 字段 | 含义 |
-| --- | --- |
-| `onboarding_status` | 账号级首次连接任务状态 |
-| `modal_revealed` | 首次引导 Modal 是否已展示过 |
 
-| 状态 | 判定 |
-| --- | --- |
-| `not_started` | 未跨过向导第一屏（未选择身份） |
+| 字段                  | 含义                |
+| ------------------- | ----------------- |
+| `onboarding_status` | 账号级首次连接任务状态       |
+| `modal_revealed`    | 首次引导 Modal 是否已展示过 |
+
+
+
+| 状态            | 判定                      |
+| ------------- | ----------------------- |
+| `not_started` | 未跨过向导第一屏（未选择身份）         |
 | `in_progress` | 已进入开发者 / 新手轨道，但尚未完成首次连接 |
-| `completed` | 已完成首次连接 |
+| `completed`   | 已完成首次连接                 |
+
+
+
 
 ## 4. 触发与消失逻辑
 
@@ -99,11 +113,17 @@ flowchart TB
   Remove --> Jump["自动跳转 Dashboard tab"]
 ```
 
+
+
+
+
 ### 4.1 首启 Modal
 
 - 触发：`onboarding_status != completed` 且 `modal_revealed == false`。
 - 首次进入产品时自动弹出，**强制且仅这一次**。
 - 弹出后置 `modal_revealed = true`，之后任何场景都不再自动弹。
+
+
 
 ### 4.2 Onboarding tab
 
@@ -111,19 +131,29 @@ flowchart TB
 - 消失：`completed == true`，即完成首次连接后立即移除。
 - 账号级任务，不随切组织 / 切项目 / 新增组织重新出现。
 
+
+
 ### 4.3 默认落点
 
-| 场景 | 默认进入的 tab |
-| --- | --- |
+
+| 场景                             | 默认进入的 tab      |
+| ------------------------------ | -------------- |
 | 未完成（not_started / in_progress） | Onboarding tab |
-| 已完成（completed） | Dashboard tab |
+| 已完成（completed）                 | Dashboard tab  |
+
+
+
 
 ### 4.4 完成场景
 
-| 完成位置 | 礼花 | 后续表现 |
-| --- | --- | --- |
+
+| 完成位置                             | 礼花    | 后续表现                             |
+| -------------------------------- | ----- | -------------------------------- |
 | 在 Modal 或 Onboarding tab 上当场完成连接 | 放一次礼花 | 立即移除 Onboarding tab，跳转 Dashboard |
-| 不在网页，在 CLI / Agent 中完成连接 | 不放礼花 | 邮件告知奖励，下次进站直接 Dashboard |
+| 不在网页，在 CLI / Agent 中完成连接         | 不放礼花  | 邮件告知奖励，下次进站直接 Dashboard          |
+
+
+
 
 ## 5. 向导轨道
 
@@ -152,6 +182,10 @@ flowchart TB
   Discord -.->|问题未解决再重试| Verify
 ```
 
+
+
+
+
 ### 5.1 阶段 0：身份分流
 
 弹窗 / Onboarding tab 第一屏提供两个单选卡片：
@@ -162,6 +196,8 @@ flowchart TB
 选择前者进入开发者轨道，共 2 步；选择后者进入新手轨道，共 3 步。
 
 ### 5.2 开发者轨道（2 步）
+
+
 
 #### Step 1：复制指令
 
@@ -176,6 +212,8 @@ npx @vectoree/cli login && npx @vectoree/cli link
 - 不出 `cd` 目录切换指令，避免冗余。
 - Agent 类型不影响该指令，所有 Agent 通用。
 
+
+
 #### Step 2：验证连接，领奖励
 
 用户点击「我已执行，验证连接」后，前端调用 `verify-connection`。
@@ -183,7 +221,11 @@ npx @vectoree/cli login && npx @vectoree/cli link
 - 连接成功：进入完成态，发放欢迎额度。
 - 未检测到连接：展开排查并允许重新验证或跳转 Discord 求助。
 
+
+
 ### 5.3 新手轨道（3 步）
+
+
 
 #### Step 1：环境准备
 
@@ -200,16 +242,20 @@ Claude Code / Cursor / GitHub Copilot / Windsurf / Cline
 💡 点击下载安装完成后，请返回本网页窗口继续完成后续连接步骤。
 ```
 
+
+
 #### Step 2：选模板
 
 展示 4 个 Starter 项目简介卡片，用户选择任一项目后，页面展示对应的一键复制提示词。
 
-| 项目 | 简介 |
-| --- | --- |
-| DeepTutor | 创建我自己的 AI 学习教练 |
-| RAGFlow | 创建一个能检索我资料库的问答 Agent |
-| DeerFlow | 创建一个能帮我调研、编程和干长任务的 Agent |
-| LibreChat | 创建一个我自己的私有 AI 聊天助手 |
+
+| 项目        | 简介                       |
+| --------- | ------------------------ |
+| DeepTutor | 创建我自己的 AI 学习教练           |
+| RAGFlow   | 创建一个能检索我资料库的问答 Agent     |
+| DeerFlow  | 创建一个能帮我调研、编程和干长任务的 Agent |
+| LibreChat | 创建一个我自己的私有 AI 聊天助手       |
+
 
 提示词结构为四段式，以 DeepTutor 为例：
 
@@ -220,12 +266,16 @@ Replace model serving, search, login/signup, database, and storage with Vectoree
 Follow the skill: login, link this directory, then run ai status.
 ```
 
-| 段 | 内容 | 目的 |
-| --- | --- | --- |
-| 1 | `set up https://vectoree.ai/SKILL.md` | 让 Agent 安装 / 载入官方 Skill |
-| 2 | `Clone <项目仓库>` | 将项目克隆到本地 |
-| 3 | `Replace <对应能力> with Vectoree.` | 将项目后端相应模块替换为 Vectoree |
-| 4 | `Follow the skill: login, link this directory, then run ai status.` | 绑定默认项目、连接并验证 |
+
+| 段   | 内容                                                                  | 目的                      |
+| --- | ------------------------------------------------------------------- | ----------------------- |
+| 1   | `set up https://vectoree.ai/SKILL.md`                               | 让 Agent 安装 / 载入官方 Skill |
+| 2   | `Clone <项目仓库>`                                                      | 将项目克隆到本地                |
+| 3   | `Replace <对应能力> with Vectoree.`                                     | 将项目后端相应模块替换为 Vectoree   |
+| 4   | `Follow the skill: login, link this directory, then run ai status.` | 绑定默认项目、连接并验证            |
+
+
+
 
 #### Step 3：验证连接，领奖励
 
@@ -234,7 +284,11 @@ Follow the skill: login, link this directory, then run ai status.
 - 连接成功：进入完成态，发放欢迎额度。
 - 未检测到连接：展开排查并允许重新验证或跳转 Discord 求助。
 
+
+
 ## 6. 校验与欢迎额度
+
+
 
 ### 6.1 校验接口
 
@@ -248,17 +302,23 @@ user_rewarded_now: boolean
 - `connection_success`：本次是否连接成功。
 - `user_rewarded_now`：本次是否属于用户首次成功连接，需要发放欢迎额度。
 
+
+
 ### 6.2 首次成功连接
 
 - 触发一次礼花动画。
 - 文案：`🎉 项目已成功连接！$5.00 欢迎额度已发放至你的组织钱包`。
 - 发放成功后自动发送欢迎额度邮件。
 
+
+
 ### 6.3 非首次成功连接
 
 - 只展示轻量勾选成功动画。
 - 文案：`🟢 项目已成功连接`。
 - 不提示、不发放欢迎额度。
+
+
 
 ### 6.4 发放规则
 
@@ -267,23 +327,31 @@ user_rewarded_now: boolean
 - 示例：项目 A 连接失败，切到项目 B 成功，奖励在 B 成功时触发，但发放到用户组织钱包。
 - Onboarding 页面只读取发放结果，不负责发放额度。
 
+
+
 ## 7. 异常与边界
 
-| 场景 | 处理 |
-| --- | --- |
-| 首次进入产品且未完成 | 强制弹一次 Modal，置 `modal_revealed = true`，之后不再自动弹 |
-| 未完成用户再次进入 | 不弹 Modal，默认进入 Onboarding tab |
-| 同账号切组织 / 切项目 | 不弹 Modal，Onboarding tab 不受影响 |
-| 同一会话内刷新 | 不重复弹 Modal |
-| 用户未安装编程代理 | 新手 Step 1 未选择代理时不可进入 Step 2 |
-| 开发者想改走模板路径 | 点击「切换为新手模式」进入新手轨道 |
-| 校验未检测到连接 | 展示排查信息，支持重新验证或 Discord 求助 |
-| 完成首次连接 | 移除 Onboarding tab，自动跳转 Dashboard tab |
-| 不在网页时完成连接 | 不放礼花、不弹 Modal；邮件告知奖励，回站直接 Dashboard |
-| 新增 / 切换到未连接组织 | Onboarding tab 不复活，由右上角连接中心负责 |
-| 后端发放失败 | 展示等待态，不错误提示 |
+
+| 场景            | 处理                                            |
+| ------------- | --------------------------------------------- |
+| 首次进入产品且未完成    | 强制弹一次 Modal，置 `modal_revealed = true`，之后不再自动弹 |
+| 未完成用户再次进入     | 不弹 Modal，默认进入 Onboarding tab                  |
+| 同账号切组织 / 切项目  | 不弹 Modal，Onboarding tab 不受影响                  |
+| 同一会话内刷新       | 不重复弹 Modal                                    |
+| 用户未安装编程代理     | 新手 Step 1 未选择代理时不可进入 Step 2                   |
+| 开发者想改走模板路径    | 点击「切换为新手模式」进入新手轨道                             |
+| 校验未检测到连接      | 展示排查信息，支持重新验证或 Discord 求助                     |
+| 完成首次连接        | 移除 Onboarding tab，自动跳转 Dashboard tab          |
+| 不在网页时完成连接     | 不放礼花、不弹 Modal；邮件告知奖励，回站直接 Dashboard           |
+| 新增 / 切换到未连接组织 | Onboarding tab 不复活，由右上角连接中心负责                 |
+| 后端发放失败        | 展示等待态，不错误提示                                   |
+
+
+
 
 ## 8. 研发对齐清单
+
+
 
 ### 前端
 
@@ -296,6 +364,8 @@ user_rewarded_now: boolean
 - [ ] 完成连接后移除 Onboarding tab，并自动跳转 Dashboard tab。
 - [ ] 右上角连接中心保持常驻。
 
+
+
 ### 后端
 
 - [ ] 维护账号级 `onboarding_status` 与 `modal_revealed`。
@@ -303,6 +373,8 @@ user_rewarded_now: boolean
 - [ ] 返回 `connection_success` 与 `user_rewarded_now` 两个字段。
 - [ ] 首次连接且满足资格时发放 $5.00 欢迎额度，保证幂等。
 - [ ] 欢迎额度发放成功后自动触发邮件通知。
+
+
 
 ### 数据依赖
 

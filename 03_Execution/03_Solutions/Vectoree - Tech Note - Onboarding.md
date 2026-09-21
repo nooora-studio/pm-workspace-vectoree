@@ -54,7 +54,7 @@ Mock 快照里的 `connected_org_ids` / `bonus_status` 是 demo 字段。上线�
 | - | - |
 | `/dashboard/install`、`DTestConnectTip`、侧边栏 Install、欢迎额度 | `/dashboard/onboarding`、首次弹窗、Header CONNECT / 飞轨、Demo 面板 |
 
-登录后**禁止**再走 `shouldLandOnInstall` → `/dashboard/install`。Demo 的 `LoginPage.tsx` 已按 PRD §3.4 停用这条现网逻辑；对接真实登录时不要从 main 把它接回来。安装页仍可从侧边栏进入，但不是登录首页。
+登录后**禁止**再走 `shouldLandOnInstall` → `/dashboard/install`。Demo 的 `LoginPage.tsx` 已按 PRD §3.4 停用这条现网逻辑；对接真实登录时不要从 main 把它接回来。**侧边栏不得再展示 Install 入口**（2026-09-18 验收）；安装页路由可保留，但用户不能从导航点进去。
 
 `AppLayout` 不再包含 v1 的 `ConnectOverlayBridge`（`SHOW_ONBOARDING_OVERLAY` / `SHOW_CONNECT_OVERLAY`）。本期不恢复。
 
@@ -186,6 +186,7 @@ socket.on("connection:verify_result", (data: {
 - `SUCCESS_*` 进入成功态；仅 `SUCCESS_BONUS_GRANTED` 喷花。点 CTA 或满 8s 后再走 3s 销毁延迟（PRD §4.7）
 - `FAILED` 留在校验步，不写 `modal_revealed`、不销毁 Tab
 - 前端不得把 socket 超时自行重试成轮询
+- **`checking` 最长 10s**（PRD §6.2）。超时按 `FAILED` 出排查项 + Retry，禁止空转约 60s
 
 ---
 
@@ -202,6 +203,7 @@ socket.on("connection:verify_result", (data: {
 | 飞行看门狗 `FLIGHT_WATCHDOG_MS` | `FLY_MS + 400` = 1100ms | `OnboardingFirstRunModal.tsx`，仅兜底 |
 | 接应脉冲 | 450ms | `AppHeader.tsx` |
 | 复制反馈停留 | 2000ms | `OnboardingPromptBlocks.tsx` / `OnboardingSteps.tsx` / `ConnectDialog.tsx` |
+| 校验 `checking` 等待上限 | 10000ms | 前端超时 → `FAILED` + Retry；HTTP 仍按 §3.6 的 2s / `pending` |
 
 礼花参数：4 波 × 108 粒，每波间隔 1700ms，仅 `SUCCESS_BONUS_GRANTED` 播放。
 
