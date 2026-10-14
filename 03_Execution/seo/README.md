@@ -28,6 +28,7 @@ owners: ["PM"]
 | [03_internal_link_structure.md](./03_internal_link_structure.md) | 内链现状 → 目标结构 |
 | [04_key_decisions_and_concepts.md](./04_key_decisions_and_concepts.md) | 关键决策与概念（实体、sitemap、lastmod、W1 范围等） |
 | [05_robots_and_sitemap_notes.md](./05_robots_and_sitemap_notes.md) | robots.txt / sitemap 专项评估与优化原则 |
+| [06_w1_task_breakdown.md](./06_w1_task_breakdown.md) | W1 任务拆分（明天接着改） |
 
 ---
 
